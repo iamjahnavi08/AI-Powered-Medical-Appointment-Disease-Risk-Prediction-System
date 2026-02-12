@@ -1,0 +1,1531 @@
+Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Glucose,BloodPressure,BMI
+1,29,Male,"fever, back pain, shortness of breath",3,Allergy,148,72,33.6
+2,76,Female,"insomnia, back pain, weight loss",3,Thyroid Disorder,85,66,26.6
+3,78,Male,"sore throat, vomiting, diarrhea",3,Influenza,183,64,23.3
+4,58,Other,"blurred vision, depression, weight loss, muscle pain",4,Stroke,89,66,28.1
+5,55,Female,"swelling, appetite loss, nausea",3,Heart Disease,137,40,43.1
+6,49,Male,"vomiting, swelling, dizziness, fatigue",4,Heart Disease,116,74,25.6
+7,69,Male,"anxiety, shortness of breath, appetite loss, cough, back pain",5,Food Poisoning,78,50,31
+8,25,Other,"sore throat, weight loss, chest pain, depression, anxiety, rash",6,Bronchitis,115,0,35.3
+9,11,Male,"insomnia, diarrhea, swelling",3,COVID-19,197,70,30.5
+10,47,Male,"joint pain, shortness of breath, runny nose",3,Dermatitis,125,96,0
+11,78,Other,"vomiting, insomnia, shortness of breath, blurred vision, depression",5,Food Poisoning,110,92,37.6
+12,72,Male,"back pain, diarrhea, nausea, runny nose, joint pain, shortness of breath, depression",7,Diabetes,168,74,38
+13,52,Female,"sweating, swelling, cough, diarrhea, appetite loss",5,Arthritis,139,80,27.1
+14,64,Female,"weight gain, blurred vision, dizziness, vomiting",4,COVID-19,189,60,30.1
+15,34,Other,"headache, shortness of breath, tremors, diarrhea, back pain, weight loss",6,Sinusitis,166,72,25.8
+16,12,Male,"weight gain, joint pain, rash, diarrhea, headache, abdominal pain",6,Dementia,100,0,30
+17,88,Female,"headache, depression, nausea",3,Dermatitis,118,84,45.8
+18,33,Other,"joint pain, anxiety, runny nose",3,Parkinson's,107,74,29.6
+19,69,Female,"insomnia, back pain, fatigue",3,Dermatitis,103,30,43.3
+20,34,Other,"fatigue, chest pain, muscle pain, nausea, runny nose",5,Obesity,115,70,34.6
+21,82,Other,"abdominal pain, fatigue, tremors, depression",4,Obesity,126,88,39.3
+22,68,Male,"headache, rash, swelling, nausea",4,Parkinson's,99,84,35.4
+23,40,Male,"sneezing, fever, fatigue, rash, sweating",5,Parkinson's,196,90,39.8
+24,9,Other,"weight gain, sore throat, back pain, sneezing",4,Influenza,119,80,29
+25,34,Other,"headache, insomnia, sneezing, weight loss",4,Obesity,143,94,36.6
+26,40,Female,"muscle pain, vomiting, weight loss, swelling, back pain, blurred vision, sweating",7,Dermatitis,125,70,31.1
+27,3,Other,"runny nose, abdominal pain, fatigue, diarrhea, sore throat",5,Arthritis,147,76,39.4
+28,81,Male,"weight gain, diarrhea, fever, sore throat",4,Stroke,97,66,23.2
+29,66,Male,"cough, tremors, dizziness",3,Asthma,145,82,22.2
+30,32,Female,"vomiting, weight loss, headache, back pain, weight gain, swelling",6,Heart Disease,117,92,34.1
+31,53,Female,"vomiting, fatigue, sweating, insomnia, muscle pain, rash",6,Depression,109,75,36
+32,52,Other,"insomnia, depression, fatigue",3,Dermatitis,158,76,31.6
+33,18,Female,"diarrhea, vomiting, weight loss",3,Gastritis,88,58,24.8
+34,71,Male,"runny nose, diarrhea, tremors, sore throat, appetite loss",5,Diabetes,92,92,19.9
+35,62,Male,"sweating, fever, sore throat, swelling, diarrhea, nausea, muscle pain",7,Influenza,122,78,27.6
+36,59,Female,"cough, nausea, joint pain, fever, appetite loss, shortness of breath",6,Dermatitis,103,60,24
+37,75,Other,"insomnia, blurred vision, sneezing, headache, vomiting, chest pain, back pain",7,Liver Disease,138,76,33.2
+38,75,Female,"back pain, dizziness, cough",3,Stroke,102,76,32.9
+39,87,Male,"nausea, cough, abdominal pain, sore throat, tremors, swelling, anxiety",7,Epilepsy,90,68,38.2
+40,80,Male,"weight gain, diarrhea, anxiety",3,IBS,111,72,37.1
+41,34,Female,"weight gain, abdominal pain, dizziness, shortness of breath, vomiting, insomnia, appetite loss",7,Liver Disease,180,64,34
+42,80,Other,"runny nose, dizziness, swelling, sore throat, fever",5,Tuberculosis,133,84,40.2
+43,17,Female,"weight loss, vomiting, abdominal pain",3,Pneumonia,106,92,22.7
+44,57,Other,"diarrhea, rash, chest pain",3,Sinusitis,171,110,45.4
+45,71,Female,"anxiety, appetite loss, depression, abdominal pain, fever",5,Anemia,159,64,27.4
+46,71,Male,"headache, shortness of breath, fatigue",3,Bronchitis,180,66,42
+47,34,Other,"anxiety, vomiting, blurred vision, dizziness, insomnia",5,Heart Disease,146,56,29.7
+48,36,Male,"tremors, cough, sore throat, depression, muscle pain",5,Migraine,71,70,28
+49,57,Other,"swelling, headache, depression, shortness of breath, nausea",5,Common Cold,103,66,39.1
+50,5,Female,"weight loss, fever, fatigue, sore throat, blurred vision, headache",6,Anemia,105,0,0
+51,27,Other,"headache, muscle pain, tremors, cough, chest pain, rash, swelling",7,Dementia,103,80,19.4
+52,80,Other,"rash, swelling, weight loss",3,Asthma,101,50,24.2
+53,23,Other,"tremors, nausea, appetite loss, muscle pain",4,Tuberculosis,88,66,24.4
+54,32,Female,"appetite loss, muscle pain, insomnia, tremors, back pain",5,Bronchitis,176,90,33.7
+55,29,Male,"joint pain, tremors, cough",3,Diabetes,150,66,34.7
+56,25,Female,"rash, chest pain, appetite loss, diarrhea, swelling, fever",6,Anxiety,73,50,23
+57,66,Female,"tremors, sore throat, swelling, shortness of breath, rash",5,Gastritis,187,68,37.7
+58,14,Other,"dizziness, fever, fatigue, shortness of breath, nausea, weight gain, swelling",7,Arthritis,100,88,46.8
+59,15,Female,"back pain, appetite loss, dizziness, muscle pain, anxiety",5,Liver Disease,146,82,40.5
+60,69,Other,"vomiting, shortness of breath, cough, blurred vision, muscle pain, fever, abdominal pain",7,Sinusitis,105,64,41.5
+61,80,Female,"rash, muscle pain, sore throat, insomnia",4,Thyroid Disorder,84,0,0
+62,86,Female,"back pain, chest pain, abdominal pain",3,Arthritis,133,72,32.9
+63,49,Other,"blurred vision, chest pain, weight loss, headache, vomiting, muscle pain",6,Gastritis,44,62,25
+64,1,Female,"anxiety, weight gain, chest pain, joint pain",4,Thyroid Disorder,141,58,25.4
+65,42,Female,"muscle pain, appetite loss, weight gain, anxiety",4,Chronic Kidney Disease,114,66,32.8
+66,11,Female,"insomnia, vomiting, abdominal pain, sneezing, back pain, nausea",6,Ulcer,99,74,29
+67,26,Male,"dizziness, sore throat, swelling, diarrhea, insomnia, chest pain, appetite loss",7,Epilepsy,109,88,32.5
+68,10,Female,"diarrhea, sneezing, anxiety",3,Common Cold,109,92,42.7
+69,84,Other,"vomiting, blurred vision, sweating, joint pain, sneezing, swelling, diarrhea",7,Liver Disease,95,66,19.6
+70,90,Other,"swelling, muscle pain, diarrhea",3,Common Cold,146,85,28.9
+71,59,Male,"weight loss, diarrhea, tremors",3,Ulcer,100,66,32.9
+72,65,Female,"insomnia, abdominal pain, weight loss, anxiety, dizziness, runny nose",6,Depression,139,64,28.6
+73,82,Female,"runny nose, nausea, back pain, sneezing, tremors, shortness of breath, diarrhea",7,Anxiety,126,90,43.4
+74,35,Female,"sneezing, depression, diarrhea, shortness of breath, runny nose, sore throat, chest pain",7,Obesity,129,86,35.1
+75,28,Male,"sore throat, headache, sweating, diarrhea, joint pain, blurred vision, appetite loss",7,Gastritis,79,75,32
+76,54,Female,"dizziness, weight loss, runny nose, muscle pain, cough, vomiting",6,Liver Disease,0,48,24.7
+77,39,Female,"blurred vision, fever, swelling, weight gain, joint pain, sneezing, sweating",7,Sinusitis,62,78,32.6
+78,29,Female,"weight loss, back pain, sweating, tremors, anxiety, diarrhea",6,Dermatitis,95,72,37.7
+79,22,Female,"fever, joint pain, dizziness, insomnia, swelling, sweating",6,Liver Disease,131,0,43.2
+80,73,Other,"anxiety, weight loss, fever, joint pain",4,Bronchitis,112,66,25
+81,24,Male,"depression, muscle pain, headache",3,Common Cold,113,44,22.4
+82,54,Female,"dizziness, vomiting, runny nose, tremors, swelling, joint pain",6,Heart Disease,74,0,0
+83,7,Female,"sneezing, fever, back pain",3,Anxiety,83,78,29.3
+84,4,Male,"swelling, depression, cough",3,Asthma,101,65,24.6
+85,61,Other,"anxiety, headache, diarrhea",3,Hypertension,137,108,48.8
+86,15,Male,"vomiting, runny nose, blurred vision, shortness of breath, rash, nausea, anxiety",7,Pneumonia,110,74,32.4
+87,87,Female,"weight gain, fever, chest pain",3,Chronic Kidney Disease,106,72,36.6
+88,32,Male,"sore throat, weight gain, blurred vision, sweating",4,IBS,100,68,38.5
+89,73,Male,"tremors, insomnia, anxiety, appetite loss, fatigue",5,Anemia,136,70,37.1
+90,54,Female,"muscle pain, insomnia, rash, sore throat, abdominal pain, depression, dizziness",7,Food Poisoning,107,68,26.5
+91,67,Other,"rash, depression, runny nose, blurred vision, headache, muscle pain",6,Pneumonia,80,55,19.1
+92,42,Male,"appetite loss, weight loss, swelling, sneezing, runny nose, muscle pain, weight gain",7,Heart Disease,123,80,32
+93,60,Other,"shortness of breath, runny nose, diarrhea",3,Anxiety,81,78,46.7
+94,46,Female,"dizziness, fever, sneezing, tremors, nausea, appetite loss",6,Parkinson's,134,72,23.8
+95,25,Male,"anxiety, blurred vision, shortness of breath, weight loss, fever",5,Gastritis,142,82,24.7
+96,63,Female,"sneezing, weight loss, swelling, diarrhea, blurred vision, tremors",6,Asthma,144,72,33.9
+97,89,Male,"sore throat, chest pain, diarrhea",3,Depression,92,62,31.6
+98,46,Other,"rash, sneezing, weight loss, abdominal pain, tremors, muscle pain, appetite loss",7,Chronic Kidney Disease,71,48,20.4
+99,41,Male,"chest pain, shortness of breath, diarrhea, fatigue, back pain",5,Ulcer,93,50,28.7
+100,76,Other,"swelling, blurred vision, nausea, vomiting, tremors, sneezing, shortness of breath",7,Thyroid Disorder,122,90,49.7
+101,23,Female,"fatigue, sweating, vomiting, chest pain, diarrhea",5,Parkinson's,163,72,39
+102,63,Male,"headache, shortness of breath, cough, appetite loss, weight loss, chest pain, tremors",7,Common Cold,151,60,26.1
+103,57,Female,"weight gain, chest pain, sneezing",3,Dermatitis,125,96,22.5
+104,9,Female,"shortness of breath, tremors, sneezing",3,Diabetes,81,72,26.6
+105,20,Male,"weight gain, depression, insomnia",3,Migraine,85,65,39.6
+106,80,Male,"chest pain, sore throat, diarrhea, fatigue, weight loss, muscle pain, anxiety",7,Depression,126,56,28.7
+107,80,Male,"joint pain, runny nose, sweating, chest pain, weight gain, muscle pain, swelling",7,Obesity,96,122,22.4
+108,34,Other,"swelling, vomiting, depression",3,Parkinson's,144,58,29.5
+109,1,Female,"diarrhea, nausea, weight loss, sore throat",4,COVID-19,83,58,34.3
+110,59,Male,"sneezing, chest pain, cough, diarrhea, sweating, blurred vision, back pain",7,Ulcer,95,85,37.4
+111,26,Female,"shortness of breath, appetite loss, depression, weight gain",4,Arthritis,171,72,33.3
+112,40,Other,"diarrhea, depression, headache, shortness of breath, appetite loss, sore throat, cough",7,Pneumonia,155,62,34
+113,65,Other,"chest pain, runny nose, fatigue, sweating, blurred vision, tremors, joint pain",7,Thyroid Disorder,89,76,31.2
+114,33,Male,"sore throat, anxiety, cough, muscle pain, back pain, dizziness",6,Migraine,76,62,34
+115,3,Other,"insomnia, sweating, tremors, weight gain",4,COVID-19,160,54,30.5
+116,84,Female,"weight gain, cough, swelling, nausea, sneezing",5,Anxiety,146,92,31.2
+117,12,Female,"nausea, weight gain, muscle pain, depression, sweating",5,Bronchitis,124,74,34
+118,89,Female,"dizziness, tremors, insomnia, fatigue, nausea, sweating",6,Food Poisoning,78,48,33.7
+119,33,Female,"sweating, swelling, weight loss, cough, runny nose, sore throat",6,Chronic Kidney Disease,97,60,28.2
+120,7,Male,"tremors, abdominal pain, fever, insomnia, weight loss, runny nose",6,Pneumonia,99,76,23.2
+121,7,Male,"anxiety, swelling, sneezing, depression, runny nose",5,Epilepsy,162,76,53.2
+122,78,Male,"headache, chest pain, runny nose, blurred vision, sneezing, fatigue, fever",7,Heart Disease,111,64,34.2
+123,29,Male,"chest pain, weight loss, fever, muscle pain",4,Anemia,107,74,33.6
+124,38,Other,"depression, sweating, headache",3,Ulcer,132,80,26.8
+125,19,Female,"muscle pain, sweating, sneezing, diarrhea, runny nose",5,Anemia,113,76,33.3
+126,65,Female,"abdominal pain, back pain, headache, sore throat, shortness of breath, muscle pain, dizziness",7,Hypertension,88,30,55
+127,75,Other,"chest pain, back pain, sweating",3,Anxiety,120,70,42.9
+128,71,Other,"runny nose, weight loss, sneezing, rash",4,Migraine,118,58,33.3
+129,53,Male,"dizziness, vomiting, blurred vision, diarrhea, weight gain, joint pain",6,IBS,117,88,34.5
+130,64,Male,"blurred vision, appetite loss, joint pain, sweating, insomnia, depression",6,Gastritis,105,84,27.9
+131,19,Female,"weight gain, dizziness, fatigue, runny nose, appetite loss, abdominal pain, swelling",7,Tuberculosis,173,70,29.7
+132,80,Other,"sore throat, sneezing, appetite loss, shortness of breath",4,Dermatitis,122,56,33.3
+133,49,Female,"tremors, dizziness, insomnia",3,IBS,170,64,34.5
+134,88,Female,"tremors, weight loss, cough, anxiety, sore throat, diarrhea",6,Allergy,84,74,38.3
+135,13,Female,"muscle pain, fatigue, swelling",3,Asthma,96,68,21.1
+136,48,Female,"fever, cough, dizziness, appetite loss, chest pain",5,Diabetes,125,60,33.8
+137,24,Male,"abdominal pain, muscle pain, weight gain, insomnia",4,Tuberculosis,100,70,30.8
+138,88,Male,"anxiety, tremors, joint pain",3,Diabetes,93,60,28.7
+139,2,Female,"headache, diarrhea, runny nose, depression, shortness of breath, appetite loss, back pain",7,Migraine,129,80,31.2
+140,76,Female,"insomnia, weight loss, nausea, sore throat, runny nose",5,Sinusitis,105,72,36.9
+141,62,Male,"blurred vision, shortness of breath, runny nose, chest pain, vomiting, joint pain",6,Allergy,128,78,21.1
+142,85,Female,"weight gain, rash, tremors, chest pain, blurred vision, swelling",6,Asthma,106,82,39.5
+143,7,Other,"weight gain, tremors, insomnia",3,Heart Disease,108,52,32.5
+144,82,Male,"sweating, chest pain, swelling, diarrhea, anxiety, rash",6,Thyroid Disorder,108,66,32.4
+145,13,Other,"insomnia, swelling, back pain, sweating, headache",5,Parkinson's,154,62,32.8
+146,75,Female,"chest pain, appetite loss, runny nose",3,Allergy,102,75,0
+147,23,Male,"sore throat, chest pain, dizziness, back pain",4,Thyroid Disorder,57,80,32.8
+148,38,Other,"rash, abdominal pain, sweating, shortness of breath, nausea, swelling, sneezing",7,Tuberculosis,106,64,30.5
+149,29,Other,"appetite loss, fatigue, runny nose, sore throat, headache",5,Dermatitis,147,78,33.7
+150,34,Other,"tremors, appetite loss, weight loss, rash, sore throat, joint pain",6,Thyroid Disorder,90,70,27.3
+151,82,Female,"rash, insomnia, back pain, sweating, shortness of breath, weight gain",6,Pneumonia,136,74,37.4
+152,79,Male,"sneezing, fever, anxiety, weight loss",4,Pneumonia,114,65,21.9
+153,39,Other,"depression, sweating, runny nose",3,Allergy,156,86,34.3
+154,15,Male,"headache, cough, chest pain",3,Liver Disease,153,82,40.6
+155,76,Other,"headache, joint pain, runny nose, rash, insomnia, blurred vision, weight loss",7,Asthma,188,78,47.9
+156,79,Female,"muscle pain, depression, fatigue, sweating",4,Thyroid Disorder,152,88,50
+157,57,Male,"blurred vision, rash, vomiting",3,Heart Disease,99,52,24.6
+158,8,Female,"fatigue, insomnia, rash, weight loss, depression",5,Dermatitis,109,56,25.2
+159,85,Male,"fatigue, tremors, sweating, runny nose",4,Heart Disease,88,74,29
+160,9,Other,"fever, cough, appetite loss, dizziness, diarrhea, headache, weight gain",7,Allergy,163,72,40.9
+161,19,Male,"vomiting, sweating, diarrhea, dizziness, headache, anxiety, fever",7,Hypertension,151,90,29.7
+162,17,Male,"appetite loss, nausea, fatigue, insomnia, tremors",5,Stroke,102,74,37.2
+163,7,Male,"weight gain, dizziness, fever, nausea",4,Food Poisoning,114,80,44.2
+164,47,Other,"abdominal pain, fatigue, back pain, sore throat, sneezing, runny nose",6,Thyroid Disorder,100,64,29.7
+165,6,Other,"runny nose, abdominal pain, diarrhea",3,Dementia,131,88,31.6
+166,88,Male,"chest pain, runny nose, depression, fever, cough, sneezing, joint pain",7,Depression,104,74,29.9
+167,36,Other,"sore throat, tremors, dizziness, anxiety, headache, sweating",6,Migraine,148,66,32.5
+168,65,Other,"weight loss, blurred vision, dizziness, joint pain, anxiety, abdominal pain, chest pain",7,Allergy,120,68,29.6
+169,84,Other,"appetite loss, blurred vision, fatigue",3,Liver Disease,110,66,31.9
+170,59,Female,"back pain, vomiting, muscle pain, runny nose, diarrhea, appetite loss, dizziness",7,Sinusitis,111,90,28.4
+171,48,Male,"dizziness, muscle pain, insomnia",3,Liver Disease,102,82,30.8
+172,48,Male,"sore throat, tremors, sweating, appetite loss, muscle pain, fatigue",6,Arthritis,134,70,35.4
+173,16,Female,"weight gain, weight loss, dizziness",3,Stroke,87,0,28.9
+174,14,Other,"tremors, back pain, cough, chest pain, anxiety, swelling",6,Food Poisoning,79,60,43.5
+175,14,Female,"headache, insomnia, sneezing, diarrhea",4,Epilepsy,75,64,29.7
+176,72,Other,"rash, fatigue, swelling, shortness of breath, weight gain, diarrhea, muscle pain",7,Dermatitis,179,72,32.7
+177,90,Female,"fever, anxiety, insomnia, blurred vision, shortness of breath, tremors, nausea",7,Parkinson's,85,78,31.2
+178,85,Female,"rash, fever, nausea, tremors, headache",5,Bronchitis,129,110,67.1
+179,68,Male,"back pain, depression, fever, sore throat",4,COVID-19,143,78,45
+180,73,Other,"runny nose, dizziness, nausea, rash, chest pain, sweating",6,IBS,130,82,39.1
+181,7,Other,"headache, nausea, swelling",3,COVID-19,87,80,23.2
+182,54,Female,"runny nose, insomnia, muscle pain, sneezing, anxiety",5,COVID-19,119,64,34.9
+183,63,Other,"fatigue, rash, muscle pain, tremors, chest pain, insomnia, blurred vision",7,Hypertension,0,74,27.7
+184,39,Male,"cough, diarrhea, joint pain, anxiety, fever",5,Arthritis,73,60,26.8
+185,1,Female,"swelling, shortness of breath, chest pain, dizziness",4,Obesity,141,74,27.6
+186,72,Other,"nausea, headache, joint pain, weight loss, blurred vision, diarrhea",6,Thyroid Disorder,194,68,35.9
+187,3,Female,"sore throat, joint pain, tremors, back pain, cough",5,Depression,181,68,30.1
+188,74,Female,"tremors, dizziness, weight gain",3,Bronchitis,128,98,32
+189,80,Female,"chest pain, fatigue, joint pain, fever, dizziness, nausea",6,Anemia,109,76,27.9
+190,76,Female,"sore throat, muscle pain, tremors, fatigue, diarrhea",5,Anxiety,139,80,31.6
+191,44,Male,"joint pain, tremors, chest pain",3,Epilepsy,111,62,22.6
+192,66,Male,"sore throat, abdominal pain, depression, fatigue",4,Gastritis,123,70,33.1
+193,14,Male,"rash, back pain, sweating, depression, headache",5,Sinusitis,159,66,30.4
+194,84,Male,"nausea, anxiety, headache, swelling",4,Heart Disease,135,0,52.3
+195,73,Other,"runny nose, swelling, weight gain, sweating, appetite loss, tremors",6,Diabetes,85,55,24.4
+196,81,Female,"dizziness, depression, tremors, headache, runny nose, sore throat, sneezing",7,Allergy,158,84,39.4
+197,60,Female,"weight gain, cough, rash, abdominal pain, sore throat",5,Depression,105,58,24.3
+198,83,Male,"rash, sweating, chest pain",3,Influenza,107,62,22.9
+199,74,Other,"abdominal pain, joint pain, runny nose, weight gain, weight loss, cough, appetite loss",7,Parkinson's,109,64,34.8
+200,14,Female,"anxiety, sneezing, abdominal pain, headache, cough",5,Hypertension,148,60,30.9
+201,32,Other,"abdominal pain, depression, nausea",3,Anemia,113,80,31
+202,50,Female,"abdominal pain, tremors, anxiety, nausea, rash, back pain",6,Ulcer,138,82,40.1
+203,43,Male,"insomnia, anxiety, cough, appetite loss, depression",5,Obesity,108,68,27.3
+204,33,Other,"weight loss, insomnia, joint pain",3,Gastritis,99,70,20.4
+205,40,Other,"tremors, headache, dizziness, sore throat, weight gain, insomnia, sweating",7,Dermatitis,103,72,37.7
+206,83,Female,"headache, anxiety, blurred vision, sore throat, chest pain, weight loss",6,Anemia,111,72,23.9
+207,68,Male,"insomnia, blurred vision, sweating, back pain",4,Anxiety,196,76,37.5
+208,44,Female,"abdominal pain, rash, fever, sweating, chest pain, nausea",6,Allergy,162,104,37.7
+209,13,Other,"headache, sore throat, chest pain, tremors",4,Hypertension,96,64,33.2
+210,77,Female,"sweating, back pain, abdominal pain, cough, insomnia, dizziness, anxiety",7,Obesity,184,84,35.5
+211,22,Other,"nausea, sweating, blurred vision, swelling",4,Tuberculosis,81,60,27.7
+212,31,Female,"muscle pain, rash, insomnia",3,Ulcer,147,85,42.8
+213,31,Female,"swelling, back pain, appetite loss, runny nose, diarrhea",5,Parkinson's,179,95,34.2
+214,37,Female,"sweating, vomiting, rash, insomnia, weight gain, runny nose",6,Depression,140,65,42.6
+215,62,Female,"muscle pain, nausea, vomiting, anxiety, headache, shortness of breath, cough",7,Epilepsy,112,82,34.2
+216,16,Female,"blurred vision, tremors, abdominal pain",3,Stroke,151,70,41.8
+217,56,Male,"shortness of breath, runny nose, abdominal pain, headache",4,COVID-19,109,62,35.8
+218,7,Female,"sweating, runny nose, rash, fever",4,Bronchitis,125,68,30
+219,13,Other,"diarrhea, joint pain, sore throat, rash, fever",5,Epilepsy,85,74,29
+220,90,Male,"appetite loss, headache, cough, chest pain, sweating",5,Allergy,112,66,37.8
+221,20,Other,"runny nose, anxiety, fever, sore throat, appetite loss, shortness of breath",6,Obesity,177,60,34.6
+222,7,Male,"abdominal pain, muscle pain, fatigue, swelling, chest pain, diarrhea, back pain",7,Thyroid Disorder,158,90,31.6
+223,66,Other,"runny nose, sore throat, fatigue, sneezing, anxiety, weight loss, fever",7,Liver Disease,119,0,25.2
+224,31,Other,"chest pain, muscle pain, fever, anxiety",4,Asthma,142,60,28.8
+225,68,Other,"insomnia, sore throat, abdominal pain, rash",4,Liver Disease,100,66,23.6
+226,33,Other,"weight loss, fever, joint pain, sneezing, cough, depression, appetite loss",7,Epilepsy,87,78,34.6
+227,81,Male,"appetite loss, sore throat, rash, diarrhea, back pain",5,Common Cold,101,76,35.7
+228,83,Male,"back pain, swelling, dizziness, headache, cough, rash, weight loss",7,Obesity,162,52,37.2
+229,59,Male,"blurred vision, sneezing, depression, nausea, headache, sore throat",6,Anxiety,197,70,36.7
+230,66,Female,"cough, appetite loss, vomiting, dizziness",4,Chronic Kidney Disease,117,80,45.2
+231,7,Other,"sneezing, shortness of breath, cough, swelling, depression, vomiting, chest pain",7,Anxiety,142,86,44
+232,57,Female,"fatigue, appetite loss, rash, muscle pain, joint pain",5,Gastritis,134,80,46.2
+233,35,Male,"sneezing, blurred vision, rash, appetite loss",4,Gastritis,79,80,25.4
+234,14,Male,"sore throat, muscle pain, anxiety, nausea, weight loss, chest pain",6,Thyroid Disorder,122,68,35
+235,89,Female,"chest pain, runny nose, anxiety, blurred vision, muscle pain",5,Gastritis,74,68,29.7
+236,8,Male,"cough, back pain, rash, anxiety, muscle pain, shortness of breath",6,Food Poisoning,171,72,43.6
+237,19,Other,"rash, abdominal pain, appetite loss, back pain, insomnia, nausea",6,Arthritis,181,84,35.9
+238,50,Other,"cough, headache, sore throat, diarrhea, depression, rash",6,Arthritis,179,90,44.1
+239,18,Other,"headache, insomnia, runny nose, rash, swelling, appetite loss, sore throat",7,Influenza,164,84,30.8
+240,24,Female,"dizziness, depression, shortness of breath, diarrhea, fatigue, fever",6,Food Poisoning,104,76,18.4
+241,28,Other,"weight loss, fatigue, shortness of breath, swelling, appetite loss, blurred vision",6,Epilepsy,91,64,29.2
+242,57,Male,"vomiting, fatigue, headache, sore throat, runny nose, nausea",6,Chronic Kidney Disease,91,70,33.1
+243,38,Female,"insomnia, rash, blurred vision, sore throat, weight loss",5,Depression,139,54,25.6
+244,66,Male,"blurred vision, depression, nausea, appetite loss",4,Dermatitis,119,50,27.1
+245,47,Other,"appetite loss, headache, diarrhea, sneezing",4,Pneumonia,146,76,38.2
+246,9,Female,"runny nose, appetite loss, weight loss, headache, anxiety",5,Dementia,184,85,30
+247,41,Other,"abdominal pain, muscle pain, swelling, sweating, weight gain, sore throat",6,IBS,122,68,31.2
+248,76,Male,"runny nose, insomnia, abdominal pain, rash, headache, weight loss",6,COVID-19,165,90,52.3
+249,16,Other,"muscle pain, abdominal pain, tremors, cough",4,Obesity,124,70,35.4
+250,37,Male,"nausea, dizziness, blurred vision, diarrhea, rash",5,Tuberculosis,111,86,30.1
+251,39,Other,"depression, weight loss, shortness of breath, headache",4,Heart Disease,106,52,31.2
+252,75,Male,"abdominal pain, depression, nausea",3,Stroke,129,84,28
+253,83,Other,"back pain, anxiety, dizziness, weight gain, cough, fever, sore throat",7,Diabetes,90,80,24.4
+254,4,Female,"swelling, weight gain, muscle pain, anxiety",4,Heart Disease,86,68,35.8
+255,59,Male,"chest pain, depression, tremors, sneezing, diarrhea, insomnia, joint pain",7,Sinusitis,92,62,27.6
+256,60,Male,"nausea, runny nose, muscle pain",3,Anemia,113,64,33.6
+257,48,Other,"headache, dizziness, blurred vision, sweating, back pain, rash, joint pain",7,Gastritis,111,56,30.1
+258,35,Female,"dizziness, diarrhea, runny nose",3,Stroke,114,68,28.7
+259,54,Male,"fatigue, cough, chest pain, joint pain",4,Asthma,193,50,25.9
+260,25,Male,"sweating, dizziness, weight gain, back pain",4,Dermatitis,155,76,33.3
+261,59,Male,"runny nose, sneezing, chest pain, sweating, fever, sore throat, joint pain",7,Migraine,191,68,30.9
+262,61,Female,"rash, cough, sweating, chest pain, sneezing, anxiety, depression",7,Hypertension,141,0,30
+263,34,Other,"tremors, fatigue, muscle pain",3,Stroke,95,70,32.1
+264,47,Other,"rash, cough, joint pain, sweating, weight gain, weight loss",6,Food Poisoning,142,80,32.4
+265,71,Female,"joint pain, abdominal pain, runny nose",3,Chronic Kidney Disease,123,62,32
+266,44,Other,"insomnia, anxiety, fatigue, headache, appetite loss, joint pain, rash",7,Anxiety,96,74,33.6
+267,6,Male,"vomiting, anxiety, abdominal pain, joint pain",4,Food Poisoning,138,0,36.3
+268,59,Male,"blurred vision, dizziness, appetite loss, sneezing",4,Influenza,128,64,40
+269,39,Other,"headache, dizziness, anxiety, sweating, nausea, joint pain, appetite loss",7,Parkinson's,102,52,25.1
+270,3,Female,"sweating, abdominal pain, weight loss, sneezing, blurred vision, weight gain, chest pain",7,Gastritis,146,0,27.5
+271,89,Other,"muscle pain, weight gain, chest pain",3,Gastritis,101,86,45.6
+272,7,Other,"sneezing, shortness of breath, depression, swelling, weight gain, back pain, diarrhea",7,Common Cold,108,62,25.2
+273,49,Male,"abdominal pain, depression, back pain, anxiety",4,Migraine,122,78,23
+274,3,Female,"cough, weight gain, blurred vision, fatigue",4,Anxiety,71,78,33.2
+275,79,Female,"headache, muscle pain, blurred vision, vomiting, sweating, abdominal pain",6,Gastritis,106,70,34.2
+276,72,Female,"blurred vision, headache, abdominal pain",3,Dermatitis,100,70,40.5
+277,70,Female,"abdominal pain, joint pain, dizziness, nausea, runny nose, weight loss",6,Arthritis,106,60,26.5
+278,39,Male,"anxiety, sneezing, vomiting, diarrhea, shortness of breath",5,Arthritis,104,64,27.8
+279,36,Female,"blurred vision, vomiting, sneezing, dizziness, rash",5,Chronic Kidney Disease,114,74,24.9
+280,37,Other,"insomnia, weight loss, joint pain, appetite loss, rash, headache, chest pain",7,Pneumonia,108,62,25.3
+281,26,Other,"runny nose, depression, shortness of breath, back pain, sneezing",5,COVID-19,146,70,37.9
+282,7,Other,"blurred vision, shortness of breath, headache, fatigue, anxiety, weight gain, diarrhea",7,Heart Disease,129,76,35.9
+283,61,Male,"diarrhea, depression, tremors, cough, fatigue, muscle pain, dizziness",7,Sinusitis,133,88,32.4
+284,61,Female,"fever, weight loss, nausea, muscle pain",4,Arthritis,161,86,30.4
+285,12,Other,"swelling, chest pain, dizziness, depression",4,Allergy,108,80,27
+286,54,Male,"weight loss, back pain, tremors, cough",4,Dementia,136,74,26
+287,24,Other,"sweating, joint pain, appetite loss",3,Bronchitis,155,84,38.7
+288,43,Female,"cough, fever, chest pain, weight gain, anxiety",5,Dermatitis,119,86,45.6
+289,15,Female,"abdominal pain, sneezing, headache, tremors, runny nose, shortness of breath, vomiting",7,Ulcer,96,56,20.8
+290,38,Other,"depression, shortness of breath, blurred vision, nausea, fever, dizziness",6,Diabetes,108,72,36.1
+291,55,Other,"nausea, anxiety, tremors, depression",4,Arthritis,78,88,36.9
+292,18,Female,"joint pain, insomnia, fatigue",3,Gastritis,107,62,36.6
+293,35,Female,"fever, shortness of breath, joint pain, diarrhea",4,Gastritis,128,78,43.3
+294,86,Male,"back pain, weight gain, fever, shortness of breath, depression, rash, diarrhea",7,Chronic Kidney Disease,128,48,40.5
+295,40,Other,"nausea, joint pain, insomnia, abdominal pain, blurred vision",5,Ulcer,161,50,21.9
+296,59,Other,"rash, anxiety, diarrhea, headache, sneezing",5,Pneumonia,151,62,35.5
+297,86,Male,"muscle pain, blurred vision, weight loss, sneezing, swelling",5,Parkinson's,146,70,28
+298,11,Other,"insomnia, swelling, anxiety, tremors",4,Obesity,126,84,30.7
+299,26,Other,"blurred vision, rash, sore throat, weight gain, fatigue, cough, weight loss",7,Ulcer,100,78,36.6
+300,15,Other,"nausea, dizziness, tremors, abdominal pain",4,Stroke,112,72,23.6
+301,54,Female,"sneezing, sore throat, abdominal pain, runny nose, cough, swelling, headache",7,Hypertension,167,0,32.3
+302,40,Other,"weight loss, runny nose, insomnia",3,Dementia,144,58,31.6
+303,6,Female,"shortness of breath, sweating, fever, back pain, vomiting, weight gain",6,Common Cold,77,82,35.8
+304,5,Female,"weight loss, cough, sore throat",3,Food Poisoning,115,98,52.9
+305,54,Female,"swelling, headache, depression, back pain",4,Liver Disease,150,76,21
+306,18,Other,"runny nose, joint pain, sweating, sore throat, insomnia, back pain",6,Sinusitis,120,76,39.7
+307,29,Male,"fatigue, nausea, weight loss, joint pain, abdominal pain",5,Dermatitis,161,68,25.5
+308,70,Female,"chest pain, runny nose, insomnia",3,Obesity,137,68,24.8
+309,25,Other,"sweating, diarrhea, tremors, runny nose, rash, headache",6,Stroke,128,68,30.5
+310,79,Male,"cough, appetite loss, insomnia",3,Obesity,124,68,32.9
+311,77,Other,"sore throat, fatigue, anxiety, cough",4,Asthma,80,66,26.2
+312,57,Male,"diarrhea, back pain, cough",3,Anemia,106,70,39.4
+313,38,Male,"swelling, tremors, cough, headache",4,Stroke,155,74,26.6
+314,19,Other,"dizziness, weight gain, anxiety, swelling, insomnia, tremors, diarrhea",7,Anxiety,113,50,29.5
+315,76,Other,"muscle pain, chest pain, shortness of breath, cough",4,Epilepsy,109,80,35.9
+316,7,Female,"depression, insomnia, muscle pain, weight loss",4,Bronchitis,112,68,34.1
+317,39,Female,"appetite loss, abdominal pain, dizziness, blurred vision, muscle pain, back pain",6,Allergy,99,80,19.3
+318,72,Female,"sneezing, diarrhea, sweating, chest pain, blurred vision, headache, runny nose",7,Diabetes,182,74,30.5
+319,11,Female,"abdominal pain, headache, joint pain, diarrhea, shortness of breath, vomiting, dizziness",7,Liver Disease,115,66,38.1
+320,35,Female,"sore throat, weight loss, back pain, sweating, vomiting",5,Dermatitis,194,78,23.5
+321,62,Male,"anxiety, cough, sore throat, vomiting, weight gain, insomnia, weight loss",7,Arthritis,129,60,27.5
+322,62,Male,"chest pain, fever, vomiting, back pain, fatigue",5,Dermatitis,112,74,31.6
+323,60,Other,"blurred vision, vomiting, joint pain, diarrhea, weight loss, dizziness, chest pain",7,Anemia,124,70,27.4
+324,13,Other,"chest pain, shortness of breath, rash, abdominal pain, sneezing",5,Allergy,152,90,26.8
+325,29,Other,"vomiting, rash, dizziness, muscle pain, cough",5,Migraine,112,75,35.7
+326,54,Female,"shortness of breath, weight loss, weight gain",3,Tuberculosis,157,72,25.6
+327,32,Female,"dizziness, diarrhea, joint pain, weight gain",4,Tuberculosis,122,64,35.1
+328,63,Female,"shortness of breath, swelling, sweating, sneezing, back pain",5,Stroke,179,70,35.1
+329,70,Other,"nausea, headache, back pain, weight loss, sneezing",5,Diabetes,102,86,45.5
+330,81,Male,"cough, sweating, sore throat, insomnia, tremors, fever, muscle pain",7,Influenza,105,70,30.8
+331,8,Other,"fever, vomiting, abdominal pain, runny nose",4,COVID-19,118,72,23.1
+332,2,Male,"sneezing, insomnia, tremors, fever, swelling, weight loss, blurred vision",7,Allergy,87,58,32.7
+333,87,Female,"weight loss, chest pain, fever, abdominal pain, sweating",5,Epilepsy,180,0,43.3
+334,80,Other,"fatigue, abdominal pain, headache, diarrhea",4,Depression,106,80,23.6
+335,59,Other,"shortness of breath, appetite loss, joint pain, sore throat, rash",5,Heart Disease,95,60,23.9
+336,84,Other,"chest pain, insomnia, sweating, tremors",4,Asthma,165,76,47.9
+337,8,Other,"sore throat, joint pain, weight loss",3,Obesity,117,0,33.8
+338,43,Other,"sore throat, sneezing, tremors, muscle pain",4,Common Cold,115,76,31.2
+339,89,Other,"abdominal pain, cough, diarrhea",3,Dermatitis,152,78,34.2
+340,85,Male,"cough, sore throat, insomnia, shortness of breath, weight loss",5,Migraine,178,84,39.9
+341,51,Male,"fever, vomiting, weight gain, headache, swelling",5,Diabetes,130,70,25.9
+342,87,Other,"weight gain, diarrhea, sweating, tremors",4,Chronic Kidney Disease,95,74,25.9
+343,45,Male,"swelling, back pain, headache, blurred vision, sweating, sore throat",6,Gastritis,0,68,32
+344,51,Female,"diarrhea, sweating, sore throat, dizziness, anxiety, back pain",6,Pneumonia,122,86,34.7
+345,49,Female,"appetite loss, runny nose, sneezing, diarrhea, rash",5,Common Cold,95,72,36.8
+346,10,Male,"insomnia, joint pain, sore throat, swelling, anxiety, chest pain, diarrhea",7,Diabetes,126,88,38.5
+347,50,Female,"joint pain, blurred vision, appetite loss, depression",4,Heart Disease,139,46,28.7
+348,47,Female,"sore throat, fever, chest pain",3,Food Poisoning,116,0,23.5
+349,72,Other,"sore throat, nausea, muscle pain, runny nose",4,Pneumonia,99,62,21.8
+350,12,Other,"fever, sore throat, rash",3,Liver Disease,0,80,41
+351,11,Other,"tremors, joint pain, fever, chest pain, muscle pain",5,Parkinson's,92,80,42.2
+352,35,Female,"diarrhea, weight gain, abdominal pain, nausea, insomnia, joint pain, swelling",7,Sinusitis,137,84,31.2
+353,62,Male,"headache, sore throat, nausea, muscle pain, shortness of breath, swelling",6,Heart Disease,61,82,34.4
+354,26,Female,"diarrhea, back pain, depression, sneezing, anxiety",5,Food Poisoning,90,62,27.2
+355,80,Female,"chest pain, fever, joint pain, dizziness",4,Pneumonia,90,78,42.7
+356,77,Male,"runny nose, dizziness, muscle pain, sweating, tremors",5,Depression,165,88,30.4
+357,51,Female,"anxiety, blurred vision, vomiting, sneezing, dizziness",5,Chronic Kidney Disease,125,50,33.3
+358,51,Female,"weight gain, appetite loss, diarrhea, dizziness, joint pain, shortness of breath",6,Chronic Kidney Disease,129,0,39.9
+359,60,Other,"vomiting, weight gain, weight loss, nausea, insomnia, appetite loss, fever",7,Pneumonia,88,74,35.3
+360,18,Other,"appetite loss, chest pain, blurred vision, sore throat, muscle pain, insomnia",6,Hypertension,196,76,36.5
+361,49,Male,"shortness of breath, insomnia, headache, blurred vision",4,Chronic Kidney Disease,189,64,31.2
+362,5,Female,"sneezing, weight gain, joint pain, weight loss, abdominal pain, blurred vision, muscle pain",7,Ulcer,158,70,29.8
+363,22,Other,"anxiety, depression, sore throat, fatigue, diarrhea, insomnia, blurred vision",7,Anemia,103,108,39.2
+364,52,Female,"weight gain, depression, insomnia",3,Parkinson's,146,78,38.5
+365,67,Other,"fatigue, fever, tremors, shortness of breath, diarrhea, abdominal pain",6,Depression,147,74,34.9
+366,65,Male,"diarrhea, runny nose, rash, joint pain, sweating, insomnia, weight gain",7,Dementia,99,54,34
+367,11,Male,"sneezing, fatigue, chest pain",3,Food Poisoning,124,72,27.6
+368,27,Other,"rash, chest pain, dizziness, runny nose",4,Anxiety,101,64,21
+369,41,Male,"sneezing, fatigue, runny nose, back pain, blurred vision",5,Migraine,81,86,27.5
+370,44,Other,"appetite loss, blurred vision, fatigue",3,Chronic Kidney Disease,133,102,32.8
+371,21,Female,"back pain, diarrhea, abdominal pain, nausea",4,Pneumonia,173,82,38.4
+372,82,Other,"runny nose, diarrhea, appetite loss, joint pain, depression, nausea",6,Stroke,118,64,0
+373,50,Male,"fever, back pain, anxiety, vomiting, runny nose, weight gain",6,Liver Disease,84,64,35.8
+374,9,Other,"vomiting, shortness of breath, swelling, blurred vision",4,Anemia,105,58,34.9
+375,63,Other,"nausea, rash, dizziness, vomiting, runny nose, fatigue, shortness of breath",7,Pneumonia,122,52,36.2
+376,59,Other,"anxiety, joint pain, weight gain, fatigue, rash",5,Allergy,140,82,39.2
+377,16,Male,"anxiety, weight gain, sore throat, insomnia, headache",5,Diabetes,98,82,25.2
+378,66,Female,"nausea, rash, blurred vision",3,Chronic Kidney Disease,87,60,37.2
+379,89,Other,"headache, weight gain, joint pain, muscle pain, nausea, sneezing, depression",7,Liver Disease,156,75,48.3
+380,24,Female,"weight loss, nausea, sneezing, chest pain",4,Bronchitis,93,100,43.4
+381,50,Other,"anxiety, cough, rash, fever, sneezing, headache",6,Anxiety,107,72,30.8
+382,22,Male,"muscle pain, insomnia, sneezing, tremors, blurred vision, runny nose",6,Epilepsy,105,68,20
+383,5,Female,"appetite loss, swelling, diarrhea",3,Dementia,109,60,25.4
+384,15,Other,"chest pain, nausea, swelling, runny nose, weight gain, sneezing, weight loss",7,Asthma,90,62,25.1
+385,57,Other,"swelling, weight loss, sweating, rash, cough",5,Pneumonia,125,70,24.3
+386,58,Female,"fatigue, back pain, depression, swelling, diarrhea, chest pain",6,Hypertension,119,54,22.3
+387,31,Male,"runny nose, tremors, fatigue",3,Food Poisoning,116,74,32.3
+388,18,Male,"blurred vision, rash, tremors, anxiety, depression, muscle pain, nausea",7,Depression,105,100,43.3
+389,36,Other,"appetite loss, cough, weight gain, rash",4,Anxiety,144,82,32
+390,66,Other,"dizziness, blurred vision, chest pain, weight gain",4,Stroke,100,68,31.6
+391,8,Female,"headache, swelling, appetite loss",3,Anxiety,100,66,32
+392,42,Male,"blurred vision, tremors, headache, diarrhea",4,Dermatitis,166,76,45.7
+393,49,Female,"sneezing, headache, weight gain, depression, shortness of breath, swelling",6,Obesity,131,64,23.7
+394,89,Female,"joint pain, abdominal pain, back pain",3,COVID-19,116,72,22.1
+395,59,Other,"dizziness, weight gain, fever, swelling, back pain, sore throat",6,Ulcer,158,78,32.9
+396,55,Male,"tremors, sore throat, appetite loss, weight loss, joint pain",5,Arthritis,127,58,27.7
+397,73,Female,"dizziness, sweating, chest pain, weight loss, weight gain",5,Migraine,96,56,24.7
+398,59,Male,"insomnia, swelling, cough, fatigue, depression",5,Depression,131,66,34.3
+399,17,Other,"runny nose, fever, muscle pain, vomiting",4,Pneumonia,82,70,21.1
+400,33,Male,"tremors, shortness of breath, sore throat, depression",4,Chronic Kidney Disease,193,70,34.9
+401,90,Male,"cough, joint pain, depression, chest pain",4,Food Poisoning,95,64,32
+402,62,Male,"blurred vision, fatigue, fever",3,Liver Disease,137,61,24.2
+403,16,Female,"diarrhea, abdominal pain, insomnia, runny nose, fever, back pain, dizziness",7,Tuberculosis,136,84,35
+404,14,Male,"sneezing, sore throat, diarrhea, joint pain",4,Anemia,72,78,31.6
+405,18,Other,"chest pain, headache, joint pain, swelling, sweating",5,Gastritis,168,64,32.9
+406,84,Male,"sore throat, abdominal pain, weight gain, fever",4,Arthritis,123,48,42.1
+407,88,Female,"back pain, vomiting, depression, headache, muscle pain",5,Ulcer,115,72,28.9
+408,76,Other,"sore throat, fatigue, headache, swelling",4,Dermatitis,101,62,21.9
+409,83,Male,"muscle pain, dizziness, appetite loss, headache, diarrhea",5,IBS,197,74,25.9
+410,85,Female,"anxiety, tremors, back pain, sweating, chest pain, blurred vision, fever",7,Asthma,172,68,42.4
+411,31,Female,"anxiety, abdominal pain, vomiting, back pain, joint pain, chest pain, depression",7,Hypertension,102,90,35.7
+412,10,Other,"diarrhea, sneezing, depression",3,IBS,112,72,34.4
+413,73,Female,"rash, dizziness, headache",3,Sinusitis,143,84,42.4
+414,2,Female,"insomnia, nausea, swelling, sneezing, sore throat, fever, weight gain",7,Food Poisoning,143,74,26.2
+415,37,Other,"cough, appetite loss, joint pain",3,Hypertension,138,60,34.6
+416,69,Other,"swelling, muscle pain, sweating, blurred vision, joint pain, sore throat, depression",7,Anemia,173,84,35.7
+417,69,Female,"sore throat, chest pain, abdominal pain, vomiting, appetite loss",5,Tuberculosis,97,68,27.2
+418,56,Other,"depression, swelling, tremors, insomnia, appetite loss, sore throat, chest pain",7,IBS,144,82,38.5
+419,59,Other,"cough, diarrhea, sore throat, muscle pain",4,Dermatitis,83,68,18.2
+420,23,Male,"chest pain, insomnia, back pain",3,Parkinson's,129,64,26.4
+421,67,Other,"blurred vision, fever, nausea, sneezing",4,Common Cold,119,88,45.3
+422,16,Male,"nausea, rash, headache, back pain, swelling",5,Depression,94,68,26
+423,10,Female,"shortness of breath, abdominal pain, sore throat, tremors, blurred vision, weight gain",6,Gastritis,102,64,40.6
+424,14,Other,"rash, cough, sneezing, weight gain, nausea, tremors, back pain",7,Ulcer,115,64,30.8
+425,6,Male,"diarrhea, back pain, abdominal pain",3,Arthritis,151,78,42.9
+426,23,Male,"sneezing, rash, joint pain",3,Asthma,184,78,37
+427,10,Other,"diarrhea, dizziness, tremors, muscle pain, back pain, sweating",6,Stroke,94,0,0
+428,29,Other,"abdominal pain, insomnia, cough",3,Food Poisoning,181,64,34.1
+429,71,Female,"sore throat, runny nose, chest pain, swelling, appetite loss, dizziness",6,Influenza,135,94,40.6
+430,32,Female,"vomiting, chest pain, weight gain, appetite loss, back pain",5,Common Cold,95,82,35
+431,1,Female,"sneezing, swelling, sweating, vomiting, back pain, weight loss, diarrhea",7,Food Poisoning,99,0,22.2
+432,2,Female,"weight loss, rash, depression, sweating",4,Common Cold,89,74,30.4
+433,31,Female,"tremors, back pain, sweating, chest pain, fatigue, vomiting",6,Common Cold,80,74,30
+434,6,Male,"headache, blurred vision, shortness of breath",3,Migraine,139,75,25.6
+435,65,Male,"muscle pain, blurred vision, rash, runny nose, back pain, sore throat, weight gain",7,Sinusitis,90,68,24.5
+436,31,Female,"sore throat, weight gain, sweating, cough, muscle pain, insomnia",6,Allergy,141,0,42.4
+437,41,Female,"appetite loss, joint pain, blurred vision, sweating, back pain",5,Heart Disease,140,85,37.4
+438,75,Male,"sore throat, vomiting, headache, swelling",4,Heart Disease,147,75,29.9
+439,16,Other,"nausea, runny nose, dizziness",3,Tuberculosis,97,70,18.2
+440,12,Male,"runny nose, chest pain, shortness of breath, tremors",4,Food Poisoning,107,88,36.8
+441,42,Male,"sweating, blurred vision, anxiety, cough, vomiting",5,Depression,189,104,34.3
+442,39,Female,"rash, joint pain, abdominal pain, cough",4,COVID-19,83,66,32.2
+443,71,Male,"fever, joint pain, tremors, runny nose",4,Anxiety,117,64,33.2
+444,29,Male,"fatigue, appetite loss, sweating, headache, tremors, fever",6,Pneumonia,108,70,30.5
+445,34,Male,"rash, insomnia, depression, appetite loss, sore throat, weight gain",6,Hypertension,117,62,29.7
+446,17,Male,"vomiting, depression, runny nose",3,Common Cold,180,78,59.4
+447,51,Female,"fatigue, cough, runny nose, nausea, weight gain",5,Sinusitis,100,72,25.3
+448,36,Female,"insomnia, muscle pain, nausea, rash, vomiting, appetite loss",6,Common Cold,95,80,36.5
+449,64,Female,"cough, anxiety, diarrhea, depression",4,Sinusitis,104,64,33.6
+450,83,Other,"sneezing, cough, sore throat, shortness of breath, joint pain, headache, muscle pain",7,Sinusitis,120,74,30.5
+451,63,Female,"appetite loss, fever, joint pain, blurred vision, rash, sneezing, weight loss",7,Asthma,82,64,21.2
+452,29,Male,"abdominal pain, dizziness, joint pain, shortness of breath, nausea, fever, sweating",7,Bronchitis,134,70,28.9
+453,75,Male,"cough, appetite loss, sneezing, abdominal pain, rash",5,Sinusitis,91,68,39.9
+454,8,Male,"diarrhea, insomnia, shortness of breath",3,Diabetes,119,0,19.6
+455,90,Female,"rash, sweating, nausea, appetite loss, diarrhea, weight gain",6,Dementia,100,54,37.8
+456,25,Female,"fever, blurred vision, sweating, rash, weight gain, back pain, headache",7,Bronchitis,175,62,33.6
+457,29,Male,"nausea, sneezing, cough, sore throat, diarrhea",5,Stroke,135,54,26.7
+458,23,Female,"fever, dizziness, anxiety, vomiting, headache, sweating",6,Epilepsy,86,68,30.2
+459,15,Other,"headache, weight gain, blurred vision",3,Influenza,148,84,37.6
+460,13,Female,"sore throat, rash, blurred vision, insomnia, joint pain",5,Dermatitis,134,74,25.9
+461,63,Other,"headache, nausea, back pain, muscle pain, appetite loss",5,Chronic Kidney Disease,120,72,20.8
+462,29,Other,"blurred vision, weight loss, anxiety, appetite loss",4,Gastritis,71,62,21.8
+463,17,Male,"joint pain, chest pain, back pain, blurred vision",4,Dementia,74,70,35.3
+464,73,Male,"blurred vision, weight gain, joint pain",3,Thyroid Disorder,88,78,27.6
+465,19,Female,"dizziness, appetite loss, anxiety, diarrhea, depression, weight gain, fatigue",7,Diabetes,115,98,24
+466,82,Male,"diarrhea, rash, dizziness",3,Thyroid Disorder,124,56,21.8
+467,9,Female,"runny nose, fever, shortness of breath, vomiting, diarrhea",5,Anxiety,74,52,27.8
+468,57,Other,"back pain, fever, cough",3,Heart Disease,97,64,36.8
+469,49,Male,"muscle pain, sneezing, joint pain, rash",4,Liver Disease,120,0,30
+470,58,Male,"appetite loss, weight gain, depression, swelling, insomnia, diarrhea",6,Anxiety,154,78,46.1
+471,14,Male,"chest pain, fever, dizziness",3,Depression,144,82,41.3
+472,12,Female,"joint pain, nausea, back pain, sore throat",4,Gastritis,137,70,33.2
+473,21,Male,"sneezing, blurred vision, fever, muscle pain, depression, nausea, anxiety",7,Parkinson's,119,66,38.8
+474,70,Female,"vomiting, muscle pain, blurred vision, weight loss, back pain",5,Pneumonia,136,90,29.9
+475,71,Female,"chest pain, diarrhea, fatigue, cough, joint pain",5,Arthritis,114,64,28.9
+476,38,Other,"rash, fever, muscle pain",3,Tuberculosis,137,84,27.3
+477,11,Female,"sneezing, vomiting, fatigue, fever, sweating, nausea, depression",7,Allergy,105,80,33.7
+478,63,Other,"chest pain, appetite loss, joint pain",3,Dermatitis,114,76,23.8
+479,48,Female,"depression, weight loss, joint pain",3,Heart Disease,126,74,25.9
+480,35,Other,"runny nose, cough, shortness of breath, diarrhea",4,Food Poisoning,132,86,28
+481,86,Female,"swelling, blurred vision, insomnia, fatigue",4,Influenza,158,70,35.5
+482,67,Female,"muscle pain, swelling, weight gain, diarrhea, weight loss, cough, joint pain",7,Depression,123,88,35.2
+483,5,Other,"weight gain, diarrhea, sneezing, chest pain, sore throat, joint pain",6,Stroke,85,58,27.8
+484,22,Male,"appetite loss, weight gain, insomnia, anxiety, headache, fatigue, runny nose",7,Dementia,84,82,38.2
+485,56,Male,"headache, cough, muscle pain, sore throat",4,Depression,145,0,44.2
+486,9,Male,"sweating, anxiety, shortness of breath, dizziness",4,Anxiety,135,68,42.3
+487,90,Other,"joint pain, weight loss, dizziness, shortness of breath, abdominal pain, runny nose, fever",7,IBS,139,62,40.7
+488,75,Male,"appetite loss, muscle pain, fatigue, sweating, headache, back pain, weight gain",7,Dementia,173,78,46.5
+489,37,Other,"weight gain, swelling, fatigue",3,Bronchitis,99,72,25.6
+490,78,Female,"muscle pain, shortness of breath, joint pain, depression, sneezing",5,Sinusitis,194,80,26.1
+491,88,Other,"shortness of breath, joint pain, headache, anxiety",4,Influenza,83,65,36.8
+492,7,Other,"joint pain, dizziness, blurred vision",3,IBS,89,90,33.5
+493,40,Female,"rash, fever, dizziness, sweating, appetite loss",5,Migraine,99,68,32.8
+494,57,Female,"tremors, blurred vision, insomnia, fatigue, diarrhea, headache",6,Anxiety,125,70,28.9
+495,53,Other,"anxiety, depression, sore throat, vomiting, runny nose, swelling",6,Heart Disease,80,0,0
+496,65,Female,"tremors, rash, cough, abdominal pain, nausea, sore throat, chest pain",7,Migraine,166,74,26.6
+497,59,Male,"weight gain, fever, nausea, vomiting, swelling, cough, diarrhea",7,Tuberculosis,110,68,26
+498,65,Female,"blurred vision, vomiting, shortness of breath, rash, sweating",5,Bronchitis,81,72,30.1
+499,63,Other,"insomnia, fever, diarrhea",3,Allergy,195,70,25.1
+500,45,Male,"tremors, sneezing, weight gain, weight loss",4,Ulcer,154,74,29.3
+501,50,Male,"back pain, sweating, blurred vision, sore throat, chest pain",5,Anxiety,117,90,25.2
+502,84,Female,"swelling, vomiting, diarrhea, depression, appetite loss, insomnia, sweating",7,Diabetes,84,72,37.2
+503,61,Male,"tremors, swelling, insomnia",3,Epilepsy,0,68,39
+504,78,Female,"anxiety, appetite loss, fever, diarrhea",4,Allergy,94,64,33.3
+505,28,Female,"muscle pain, joint pain, tremors, rash, runny nose",5,Anemia,96,78,37.3
+506,48,Other,"sweating, anxiety, joint pain, weight gain, fatigue, fever, abdominal pain",7,Chronic Kidney Disease,75,82,33.3
+507,36,Other,"anxiety, chest pain, sweating, insomnia, fatigue, sneezing, sore throat",7,Allergy,180,90,36.5
+508,67,Male,"shortness of breath, depression, blurred vision, chest pain, vomiting",5,Gastritis,130,60,28.6
+509,85,Female,"appetite loss, tremors, anxiety",3,Sinusitis,84,50,30.4
+510,34,Female,"back pain, fever, depression, sneezing",4,Arthritis,120,78,25
+511,29,Other,"back pain, cough, weight gain, blurred vision, appetite loss, vomiting",6,IBS,84,72,29.7
+512,24,Female,"insomnia, rash, abdominal pain, chest pain, nausea, tremors",6,Stroke,139,62,22.1
+513,43,Other,"headache, back pain, shortness of breath, sweating, weight loss, nausea",6,Pneumonia,91,68,24.2
+514,54,Female,"rash, diarrhea, back pain, tremors",4,COVID-19,91,62,27.3
+515,7,Other,"weight gain, chest pain, runny nose, tremors, fatigue",5,Food Poisoning,99,54,25.6
+516,68,Female,"anxiety, sore throat, sneezing, vomiting, abdominal pain, fatigue, insomnia",7,Dementia,163,70,31.6
+517,53,Other,"tremors, headache, vomiting",3,Liver Disease,145,88,30.3
+518,81,Male,"headache, dizziness, blurred vision, nausea, sore throat, sneezing",6,Sinusitis,125,86,37.6
+519,22,Other,"fever, runny nose, shortness of breath",3,Gastritis,76,60,32.8
+520,79,Female,"sneezing, appetite loss, swelling, sore throat",4,Obesity,129,90,19.6
+521,26,Other,"joint pain, muscle pain, sneezing, tremors, fever, cough",6,Allergy,68,70,25
+522,25,Male,"dizziness, swelling, sweating",3,Food Poisoning,124,80,33.2
+523,89,Female,"depression, back pain, diarrhea",3,Arthritis,114,0,0
+524,22,Male,"fatigue, joint pain, abdominal pain, weight gain",4,Chronic Kidney Disease,130,70,34.2
+525,77,Other,"chest pain, runny nose, back pain",3,Anxiety,125,58,31.6
+526,52,Male,"insomnia, headache, dizziness, sneezing, rash, vomiting",6,Gastritis,87,60,21.8
+527,65,Male,"back pain, headache, vomiting, fever",4,Asthma,97,64,18.2
+528,33,Other,"blurred vision, depression, appetite loss, cough, joint pain",5,Pneumonia,116,74,26.3
+529,84,Male,"anxiety, cough, insomnia",3,Parkinson's,117,66,30.8
+530,71,Female,"muscle pain, runny nose, joint pain",3,Influenza,111,65,24.6
+531,39,Female,"vomiting, blurred vision, insomnia, depression",4,Migraine,122,60,29.8
+532,78,Other,"insomnia, abdominal pain, shortness of breath",3,Arthritis,107,76,45.3
+533,15,Male,"sweating, fatigue, abdominal pain, back pain, anxiety, tremors",6,Tuberculosis,86,66,41.3
+534,67,Male,"anxiety, vomiting, swelling, shortness of breath",4,Migraine,91,0,29.8
+535,62,Female,"chest pain, nausea, cough, weight loss, sneezing, vomiting",6,Food Poisoning,77,56,33.3
+536,74,Other,"fever, insomnia, sore throat",3,Asthma,132,0,32.9
+537,13,Female,"sore throat, swelling, abdominal pain, back pain",4,Migraine,105,90,29.6
+538,23,Male,"runny nose, chest pain, shortness of breath, cough",4,Allergy,57,60,21.7
+539,15,Male,"rash, appetite loss, insomnia, dizziness, muscle pain",5,Dermatitis,127,80,36.3
+540,83,Male,"fever, tremors, headache",3,Dermatitis,129,92,36.4
+541,44,Male,"runny nose, anxiety, shortness of breath, back pain, sore throat",5,Gastritis,100,74,39.4
+542,54,Other,"joint pain, runny nose, shortness of breath, tremors, blurred vision, sneezing",6,Pneumonia,128,72,32.4
+543,21,Male,"fatigue, headache, blurred vision, back pain",4,Sinusitis,90,85,34.9
+544,46,Other,"sneezing, appetite loss, weight gain, insomnia, runny nose, nausea, anxiety",7,Liver Disease,84,90,39.5
+545,9,Female,"sneezing, fatigue, muscle pain, runny nose",4,Common Cold,88,78,32
+546,74,Other,"fever, blurred vision, tremors, insomnia, abdominal pain",5,Allergy,186,90,34.5
+547,89,Other,"insomnia, tremors, dizziness, abdominal pain",4,Dementia,187,76,43.6
+548,62,Female,"muscle pain, insomnia, back pain",3,Parkinson's,131,68,33.1
+549,21,Other,"headache, sweating, weight loss, anxiety, cough, fever",6,Arthritis,164,82,32.8
+550,43,Female,"tremors, sneezing, nausea, sore throat, sweating, dizziness",6,Dermatitis,189,110,28.5
+551,57,Other,"diarrhea, weight loss, depression, joint pain, swelling, tremors, sore throat",7,Influenza,116,70,27.4
+552,16,Female,"tremors, sneezing, runny nose",3,Ulcer,84,68,31.9
+553,72,Other,"fatigue, joint pain, muscle pain",3,Thyroid Disorder,114,88,27.8
+554,66,Other,"appetite loss, anxiety, depression",3,Common Cold,88,62,29.9
+555,80,Other,"dizziness, rash, cough, diarrhea, runny nose, tremors",6,Hypertension,84,64,36.9
+556,1,Female,"blurred vision, runny nose, fatigue, swelling, insomnia",5,Migraine,124,70,25.5
+557,22,Female,"weight loss, abdominal pain, rash, blurred vision, fatigue",5,Food Poisoning,97,70,38.1
+558,51,Male,"fatigue, shortness of breath, anxiety, vomiting, swelling, tremors",6,Tuberculosis,110,76,27.8
+559,6,Other,"blurred vision, dizziness, fatigue, swelling",4,Ulcer,103,68,46.2
+560,64,Male,"fatigue, swelling, runny nose, appetite loss, insomnia, weight gain, abdominal pain",7,Anxiety,85,74,30.1
+561,62,Other,"weight loss, muscle pain, sweating",3,Epilepsy,125,76,33.8
+562,17,Male,"blurred vision, weight gain, nausea, back pain",4,Obesity,198,66,41.3
+563,51,Female,"anxiety, dizziness, abdominal pain, joint pain, muscle pain, tremors, diarrhea",7,IBS,87,68,37.6
+564,66,Female,"appetite loss, headache, sweating, muscle pain, anxiety, blurred vision",6,Chronic Kidney Disease,99,60,26.9
+565,27,Other,"tremors, dizziness, blurred vision, back pain, weight loss, depression, vomiting",7,Anxiety,91,80,32.4
+566,65,Other,"insomnia, rash, headache, blurred vision, depression",5,Anemia,95,54,26.1
+567,75,Other,"blurred vision, fatigue, swelling, rash, weight loss",5,Anemia,99,72,38.6
+568,14,Male,"insomnia, back pain, weight loss, chest pain, muscle pain, fever",6,Arthritis,92,62,32
+569,21,Female,"cough, insomnia, vomiting, shortness of breath",4,IBS,154,72,31.3
+570,27,Other,"headache, sweating, cough, blurred vision, appetite loss",5,Arthritis,121,66,34.3
+571,72,Male,"sweating, runny nose, fatigue, anxiety, tremors",5,Influenza,78,70,32.5
+572,49,Female,"joint pain, diarrhea, abdominal pain, blurred vision, chest pain, swelling, insomnia",7,Thyroid Disorder,130,96,22.6
+573,80,Female,"weight loss, cough, fever, back pain, shortness of breath",5,Liver Disease,111,58,29.5
+574,70,Other,"depression, blurred vision, rash, swelling",4,Anxiety,98,60,34.7
+575,23,Other,"swelling, back pain, vomiting, chest pain",4,Parkinson's,143,86,30.1
+576,6,Female,"nausea, back pain, abdominal pain, fatigue",4,COVID-19,119,44,35.5
+577,20,Male,"shortness of breath, headache, nausea, weight gain, tremors, fever, dizziness",7,Heart Disease,108,44,24
+578,39,Female,"anxiety, cough, swelling, depression, sweating",5,Tuberculosis,118,80,42.9
+579,67,Male,"weight loss, rash, sore throat, blurred vision, dizziness, abdominal pain, diarrhea",7,Depression,133,68,27
+580,28,Other,"nausea, muscle pain, weight loss, appetite loss, joint pain, sore throat, rash",7,Depression,197,70,34.7
+581,61,Other,"rash, chest pain, vomiting, swelling, anxiety",5,Gastritis,151,90,42.1
+582,31,Other,"fatigue, insomnia, rash",3,Anxiety,109,60,25
+583,70,Other,"diarrhea, cough, insomnia, dizziness, joint pain, fatigue, back pain",7,Parkinson's,121,78,26.5
+584,66,Other,"abdominal pain, sweating, swelling",3,Chronic Kidney Disease,100,76,38.7
+585,13,Male,"cough, chest pain, depression, vomiting, dizziness, abdominal pain",6,Ulcer,124,76,28.7
+586,28,Other,"weight loss, fever, depression, sore throat, vomiting, insomnia, appetite loss",7,Obesity,93,56,22.5
+587,56,Other,"vomiting, weight loss, sweating",3,Liver Disease,143,66,34.9
+588,59,Other,"back pain, insomnia, headache",3,Anxiety,103,66,24.3
+589,33,Other,"sore throat, cough, nausea",3,Gastritis,176,86,33.3
+590,56,Female,"sweating, diarrhea, shortness of breath, muscle pain, joint pain, runny nose, depression",7,COVID-19,73,0,21.1
+591,75,Male,"insomnia, fatigue, weight loss, fever, depression, anxiety",6,Common Cold,111,84,46.8
+592,88,Female,"rash, abdominal pain, fatigue",3,Anemia,112,78,39.4
+593,51,Other,"chest pain, swelling, runny nose",3,Parkinson's,132,80,34.4
+594,70,Female,"nausea, weight loss, diarrhea, headache, back pain, joint pain",6,Common Cold,82,52,28.5
+595,83,Female,"chest pain, insomnia, appetite loss, tremors",4,Allergy,123,72,33.6
+596,51,Other,"tremors, weight loss, headache, fatigue, cough, fever, weight gain",7,Common Cold,188,82,32
+597,45,Male,"chest pain, vomiting, back pain",3,Stroke,67,76,45.3
+598,24,Other,"headache, nausea, sweating, diarrhea, anxiety, shortness of breath, vomiting",7,Liver Disease,89,24,27.8
+599,38,Other,"tremors, cough, swelling, weight loss, runny nose, depression, appetite loss",7,Depression,173,74,36.8
+600,46,Male,"fatigue, vomiting, back pain, weight gain, sneezing",5,COVID-19,109,38,23.1
+601,41,Female,"fatigue, chest pain, anxiety, sore throat",4,Arthritis,108,88,27.1
+602,73,Other,"anxiety, insomnia, chest pain, blurred vision, weight gain",5,Ulcer,96,0,23.7
+603,29,Other,"muscle pain, nausea, fever, dizziness, diarrhea",5,Food Poisoning,124,74,27.8
+604,60,Female,"shortness of breath, sweating, rash, headache, insomnia, dizziness",6,Thyroid Disorder,150,78,35.2
+605,11,Female,"sneezing, weight loss, fatigue, nausea, depression",5,Food Poisoning,183,0,28.4
+606,10,Other,"weight loss, vomiting, shortness of breath, back pain",4,Dermatitis,124,60,35.8
+607,75,Other,"tremors, abdominal pain, depression",3,COVID-19,181,78,40
+608,20,Female,"vomiting, cough, weight loss, shortness of breath, appetite loss, back pain, sneezing",7,IBS,92,62,19.5
+609,18,Female,"swelling, weight gain, back pain, tremors",4,IBS,152,82,41.5
+610,79,Other,"sore throat, joint pain, rash, abdominal pain, fever, insomnia, diarrhea",7,Epilepsy,111,62,24
+611,62,Female,"headache, runny nose, nausea, appetite loss, weight gain, back pain, insomnia",7,Diabetes,106,54,30.9
+612,48,Male,"swelling, sneezing, diarrhea, sore throat",4,Influenza,174,58,32.9
+613,59,Male,"abdominal pain, appetite loss, rash, joint pain",4,Influenza,168,88,38.2
+614,34,Other,"fatigue, blurred vision, abdominal pain, depression, sweating",5,Influenza,105,80,32.5
+615,10,Other,"nausea, joint pain, depression, sweating, rash, weight gain, appetite loss",7,Stroke,138,74,36.1
+616,62,Other,"diarrhea, abdominal pain, joint pain, rash, swelling, sneezing",6,Heart Disease,106,72,25.8
+617,28,Male,"headache, runny nose, nausea, diarrhea, sore throat, abdominal pain, depression",7,Common Cold,117,96,28.7
+618,85,Male,"rash, anxiety, blurred vision, sweating",4,Diabetes,68,62,20.1
+619,21,Other,"back pain, fatigue, sneezing, insomnia, vomiting",5,Liver Disease,112,82,28.2
+620,18,Other,"fever, diarrhea, cough, headache, weight gain, back pain",6,Anxiety,119,0,32.4
+621,34,Male,"weight gain, headache, cough",3,Epilepsy,112,86,38.4
+622,37,Male,"anxiety, weight gain, depression, fever, back pain, insomnia",6,Epilepsy,92,76,24.2
+623,19,Other,"anxiety, sneezing, sweating, nausea, diarrhea, muscle pain",6,Hypertension,183,94,40.8
+624,88,Female,"anxiety, insomnia, abdominal pain, shortness of breath",4,Anxiety,94,70,43.5
+625,14,Male,"anxiety, weight gain, sore throat, diarrhea, joint pain, back pain",6,Bronchitis,108,64,30.8
+626,61,Other,"tremors, abdominal pain, insomnia, muscle pain, headache, anxiety, fatigue",7,Hypertension,90,88,37.7
+627,16,Male,"appetite loss, weight loss, abdominal pain",3,Parkinson's,125,68,24.7
+628,87,Other,"anxiety, weight loss, sweating, fever",4,Migraine,132,78,32.4
+629,62,Female,"muscle pain, rash, cough, blurred vision, abdominal pain, tremors, diarrhea",7,Liver Disease,128,80,34.6
+630,33,Female,"appetite loss, back pain, swelling, blurred vision, weight gain, fatigue, muscle pain",7,Food Poisoning,94,65,24.7
+631,53,Female,"tremors, sore throat, chest pain, anxiety",4,Obesity,114,64,27.4
+632,74,Other,"blurred vision, back pain, appetite loss",3,Hypertension,102,78,34.5
+633,14,Male,"fever, joint pain, depression, vomiting, blurred vision, dizziness, muscle pain",7,Pneumonia,111,60,26.2
+634,88,Female,"shortness of breath, tremors, weight loss, muscle pain, weight gain, rash, anxiety",7,Liver Disease,128,82,27.5
+635,48,Other,"muscle pain, weight loss, appetite loss, sneezing",4,Obesity,92,62,25.9
+636,18,Other,"shortness of breath, chest pain, weight gain, rash, blurred vision, joint pain",6,Stroke,104,72,31.2
+637,28,Other,"runny nose, appetite loss, blurred vision, nausea",4,Pneumonia,104,74,28.8
+638,7,Male,"appetite loss, weight loss, anxiety, blurred vision, insomnia",5,IBS,94,76,31.6
+639,61,Other,"appetite loss, sore throat, sweating",3,IBS,97,76,40.9
+640,11,Other,"sore throat, shortness of breath, diarrhea",3,Liver Disease,100,74,19.5
+641,8,Male,"joint pain, anxiety, depression, abdominal pain, chest pain, blurred vision",6,Influenza,102,86,29.3
+642,5,Other,"runny nose, fever, vomiting, insomnia, abdominal pain, chest pain",6,Allergy,128,70,34.3
+643,84,Male,"blurred vision, diarrhea, anxiety, nausea, insomnia, cough, rash",7,Epilepsy,147,80,29.5
+644,86,Female,"shortness of breath, swelling, joint pain",3,Diabetes,90,0,28
+645,37,Other,"vomiting, abdominal pain, fever, back pain, blurred vision, sore throat, swelling",7,IBS,103,72,27.6
+646,52,Other,"weight gain, rash, sweating, shortness of breath, diarrhea, anxiety, vomiting",7,Anxiety,157,74,39.4
+647,65,Female,"nausea, muscle pain, abdominal pain, fatigue, weight loss",5,Common Cold,167,74,23.4
+648,74,Female,"appetite loss, abdominal pain, shortness of breath",3,Gastritis,179,50,37.8
+649,59,Other,"joint pain, weight gain, sneezing, swelling, diarrhea, dizziness",6,Anemia,136,84,28.3
+650,29,Other,"tremors, fever, sneezing, fatigue, shortness of breath, sore throat, joint pain",7,Ulcer,107,60,26.4
+651,69,Male,"appetite loss, dizziness, muscle pain, rash",4,Anemia,91,54,25.2
+652,44,Male,"diarrhea, chest pain, sore throat, joint pain, insomnia",5,Anemia,117,60,33.8
+653,35,Male,"sneezing, dizziness, rash, vomiting",4,Stroke,123,74,34.1
+654,31,Female,"sneezing, back pain, vomiting, diarrhea",4,Thyroid Disorder,120,54,26.8
+655,20,Male,"vomiting, sweating, diarrhea, anxiety",4,Hypertension,106,70,34.2
+656,70,Male,"insomnia, sneezing, anxiety",3,Pneumonia,155,52,38.7
+657,24,Other,"rash, anxiety, dizziness, sneezing, weight gain, shortness of breath",6,Dermatitis,101,58,21.8
+658,55,Female,"diarrhea, swelling, weight gain, headache, cough, abdominal pain",6,Heart Disease,120,80,38.9
+659,23,Female,"abdominal pain, rash, joint pain",3,Stroke,127,106,39
+660,75,Male,"runny nose, dizziness, blurred vision, fever, swelling, insomnia, vomiting",7,Pneumonia,80,82,34.2
+661,31,Female,"anxiety, tremors, shortness of breath, nausea, weight loss",5,Gastritis,162,84,27.7
+662,48,Female,"dizziness, rash, nausea, sneezing, muscle pain, vomiting, back pain",7,Migraine,199,76,42.9
+663,30,Male,"shortness of breath, runny nose, nausea, weight gain, headache, swelling",6,Dermatitis,167,106,37.6
+664,26,Male,"appetite loss, diarrhea, weight loss, muscle pain, tremors",5,Thyroid Disorder,145,80,37.9
+665,64,Male,"sneezing, appetite loss, fever, nausea",4,Depression,115,60,33.7
+666,7,Female,"weight loss, back pain, dizziness, sneezing, chest pain, shortness of breath, tremors",7,Sinusitis,112,80,34.8
+667,81,Male,"cough, vomiting, sweating, shortness of breath",4,Pneumonia,145,82,32.5
+668,16,Female,"shortness of breath, rash, weight loss, appetite loss, fever",5,Ulcer,111,70,27.5
+669,37,Female,"vomiting, weight gain, sweating, depression, swelling, weight loss, nausea",7,Dermatitis,98,58,34
+670,60,Other,"sneezing, swelling, back pain, runny nose, sore throat, joint pain, anxiety",7,Gastritis,154,78,30.9
+671,79,Other,"depression, appetite loss, dizziness, muscle pain",4,Tuberculosis,165,68,33.6
+672,41,Female,"sore throat, nausea, dizziness",3,IBS,99,58,25.4
+673,57,Female,"blurred vision, shortness of breath, anxiety, depression, joint pain",5,Allergy,68,106,35.5
+674,31,Other,"abdominal pain, runny nose, muscle pain, nausea, swelling, fever, headache",7,Thyroid Disorder,123,100,57.3
+675,13,Male,"vomiting, nausea, joint pain",3,Heart Disease,91,82,35.6
+676,11,Male,"weight loss, cough, fever, swelling, joint pain, abdominal pain",6,Bronchitis,195,70,30.9
+677,37,Female,"headache, sore throat, depression, joint pain, chest pain, diarrhea, blurred vision",7,Heart Disease,156,86,24.8
+678,5,Other,"headache, abdominal pain, sweating, nausea",4,Allergy,93,60,35.3
+679,57,Male,"tremors, sneezing, runny nose, weight loss, shortness of breath",5,Food Poisoning,121,52,36
+680,68,Other,"nausea, weight gain, anxiety, runny nose, depression, back pain, sweating",7,Anemia,101,58,24.2
+681,47,Female,"chest pain, rash, sneezing, weight loss, diarrhea, sore throat, runny nose",7,Allergy,56,56,24.2
+682,18,Female,"chest pain, fever, abdominal pain, sweating",4,Heart Disease,162,76,49.6
+683,56,Female,"weight loss, fever, blurred vision, sneezing, swelling, chest pain",6,Chronic Kidney Disease,95,64,44.6
+684,53,Other,"appetite loss, fever, weight loss, rash",4,Parkinson's,125,80,32.3
+685,49,Male,"diarrhea, nausea, blurred vision, back pain, depression, joint pain",6,Liver Disease,136,82,0
+686,79,Other,"muscle pain, depression, diarrhea",3,Heart Disease,129,74,33.2
+687,53,Male,"chest pain, depression, back pain, weight loss, appetite loss",5,Arthritis,130,64,23.1
+688,82,Female,"nausea, headache, chest pain",3,Dermatitis,107,50,28.3
+689,20,Male,"shortness of breath, blurred vision, anxiety, sneezing, vomiting, dizziness",6,Parkinson's,140,74,24.1
+690,17,Other,"nausea, fatigue, chest pain",3,Stroke,144,82,46.1
+691,64,Male,"diarrhea, sore throat, headache",3,Ulcer,107,80,24.6
+692,5,Female,"chest pain, appetite loss, sweating, sneezing, rash, runny nose",6,Gastritis,158,114,42.3
+693,70,Female,"cough, shortness of breath, swelling, joint pain",4,COVID-19,121,70,39.1
+694,32,Female,"sweating, shortness of breath, joint pain, fever",4,Diabetes,129,68,38.5
+695,86,Male,"diarrhea, back pain, cough, vomiting, runny nose, fatigue",6,Obesity,90,60,23.5
+696,71,Other,"insomnia, chest pain, dizziness, nausea, depression, cough",6,Migraine,142,90,30.4
+697,86,Male,"sneezing, depression, chest pain, vomiting, rash",5,Pneumonia,169,74,29.9
+698,36,Other,"depression, muscle pain, dizziness, fever",4,Pneumonia,99,0,25
+699,89,Other,"appetite loss, diarrhea, fever, cough, weight gain, blurred vision",6,Pneumonia,127,88,34.5
+700,88,Other,"swelling, sore throat, diarrhea, nausea, sneezing",5,Tuberculosis,118,70,44.5
+701,90,Other,"cough, rash, depression",3,Gastritis,122,76,35.9
+702,72,Other,"headache, sneezing, diarrhea",3,Depression,125,78,27.6
+703,49,Female,"appetite loss, runny nose, back pain, vomiting, fever",5,Obesity,168,88,35
+704,72,Female,"shortness of breath, cough, sneezing, blurred vision",4,Thyroid Disorder,129,0,38.5
+705,60,Female,"vomiting, weight gain, nausea, weight loss, rash, dizziness",6,Stroke,110,76,28.4
+706,34,Other,"tremors, weight loss, nausea, sore throat, abdominal pain, headache, runny nose",7,Dermatitis,80,80,39.8
+707,80,Female,"fever, swelling, depression, abdominal pain, joint pain, nausea",6,Food Poisoning,115,0,0
+708,68,Other,"diarrhea, dizziness, back pain, sore throat, insomnia, weight loss, joint pain",7,Obesity,127,46,34.4
+709,13,Other,"headache, anxiety, chest pain, dizziness, muscle pain, depression, swelling",7,Migraine,164,78,32.8
+710,5,Male,"cough, sweating, headache",3,Arthritis,93,64,38
+711,63,Other,"vomiting, fatigue, cough, weight gain, depression, joint pain",6,Pneumonia,158,64,31.2
+712,27,Other,"shortness of breath, cough, rash, diarrhea, anxiety, blurred vision, sore throat",7,Parkinson's,126,78,29.6
+713,47,Other,"runny nose, appetite loss, depression",3,Migraine,129,62,41.2
+714,68,Male,"sweating, rash, appetite loss, blurred vision, cough, anxiety",6,Thyroid Disorder,134,58,26.4
+715,67,Male,"sweating, chest pain, sore throat",3,Thyroid Disorder,102,74,29.5
+716,32,Other,"weight loss, joint pain, vomiting, abdominal pain",4,Pneumonia,187,50,33.9
+717,82,Other,"weight loss, back pain, muscle pain, fatigue",4,Allergy,173,78,33.8
+718,52,Other,"blurred vision, insomnia, muscle pain, fatigue, nausea, back pain",6,Food Poisoning,94,72,23.1
+719,71,Female,"weight loss, anxiety, runny nose, rash",4,Gastritis,108,60,35.5
+720,78,Male,"muscle pain, swelling, depression, sweating, back pain",5,Dermatitis,97,76,35.6
+721,58,Female,"vomiting, joint pain, swelling, weight loss, back pain, shortness of breath, rash",7,Dementia,83,86,29.3
+722,18,Female,"chest pain, anxiety, fever",3,Common Cold,114,66,38.1
+723,89,Female,"diarrhea, vomiting, tremors, dizziness, fever",5,Common Cold,149,68,29.3
+724,46,Male,"abdominal pain, weight loss, weight gain, appetite loss, headache, fatigue, cough",7,Bronchitis,117,86,39.1
+725,12,Other,"rash, weight gain, diarrhea, shortness of breath, appetite loss",5,Tuberculosis,111,94,32.8
+726,89,Other,"vomiting, back pain, sore throat, sweating, dizziness, sneezing, nausea",7,IBS,112,78,39.4
+727,74,Female,"anxiety, depression, chest pain",3,Dementia,116,78,36.1
+728,56,Female,"swelling, dizziness, rash",3,COVID-19,141,84,32.4
+729,84,Other,"tremors, swelling, diarrhea",3,Bronchitis,175,88,22.9
+730,40,Other,"depression, swelling, joint pain",3,Bronchitis,92,52,30.1
+731,29,Male,"weight loss, weight gain, headache, dizziness, abdominal pain",5,Influenza,130,78,28.4
+732,56,Female,"runny nose, swelling, anxiety, weight gain, abdominal pain, sore throat",6,Influenza,120,86,28.4
+733,7,Other,"headache, tremors, dizziness, sore throat, sneezing, weight gain",6,Depression,174,88,44.5
+734,17,Male,"sore throat, joint pain, abdominal pain, muscle pain, swelling",5,IBS,106,56,29
+735,68,Male,"vomiting, sneezing, joint pain, depression, weight gain, tremors, weight loss",7,Migraine,105,75,23.3
+736,88,Other,"shortness of breath, swelling, muscle pain",3,Asthma,95,60,35.4
+737,25,Female,"insomnia, muscle pain, rash",3,COVID-19,126,86,27.4
+738,57,Other,"depression, fever, swelling, chest pain, nausea, rash, anxiety",7,Food Poisoning,65,72,32
+739,11,Male,"cough, sweating, diarrhea, vomiting, insomnia, rash",6,Tuberculosis,99,60,36.6
+740,37,Male,"diarrhea, anxiety, headache",3,Thyroid Disorder,102,74,39.5
+741,43,Male,"chest pain, runny nose, sneezing",3,Gastritis,120,80,42.3
+742,19,Other,"vomiting, tremors, weight loss, abdominal pain, shortness of breath, appetite loss, sneezing",7,Thyroid Disorder,102,44,30.8
+743,6,Female,"joint pain, weight gain, insomnia",3,Anemia,109,58,28.5
+744,80,Female,"chest pain, vomiting, appetite loss",3,Diabetes,140,94,32.7
+745,85,Female,"depression, fever, sore throat, joint pain, insomnia, shortness of breath",6,Influenza,153,88,40.6
+746,50,Male,"fever, chest pain, tremors",3,Dermatitis,100,84,30
+747,26,Other,"blurred vision, fatigue, dizziness, sneezing, anxiety, weight loss, sore throat",7,IBS,147,94,49.3
+748,51,Other,"blurred vision, fever, cough, diarrhea, abdominal pain, chest pain, dizziness",7,Ulcer,81,74,46.3
+749,31,Other,"rash, insomnia, depression",3,Diabetes,187,70,36.4
+750,4,Other,"depression, shortness of breath, joint pain",3,Heart Disease,162,62,24.3
+751,12,Other,"headache, dizziness, joint pain, insomnia",4,Heart Disease,136,70,31.2
+752,20,Female,"insomnia, anxiety, depression, tremors, diarrhea, muscle pain, back pain",7,IBS,121,78,39
+753,70,Other,"dizziness, runny nose, weight loss, headache, vomiting, depression, swelling",7,Chronic Kidney Disease,108,62,26
+754,68,Male,"tremors, headache, chest pain, blurred vision",4,Depression,181,88,43.3
+755,72,Other,"depression, weight gain, nausea, dizziness",4,Liver Disease,154,78,32.4
+756,4,Female,"nausea, dizziness, sweating",3,Thyroid Disorder,128,88,36.5
+757,25,Male,"muscle pain, chest pain, runny nose, back pain, depression, shortness of breath",6,Sinusitis,137,90,32
+758,73,Other,"fever, swelling, anxiety, shortness of breath",4,Tuberculosis,123,72,36.3
+759,65,Other,"diarrhea, tremors, insomnia, fever, rash, sore throat, sneezing",7,Asthma,106,76,37.5
+760,25,Male,"nausea, tremors, joint pain, sneezing, headache",5,Migraine,190,92,35.5
+761,27,Male,"swelling, fever, shortness of breath, muscle pain, diarrhea, insomnia",6,Influenza,88,58,28.4
+762,55,Female,"tremors, anxiety, sneezing, blurred vision, dizziness, runny nose",6,Diabetes,170,74,44
+763,41,Female,"anxiety, back pain, sweating",3,Obesity,89,62,22.5
+764,58,Female,"anxiety, weight loss, abdominal pain, depression, blurred vision, cough, appetite loss",7,Parkinson's,101,76,32.9
+765,6,Other,"diarrhea, abdominal pain, weight loss",3,Anxiety,122,70,36.8
+766,37,Female,"swelling, depression, cough, vomiting, chest pain, runny nose, joint pain",7,IBS,121,72,26.2
+767,83,Female,"chest pain, anxiety, cough, blurred vision, abdominal pain, headache",6,Diabetes,126,60,30.1
+768,53,Female,"fatigue, nausea, swelling, weight gain, blurred vision, weight loss, headache",7,COVID-19,93,70,30.4
+769,26,Female,"nausea, runny nose, weight gain",3,Ulcer,125,80,32.3
+770,16,Male,"dizziness, blurred vision, depression, appetite loss, nausea",5,COVID-19,136,82,0
+771,66,Other,"depression, rash, sore throat, abdominal pain, blurred vision, joint pain",6,Pneumonia,129,74,33.2
+772,85,Male,"weight loss, joint pain, cough, swelling, nausea, dizziness",6,Diabetes,130,64,23.1
+773,40,Female,"nausea, swelling, blurred vision, cough",4,Diabetes,107,50,28.3
+774,80,Female,"chest pain, depression, nausea, fatigue, headache, vomiting",6,Thyroid Disorder,140,74,24.1
+775,28,Other,"sneezing, tremors, weight loss, fever, anxiety, sweating",6,Common Cold,144,82,46.1
+776,32,Other,"runny nose, muscle pain, tremors, sore throat, anxiety, back pain",6,Arthritis,107,80,24.6
+777,45,Male,"depression, weight loss, vomiting, cough, nausea, headache, swelling",7,Heart Disease,158,114,42.3
+778,39,Female,"insomnia, weight gain, sweating",3,Tuberculosis,121,70,39.1
+779,21,Other,"cough, fatigue, muscle pain",3,Bronchitis,129,68,38.5
+780,75,Female,"insomnia, blurred vision, sweating, anxiety, weight gain, weight loss, nausea",7,Chronic Kidney Disease,90,60,23.5
+781,48,Female,"sore throat, swelling, chest pain",3,Bronchitis,142,90,30.4
+782,9,Female,"swelling, muscle pain, sweating",3,Anxiety,169,74,29.9
+783,68,Female,"fatigue, blurred vision, tremors, shortness of breath",4,Migraine,99,0,25
+784,74,Other,"blurred vision, vomiting, anxiety, cough",4,Epilepsy,127,88,34.5
+785,78,Female,"sore throat, sneezing, back pain, blurred vision, anxiety, swelling, chest pain",7,Allergy,118,70,44.5
+786,81,Female,"weight gain, anxiety, rash, headache, sweating, tremors, sneezing",7,Heart Disease,122,76,35.9
+787,1,Male,"anxiety, diarrhea, blurred vision, chest pain",4,Migraine,125,78,27.6
+788,53,Male,"depression, appetite loss, fatigue, back pain, vomiting, anxiety",6,Common Cold,168,88,35
+789,26,Other,"weight loss, appetite loss, depression, vomiting, fever",5,Gastritis,129,0,38.5
+790,1,Male,"appetite loss, sore throat, chest pain, abdominal pain, weight loss",5,Chronic Kidney Disease,110,76,28.4
+791,23,Male,"dizziness, joint pain, back pain, weight gain, anxiety",5,Arthritis,80,80,39.8
+792,62,Male,"insomnia, sneezing, appetite loss, cough, depression",5,Gastritis,115,0,0
+793,67,Female,"tremors, weight loss, dizziness, runny nose, muscle pain, cough",6,Allergy,127,46,34.4
+794,46,Male,"weight loss, fever, vomiting, weight gain, insomnia",5,Dementia,164,78,32.8
+795,22,Other,"sweating, fever, dizziness, joint pain, depression",5,Tuberculosis,93,64,38
+796,41,Other,"nausea, anxiety, fatigue, swelling, chest pain, blurred vision",6,Parkinson's,158,64,31.2
+797,39,Male,"muscle pain, sore throat, sneezing, diarrhea, rash",5,Influenza,126,78,29.6
+798,26,Male,"nausea, fatigue, rash, appetite loss, cough",5,Epilepsy,129,62,41.2
+799,68,Female,"fever, appetite loss, sneezing, abdominal pain, headache, vomiting, dizziness",7,Ulcer,134,58,26.4
+800,87,Male,"headache, swelling, tremors, fatigue, sweating",5,Obesity,102,74,29.5
+801,15,Male,"runny nose, joint pain, blurred vision",3,Hypertension,187,50,33.9
+802,43,Female,"insomnia, tremors, anxiety",3,Chronic Kidney Disease,173,78,33.8
+803,40,Male,"fatigue, abdominal pain, swelling",3,Sinusitis,158,70,29.8
+804,41,Female,"depression, vomiting, dizziness, chest pain, shortness of breath",5,Dementia,103,108,39.2
+805,15,Male,"shortness of breath, headache, nausea",3,Arthritis,146,78,38.5
+806,19,Other,"abdominal pain, fatigue, vomiting, weight loss, rash, swelling, dizziness",7,Parkinson's,147,74,34.9
+807,44,Other,"weight gain, diarrhea, nausea, sore throat, chest pain",5,Depression,99,54,34
+808,7,Male,"headache, fever, sneezing",3,Ulcer,124,72,27.6
+809,77,Other,"sore throat, muscle pain, joint pain",3,IBS,101,64,21
+810,86,Other,"anxiety, rash, chest pain, dizziness, vomiting, blurred vision",6,Allergy,81,86,27.5
+811,40,Other,"weight gain, headache, sore throat, blurred vision, runny nose, fatigue",6,COVID-19,133,102,32.8
+812,51,Male,"sneezing, diarrhea, sweating, headache, anxiety, shortness of breath",6,Allergy,173,82,38.4
+813,9,Female,"appetite loss, tremors, dizziness, runny nose, sneezing",5,Anemia,118,64,0
+814,45,Other,"sneezing, runny nose, tremors, nausea, chest pain",5,Pneumonia,84,64,35.8
+815,14,Female,"abdominal pain, fatigue, joint pain, sweating",4,Dementia,105,58,34.9
+816,52,Other,"appetite loss, chest pain, weight loss",3,Stroke,122,52,36.2
+817,50,Male,"anxiety, diarrhea, weight loss, nausea",4,Liver Disease,140,82,39.2
+818,56,Other,"sweating, blurred vision, weight gain, muscle pain",4,Gastritis,98,82,25.2
+819,10,Other,"weight loss, blurred vision, diarrhea, nausea, insomnia",5,Depression,87,60,37.2
+820,13,Female,"sweating, sneezing, fatigue, weight gain, anxiety, runny nose, dizziness",7,Bronchitis,156,75,48.3
+821,77,Female,"joint pain, sore throat, anxiety, fatigue, insomnia",5,Diabetes,93,100,43.4
+822,82,Male,"depression, insomnia, cough, sore throat, vomiting, headache",6,Gastritis,107,72,30.8
+823,50,Other,"insomnia, headache, runny nose, weight loss",4,Obesity,105,68,20
+824,87,Female,"vomiting, tremors, insomnia, dizziness, chest pain, weight gain",6,Dementia,109,60,25.4
+825,52,Male,"blurred vision, rash, sore throat, weight gain, fever, anxiety",6,Bronchitis,90,62,25.1
+826,46,Male,"cough, rash, weight loss, fever, blurred vision",5,Dermatitis,125,70,24.3
+827,51,Other,"tremors, fever, diarrhea, muscle pain, blurred vision",5,Dermatitis,119,54,22.3
+828,61,Male,"joint pain, tremors, muscle pain, weight loss, vomiting, insomnia",6,Gastritis,116,74,32.3
+829,18,Male,"joint pain, sweating, rash, muscle pain, headache, chest pain, insomnia",7,Hypertension,105,100,43.3
+830,56,Male,"headache, back pain, sneezing",3,COVID-19,144,82,32
+831,90,Other,"depression, appetite loss, muscle pain, tremors",4,COVID-19,100,68,31.6
+832,58,Female,"anxiety, nausea, runny nose, abdominal pain, muscle pain, weight loss",6,Bronchitis,100,66,32
+833,64,Other,"nausea, muscle pain, anxiety, fever",4,Food Poisoning,166,76,45.7
+834,62,Other,"shortness of breath, muscle pain, weight loss, weight gain, rash, cough, blurred vision",7,Asthma,131,64,23.7
+835,19,Other,"weight gain, sneezing, blurred vision",3,Food Poisoning,116,72,22.1
+836,79,Male,"tremors, swelling, sweating, shortness of breath, runny nose, abdominal pain, sore throat",7,Thyroid Disorder,158,78,32.9
+837,70,Other,"depression, back pain, insomnia, appetite loss, sore throat, swelling",6,Asthma,127,58,27.7
+838,61,Other,"cough, dizziness, weight loss, swelling, fever, sneezing, runny nose",7,Chronic Kidney Disease,96,56,24.7
+839,89,Other,"muscle pain, rash, appetite loss, chest pain, nausea",5,Thyroid Disorder,131,66,34.3
+840,61,Other,"back pain, appetite loss, weight gain, shortness of breath, cough",5,Thyroid Disorder,82,70,21.1
+841,11,Male,"cough, insomnia, chest pain, back pain, anxiety, fever, appetite loss",7,Diabetes,193,70,34.9
+842,17,Other,"tremors, appetite loss, shortness of breath",3,Epilepsy,95,64,32
+843,23,Other,"tremors, shortness of breath, fever, back pain, fatigue",5,Heart Disease,137,61,24.2
+844,34,Other,"insomnia, runny nose, rash, appetite loss",4,Thyroid Disorder,136,84,35
+845,77,Male,"nausea, appetite loss, abdominal pain, cough, dizziness, sore throat",6,Asthma,72,78,31.6
+846,82,Male,"swelling, muscle pain, tremors, joint pain, diarrhea, insomnia",6,Anxiety,168,64,32.9
+847,22,Female,"back pain, sweating, rash, cough, depression, shortness of breath, fatigue",7,Hypertension,123,48,42.1
+848,88,Other,"chest pain, sneezing, back pain, swelling, weight loss, diarrhea",6,IBS,115,72,28.9
+849,58,Female,"shortness of breath, headache, abdominal pain, muscle pain, fever, chest pain",6,IBS,101,62,21.9
+850,46,Female,"abdominal pain, insomnia, cough, fatigue, weight loss",5,Arthritis,197,74,25.9
+851,51,Female,"dizziness, shortness of breath, appetite loss, fatigue, depression",5,Parkinson's,172,68,42.4
+852,67,Female,"back pain, insomnia, weight gain, swelling",4,Obesity,102,90,35.7
+853,9,Male,"dizziness, weight loss, fever, insomnia",4,Arthritis,112,72,34.4
+854,45,Male,"abdominal pain, fatigue, insomnia",3,Liver Disease,143,84,42.4
+855,8,Other,"shortness of breath, vomiting, cough, fever, anxiety",5,Thyroid Disorder,143,74,26.2
+856,12,Other,"anxiety, depression, fatigue, blurred vision",4,Arthritis,138,60,34.6
+857,24,Female,"insomnia, swelling, depression, weight gain, nausea, fatigue",6,Tuberculosis,173,84,35.7
+858,86,Female,"insomnia, sore throat, depression, runny nose, shortness of breath, muscle pain",6,Chronic Kidney Disease,97,68,27.2
+859,50,Female,"swelling, sore throat, shortness of breath, cough",4,Heart Disease,144,82,38.5
+860,26,Other,"sweating, shortness of breath, nausea, runny nose, sore throat",5,Influenza,83,68,18.2
+861,56,Male,"depression, sneezing, fatigue, headache",4,IBS,129,64,26.4
+862,5,Male,"runny nose, blurred vision, shortness of breath",3,Parkinson's,119,88,45.3
+863,82,Male,"back pain, shortness of breath, swelling, runny nose, fever, sneezing, headache",7,COVID-19,94,68,26
+864,90,Female,"insomnia, joint pain, shortness of breath",3,Bronchitis,102,64,40.6
+865,52,Other,"weight gain, fever, abdominal pain, blurred vision, sneezing, back pain",6,Sinusitis,115,64,30.8
+866,89,Female,"weight loss, diarrhea, fever",3,Obesity,151,78,42.9
+867,83,Male,"weight loss, rash, dizziness, insomnia, chest pain, joint pain, cough",7,Pneumonia,184,78,37
+868,71,Male,"tremors, dizziness, sore throat, runny nose, chest pain, depression, vomiting",7,Food Poisoning,94,0,0
+869,89,Female,"chest pain, blurred vision, joint pain, fatigue",4,IBS,181,64,34.1
+870,18,Male,"depression, runny nose, back pain",3,Migraine,135,94,40.6
+871,50,Male,"back pain, weight gain, diarrhea",3,Hypertension,95,82,35
+872,8,Female,"depression, chest pain, sneezing, weight loss, runny nose, fever, cough",7,Depression,99,0,22.2
+873,84,Other,"joint pain, fatigue, vomiting",3,Depression,89,74,30.4
+874,5,Other,"insomnia, weight loss, headache, back pain, weight gain, diarrhea",6,Epilepsy,80,74,30
+875,84,Male,"depression, fever, sneezing, anxiety, cough, diarrhea",6,Tuberculosis,139,75,25.6
+876,13,Female,"depression, cough, chest pain, sweating",4,Common Cold,90,68,24.5
+877,64,Other,"sweating, weight gain, sore throat, fatigue",4,Parkinson's,141,0,42.4
+878,42,Male,"diarrhea, sore throat, appetite loss, vomiting, muscle pain, dizziness, insomnia",7,Depression,140,85,37.4
+879,9,Male,"weight loss, headache, dizziness, vomiting, cough, weight gain, nausea",7,Arthritis,147,75,29.9
+880,71,Male,"swelling, muscle pain, nausea, blurred vision",4,Heart Disease,97,70,18.2
+881,81,Other,"weight gain, cough, headache, fatigue",4,Ulcer,107,88,36.8
+882,84,Other,"fever, sneezing, sore throat, nausea",4,IBS,189,104,34.3
+883,17,Male,"muscle pain, blurred vision, appetite loss, swelling, sneezing",5,Sinusitis,83,66,32.2
+884,89,Male,"abdominal pain, runny nose, muscle pain, diarrhea, nausea",5,Tuberculosis,117,64,33.2
+885,39,Female,"blurred vision, sneezing, anxiety, sore throat",4,Parkinson's,108,70,30.5
+886,68,Male,"weight loss, diarrhea, vomiting",3,Liver Disease,127,46,34.4
+887,81,Other,"tremors, swelling, weight loss, abdominal pain, diarrhea",5,Parkinson's,164,78,32.8
+888,61,Female,"cough, vomiting, fatigue, appetite loss, headache",5,Hypertension,93,64,38
+889,27,Female,"insomnia, cough, depression, rash",4,Diabetes,158,64,31.2
+890,7,Other,"anxiety, appetite loss, swelling, runny nose, cough",5,Heart Disease,126,78,29.6
+891,10,Male,"appetite loss, fever, sneezing, abdominal pain",4,Diabetes,129,62,41.2
+892,30,Male,"weight gain, tremors, dizziness, muscle pain, vomiting, insomnia",6,Thyroid Disorder,134,58,26.4
+893,49,Male,"fatigue, diarrhea, back pain, muscle pain",4,Gastritis,102,74,29.5
+894,59,Male,"weight gain, sneezing, cough, muscle pain, headache, vomiting",6,COVID-19,187,50,33.9
+895,35,Male,"headache, runny nose, back pain, vomiting, depression",5,IBS,173,78,33.8
+896,15,Female,"cough, blurred vision, weight gain, shortness of breath",4,Gastritis,158,70,29.8
+897,82,Other,"nausea, swelling, dizziness, diarrhea, chest pain, anxiety",6,Ulcer,103,108,39.2
+898,53,Other,"weight gain, weight loss, tremors, diarrhea",4,Sinusitis,146,78,38.5
+899,2,Other,"weight gain, sneezing, sweating, runny nose",4,Migraine,147,74,34.9
+900,76,Male,"diarrhea, dizziness, muscle pain, weight gain",4,Liver Disease,99,54,34
+901,68,Female,"fever, muscle pain, cough, appetite loss, sneezing, abdominal pain, swelling",7,Bronchitis,124,72,27.6
+902,72,Male,"runny nose, sneezing, diarrhea",3,Migraine,101,64,21
+903,3,Female,"vomiting, headache, rash, chest pain, diarrhea, depression",6,Anemia,81,86,27.5
+904,75,Male,"nausea, blurred vision, runny nose, tremors, weight gain",5,Arthritis,133,102,32.8
+905,60,Other,"swelling, headache, blurred vision, joint pain, nausea, rash",6,Ulcer,173,82,38.4
+906,89,Female,"tremors, depression, sore throat",3,Allergy,127,46,34.4
+907,90,Other,"chest pain, muscle pain, swelling",3,Epilepsy,164,78,32.8
+908,8,Other,"appetite loss, vomiting, tremors, insomnia, sore throat, anxiety, dizziness",7,Stroke,93,64,38
+909,6,Female,"cough, fatigue, joint pain, rash, runny nose",5,Bronchitis,158,64,31.2
+910,27,Male,"depression, weight loss, blurred vision, sore throat",4,Food Poisoning,126,78,29.6
+911,75,Other,"weight loss, fatigue, depression, sneezing",4,Gastritis,129,62,41.2
+912,55,Female,"dizziness, rash, shortness of breath, abdominal pain",4,Hypertension,134,58,26.4
+913,68,Male,"rash, runny nose, sneezing",3,Influenza,102,74,29.5
+914,87,Other,"insomnia, sweating, weight loss, chest pain, runny nose, anxiety, rash",7,Migraine,187,50,33.9
+915,51,Male,"vomiting, runny nose, sore throat",3,Depression,173,78,33.8
+916,90,Male,"fatigue, nausea, shortness of breath",3,Chronic Kidney Disease,158,70,29.8
+917,38,Female,"tremors, vomiting, abdominal pain, depression",4,Migraine,103,108,39.2
+918,25,Male,"headache, sneezing, rash, muscle pain, runny nose, depression, fever",7,Arthritis,146,78,38.5
+919,75,Female,"sweating, abdominal pain, depression, dizziness",4,Common Cold,147,74,34.9
+920,71,Female,"sneezing, weight gain, insomnia, blurred vision, abdominal pain",5,Allergy,99,54,34
+921,34,Male,"weight gain, headache, appetite loss, chest pain, nausea",5,Ulcer,124,72,27.6
+922,37,Female,"chest pain, swelling, tremors, cough, headache",5,Migraine,101,64,21
+923,20,Male,"nausea, blurred vision, weight loss, chest pain, tremors, back pain, insomnia",7,Diabetes,81,86,27.5
+924,57,Female,"cough, dizziness, weight gain",3,Asthma,133,102,32.8
+925,41,Female,"vomiting, weight loss, blurred vision, cough",4,Food Poisoning,173,82,38.4
+926,52,Female,"runny nose, weight loss, nausea, chest pain, fatigue",5,Tuberculosis,,,
+927,70,Other,"runny nose, dizziness, headache, fever",4,Obesity,,,
+928,73,Other,"sneezing, chest pain, swelling, weight gain, insomnia",5,Gastritis,158,70,29.8
+929,87,Other,"dizziness, blurred vision, fatigue, back pain, sneezing, cough",6,Bronchitis,103,108,39.2
+930,46,Male,"fever, joint pain, anxiety, sweating, diarrhea",5,Pneumonia,146,78,38.5
+931,68,Male,"anxiety, depression, vomiting",3,Gastritis,147,74,34.9
+932,87,Other,"vomiting, fever, sore throat, weight loss, tremors",5,Depression,99,54,34
+933,86,Female,"joint pain, vomiting, sneezing, dizziness, anxiety, back pain, abdominal pain",7,COVID-19,124,72,27.6
+934,48,Male,"blurred vision, tremors, muscle pain, rash",4,IBS,101,64,21
+935,28,Other,"rash, chest pain, runny nose, tremors, weight loss",5,Chronic Kidney Disease,81,86,27.5
+936,55,Other,"back pain, muscle pain, appetite loss, runny nose, chest pain, nausea",6,Sinusitis,133,102,32.8
+937,39,Female,"headache, sweating, weight gain, anxiety, sore throat, tremors",6,Sinusitis,173,82,38.4
+938,82,Female,"dizziness, sore throat, weight gain, swelling, joint pain, sweating, fever",7,Dermatitis,118,64,0
+939,18,Male,"weight loss, runny nose, blurred vision, weight gain",4,Liver Disease,84,64,35.8
+940,64,Other,"chest pain, weight loss, sneezing, cough, tremors, weight gain",6,Diabetes,105,58,34.9
+941,82,Other,"diarrhea, fever, appetite loss, sweating, headache, shortness of breath",6,Thyroid Disorder,122,52,36.2
+942,23,Female,"depression, insomnia, chest pain",3,Migraine,140,82,39.2
+943,9,Other,"fever, fatigue, swelling, shortness of breath",4,Bronchitis,98,82,25.2
+944,88,Female,"weight gain, sneezing, muscle pain, tremors, shortness of breath",5,Thyroid Disorder,87,60,37.2
+945,3,Female,"rash, abdominal pain, back pain",3,Anemia,156,75,48.3
+946,7,Female,"cough, headache, dizziness, runny nose, blurred vision, sweating, rash",7,Diabetes,93,100,43.4
+947,10,Other,"depression, rash, cough, chest pain, swelling, abdominal pain",6,Food Poisoning,107,72,30.8
+948,42,Female,"swelling, fatigue, anxiety, nausea",4,Hypertension,105,68,20
+949,75,Female,"shortness of breath, insomnia, blurred vision, rash, fatigue",5,Anxiety,109,60,25.4
+950,63,Female,"fever, headache, abdominal pain, chest pain",4,Anxiety,90,62,25.1
+951,25,Other,"fatigue, vomiting, headache, abdominal pain",4,Gastritis,125,70,24.3
+952,10,Male,"tremors, weight loss, blurred vision, sweating, appetite loss, fatigue, muscle pain",7,Parkinson's,119,54,22.3
+953,47,Male,"fever, sneezing, rash, chest pain",4,Anxiety,116,74,32.3
+954,4,Other,"anxiety, abdominal pain, swelling, dizziness, nausea, blurred vision",6,Anxiety,105,100,43.3
+955,19,Other,"diarrhea, headache, tremors",3,Anxiety,144,82,32
+956,15,Male,"headache, vomiting, sore throat, muscle pain, blurred vision",5,Asthma,100,68,31.6
+957,85,Other,"swelling, muscle pain, cough, vomiting, fatigue, appetite loss",6,Common Cold,100,66,32
+958,9,Female,"sneezing, fatigue, shortness of breath",3,Dementia,166,76,45.7
+959,78,Male,"swelling, fatigue, appetite loss",3,Arthritis,131,64,23.7
+960,19,Other,"nausea, insomnia, rash, fever",4,Dementia,116,72,22.1
+961,73,Male,"rash, tremors, nausea, abdominal pain, back pain, anxiety, diarrhea",7,Heart Disease,158,78,32.9
+962,69,Male,"swelling, fever, abdominal pain, vomiting, blurred vision, tremors, chest pain",7,Pneumonia,127,58,27.7
+963,61,Female,"vomiting, abdominal pain, tremors",3,Thyroid Disorder,96,56,24.7
+964,28,Other,"nausea, runny nose, insomnia, fatigue, tremors, rash, joint pain",7,Anemia,131,66,34.3
+965,18,Female,"fatigue, swelling, dizziness, tremors, runny nose, sweating",6,Asthma,82,70,21.1
+966,42,Female,"blurred vision, chest pain, weight loss, back pain, cough",5,Obesity,193,70,34.9
+967,57,Male,"chest pain, runny nose, anxiety, back pain, tremors, insomnia",6,Pneumonia,95,64,32
+968,23,Male,"chest pain, muscle pain, vomiting, sore throat, sneezing, insomnia",6,Stroke,137,61,24.2
+969,11,Male,"insomnia, fatigue, joint pain, runny nose, abdominal pain, tremors",6,Arthritis,136,84,35
+970,47,Male,"joint pain, blurred vision, weight gain, fatigue, back pain, nausea",6,Tuberculosis,72,78,31.6
+971,55,Other,"anxiety, tremors, joint pain, fatigue",4,Gastritis,168,64,32.9
+972,83,Female,"swelling, blurred vision, weight gain, shortness of breath, appetite loss",5,Migraine,123,48,42.1
+973,59,Male,"insomnia, anxiety, joint pain, sneezing, abdominal pain, shortness of breath",6,Food Poisoning,115,72,28.9
+974,7,Male,"sneezing, diarrhea, depression, headache, fever",5,Pneumonia,101,62,21.9
+975,42,Male,"nausea, joint pain, anxiety",3,Migraine,197,74,25.9
+976,60,Male,"anxiety, fatigue, swelling, sore throat, insomnia, abdominal pain, sneezing",7,Chronic Kidney Disease,172,68,42.4
+977,3,Male,"sneezing, abdominal pain, shortness of breath, weight loss, dizziness, swelling",6,Chronic Kidney Disease,102,90,35.7
+978,49,Female,"joint pain, runny nose, dizziness",3,Liver Disease,112,72,34.4
+979,39,Other,"cough, nausea, weight loss",3,Ulcer,143,84,42.4
+980,15,Other,"muscle pain, headache, chest pain, blurred vision, joint pain, sneezing",6,Diabetes,143,74,26.2
+981,72,Male,"insomnia, weight loss, tremors, sweating, weight gain, sneezing",6,Arthritis,138,60,34.6
+982,49,Other,"joint pain, shortness of breath, sneezing",3,Epilepsy,173,84,35.7
+983,6,Male,"swelling, chest pain, dizziness, cough, fever",5,Arthritis,97,68,27.2
+984,81,Female,"rash, appetite loss, back pain, weight gain, fever",5,Anxiety,144,82,38.5
+985,32,Male,"muscle pain, rash, cough",3,IBS,83,68,18.2
+986,44,Male,"weight gain, sore throat, blurred vision, tremors, chest pain",5,Asthma,129,64,26.4
+987,35,Male,"dizziness, cough, runny nose, insomnia, muscle pain, weight gain, abdominal pain",7,Common Cold,119,88,45.3
+988,74,Male,"weight gain, fever, dizziness, joint pain, tremors, swelling",6,Anemia,94,68,26
+989,86,Female,"fatigue, blurred vision, insomnia, vomiting, dizziness, sneezing",6,Depression,102,64,40.6
+990,69,Male,"chest pain, rash, muscle pain, vomiting, sneezing, depression, sore throat",7,Diabetes,115,64,30.8
+991,80,Other,"cough, chest pain, weight gain, joint pain, appetite loss",5,Chronic Kidney Disease,151,78,42.9
+992,55,Male,"fatigue, weight gain, dizziness, shortness of breath, sore throat, sweating, abdominal pain",7,COVID-19,184,78,37
+993,39,Female,"depression, sweating, chest pain",3,Food Poisoning,94,0,0
+994,86,Other,"dizziness, vomiting, muscle pain, joint pain, shortness of breath, anxiety, abdominal pain",7,Arthritis,181,64,34.1
+995,74,Female,"depression, blurred vision, abdominal pain",3,Diabetes,135,94,40.6
+996,81,Male,"shortness of breath, depression, weight loss, anxiety, muscle pain, weight gain",6,Hypertension,95,82,35
+997,88,Female,"rash, runny nose, headache, diarrhea",4,Epilepsy,99,0,22.2
+998,37,Other,"muscle pain, dizziness, sore throat, depression, vomiting, tremors",6,Dermatitis,89,74,30.4
+999,25,Male,"insomnia, anxiety, diarrhea, joint pain, fatigue",5,Diabetes,80,74,30
+1000,26,Male,"runny nose, sneezing, weight loss, muscle pain, depression",5,Asthma,139,75,25.6
+1001,23,Other,"fever, shortness of breath, appetite loss, insomnia",4,Heart Disease,90,68,24.5
+1002,8,Male,"back pain, sneezing, appetite loss",3,Dermatitis,141,0,42.4
+1003,18,Male,"chest pain, sore throat, muscle pain, rash, insomnia, back pain, sweating",7,Gastritis,140,85,37.4
+1004,64,Male,"back pain, abdominal pain, fatigue, sweating, insomnia, weight gain, swelling",7,Pneumonia,147,75,29.9
+1005,31,Female,"fatigue, swelling, appetite loss, dizziness, sweating, weight gain, joint pain",7,Asthma,97,70,18.2
+1006,53,Female,"fatigue, nausea, vomiting, shortness of breath",4,Hypertension,107,88,36.8
+1007,55,Female,"cough, sneezing, weight loss, rash, blurred vision, fatigue, dizziness",7,Dermatitis,189,104,34.3
+1008,48,Female,"shortness of breath, appetite loss, headache, rash",4,Arthritis,83,66,32.2
+1009,33,Other,"cough, sweating, back pain, insomnia, tremors, blurred vision, swelling",7,Common Cold,117,64,33.2
+1010,69,Male,"depression, blurred vision, rash, appetite loss, insomnia",5,IBS,108,70,30.5
+1011,31,Female,"joint pain, fever, tremors, shortness of breath, chest pain, sore throat",6,Dermatitis,127,46,34.4
+1012,83,Female,"runny nose, depression, dizziness, appetite loss",4,Hypertension,164,78,32.8
+1013,63,Female,"shortness of breath, tremors, sore throat",3,Depression,93,64,38
+1014,34,Other,"sweating, dizziness, blurred vision, muscle pain, fatigue, nausea",6,Thyroid Disorder,158,64,31.2
+1015,42,Female,"muscle pain, anxiety, back pain, sweating, weight loss",5,COVID-19,126,78,29.6
+1016,24,Other,"swelling, cough, depression",3,Anemia,129,62,41.2
+1017,41,Other,"fever, joint pain, vomiting, depression",4,Ulcer,134,58,26.4
+1018,84,Male,"nausea, diarrhea, abdominal pain",3,COVID-19,102,74,29.5
+1019,23,Other,"insomnia, muscle pain, appetite loss, dizziness, runny nose, sneezing, headache",7,Dermatitis,187,50,33.9
+1020,24,Female,"appetite loss, chest pain, vomiting, sore throat, muscle pain",5,Dementia,173,78,33.8
+1021,79,Other,"sweating, weight gain, diarrhea, fever, swelling, weight loss",6,Sinusitis,158,70,29.8
+1022,22,Male,"runny nose, vomiting, shortness of breath",3,Asthma,103,108,39.2
+1023,16,Male,"muscle pain, anxiety, shortness of breath, headache, sore throat, rash, nausea",7,IBS,146,78,38.5
+1024,27,Male,"muscle pain, swelling, runny nose, insomnia, sneezing, fatigue, diarrhea",7,Anemia,147,74,34.9
+1025,27,Other,"chest pain, back pain, sneezing, joint pain, headache",5,Dermatitis,99,54,34
+1026,19,Male,"back pain, insomnia, vomiting, muscle pain, nausea",5,Hypertension,124,72,27.6
+1027,83,Female,"diarrhea, anxiety, runny nose, rash, weight gain",5,Chronic Kidney Disease,101,64,21
+1028,89,Female,"sneezing, headache, tremors",3,COVID-19,81,86,27.5
+1029,33,Male,"blurred vision, joint pain, muscle pain, back pain",4,Arthritis,133,102,32.8
+1030,77,Other,"cough, tremors, dizziness, diarrhea, sneezing, rash, anxiety",7,Pneumonia,173,82,38.4
+1031,49,Female,"fever, shortness of breath, abdominal pain",3,Thyroid Disorder,146,78,38.5
+1032,22,Other,"headache, weight loss, cough, weight gain, nausea",5,IBS,147,74,34.9
+1033,56,Male,"runny nose, headache, sore throat, dizziness, blurred vision",5,Migraine,99,54,34
+1034,36,Other,"dizziness, cough, headache",3,Heart Disease,124,72,27.6
+1035,56,Male,"chest pain, shortness of breath, anxiety, swelling, sweating, abdominal pain",6,Food Poisoning,101,64,21
+1036,25,Male,"swelling, headache, weight loss, insomnia, depression, runny nose",6,Gastritis,81,86,27.5
+1037,60,Female,"nausea, cough, sneezing, shortness of breath",4,Influenza,133,102,32.8
+1038,64,Male,"cough, runny nose, rash, blurred vision, weight loss, sneezing",6,Pneumonia,173,82,38.4
+1039,24,Male,"fatigue, rash, sore throat, vomiting",4,Dermatitis,118,64,0
+1040,68,Other,"sweating, shortness of breath, weight gain, insomnia, appetite loss, vomiting, back pain",7,Thyroid Disorder,84,64,35.8
+1041,4,Female,"sore throat, diarrhea, swelling, sneezing, insomnia, fatigue",6,Diabetes,105,58,34.9
+1042,42,Male,"joint pain, rash, weight gain",3,Arthritis,122,52,36.2
+1043,62,Female,"runny nose, sweating, blurred vision",3,Common Cold,140,82,39.2
+1044,80,Female,"anxiety, insomnia, fever, dizziness, cough",5,Allergy,98,82,25.2
+1045,10,Other,"headache, vomiting, cough, depression, chest pain, dizziness, appetite loss",7,Gastritis,87,60,37.2
+1046,3,Male,"sore throat, joint pain, shortness of breath, nausea, diarrhea, sweating",6,Parkinson's,156,75,48.3
+1047,39,Female,"swelling, joint pain, chest pain, depression, tremors, headache",6,Diabetes,93,100,43.4
+1048,86,Male,"back pain, appetite loss, chest pain, insomnia, anxiety, headache",6,Depression,107,72,30.8
+1049,35,Other,"abdominal pain, vomiting, sneezing, runny nose, joint pain",5,Anxiety,105,68,20
+1050,81,Female,"sore throat, swelling, muscle pain, rash, anxiety, nausea",6,Parkinson's,109,60,25.4
+1051,29,Other,"abdominal pain, dizziness, runny nose",3,COVID-19,90,62,25.1
+1052,60,Female,"sneezing, abdominal pain, depression, sore throat",4,Arthritis,125,70,24.3
+1053,55,Female,"chest pain, headache, sweating, insomnia, tremors, diarrhea",6,COVID-19,119,54,22.3
+1054,14,Other,"weight loss, sore throat, cough",3,Dementia,116,74,32.3
+1055,33,Other,"fatigue, runny nose, insomnia, back pain, weight gain, shortness of breath",6,Liver Disease,105,100,43.3
+1056,51,Male,"fever, fatigue, back pain, insomnia, runny nose, nausea, blurred vision",7,COVID-19,144,82,32
+1057,86,Female,"blurred vision, chest pain, dizziness, weight gain, back pain, runny nose",6,COVID-19,100,68,31.6
+1058,11,Other,"dizziness, tremors, appetite loss, nausea, vomiting",5,Parkinson's,100,66,32
+1059,1,Female,"tremors, insomnia, fatigue, muscle pain, weight loss",5,Parkinson's,166,76,45.7
+1060,89,Female,"nausea, depression, sneezing",3,Pneumonia,131,64,23.7
+1061,87,Female,"back pain, sneezing, chest pain, anxiety, swelling, rash, insomnia",7,Dermatitis,116,72,22.1
+1062,3,Other,"sore throat, headache, fever, vomiting, fatigue",5,Depression,158,78,32.9
+1063,84,Male,"vomiting, sneezing, depression",3,Hypertension,127,58,27.7
+1064,3,Male,"vomiting, sore throat, chest pain, swelling, runny nose, headache, sneezing",7,Liver Disease,96,56,24.7
+1065,3,Female,"back pain, blurred vision, runny nose, sneezing",4,Diabetes,131,66,34.3
+1066,51,Male,"vomiting, chest pain, weight gain, sweating",4,Dementia,82,70,21.1
+1067,56,Female,"fatigue, depression, tremors",3,Gastritis,193,70,34.9
+1068,63,Female,"back pain, weight gain, anxiety, tremors, weight loss, chest pain",6,Dermatitis,95,64,32
+1069,3,Female,"weight gain, back pain, anxiety, insomnia, sneezing, diarrhea, cough",7,Migraine,137,61,24.2
+1070,15,Female,"weight loss, sore throat, shortness of breath, depression, muscle pain",5,Dementia,136,84,35
+1071,25,Female,"runny nose, blurred vision, muscle pain, fever, nausea",5,Parkinson's,72,78,31.6
+1072,85,Female,"diarrhea, abdominal pain, tremors, weight gain, insomnia, dizziness",6,Food Poisoning,168,64,32.9
+1073,84,Other,"back pain, blurred vision, joint pain, muscle pain, sweating",5,Tuberculosis,123,48,42.1
+1074,12,Other,"appetite loss, nausea, anxiety, vomiting, chest pain, blurred vision",6,Food Poisoning,115,72,28.9
+1075,54,Female,"nausea, vomiting, anxiety, sneezing",4,Migraine,101,62,21.9
+1076,34,Female,"vomiting, weight loss, cough, fever",4,Chronic Kidney Disease,197,74,25.9
+1077,9,Female,"nausea, sweating, tremors, abdominal pain",4,Arthritis,172,68,42.4
+1078,29,Female,"anxiety, diarrhea, fatigue",3,Liver Disease,102,90,35.7
+1079,20,Other,"appetite loss, rash, swelling, cough, weight loss",5,Heart Disease,112,72,34.4
+1080,15,Male,"anxiety, insomnia, fatigue, blurred vision, cough, runny nose, swelling",7,Dermatitis,143,84,42.4
+1081,81,Male,"anxiety, appetite loss, fatigue, weight loss, cough, abdominal pain, sweating",7,Depression,143,74,26.2
+1082,57,Other,"rash, nausea, back pain, chest pain",4,Dermatitis,138,60,34.6
+1083,18,Male,"headache, depression, rash",3,Migraine,173,84,35.7
+1084,61,Female,"runny nose, muscle pain, swelling, fever",4,Dermatitis,97,68,27.2
+1085,86,Male,"nausea, sore throat, shortness of breath, rash, blurred vision, muscle pain, swelling",7,Chronic Kidney Disease,144,82,38.5
+1086,67,Other,"muscle pain, appetite loss, diarrhea, headache, tremors, back pain, blurred vision",7,Tuberculosis,83,68,18.2
+1087,67,Male,"runny nose, headache, swelling",3,Food Poisoning,129,64,26.4
+1088,51,Male,"dizziness, joint pain, swelling, nausea, muscle pain",5,COVID-19,119,88,45.3
+1089,85,Other,"weight gain, cough, depression, blurred vision",4,Arthritis,94,68,26
+1090,2,Female,"joint pain, insomnia, blurred vision, weight loss, chest pain, dizziness",6,Chronic Kidney Disease,102,64,40.6
+1091,80,Other,"anxiety, headache, blurred vision, joint pain, runny nose, depression, vomiting",7,Sinusitis,115,64,30.8
+1092,11,Male,"blurred vision, rash, appetite loss, depression, joint pain, vomiting",6,Allergy,151,78,42.9
+1093,28,Male,"joint pain, back pain, headache, abdominal pain, weight loss",5,Stroke,184,78,37
+1094,70,Other,"chest pain, abdominal pain, dizziness, swelling, depression, nausea, fever",7,Epilepsy,94,0,0
+1095,65,Male,"sweating, swelling, chest pain, back pain",4,Heart Disease,181,64,34.1
+1096,65,Female,"sweating, rash, shortness of breath",3,Thyroid Disorder,135,94,40.6
+1097,39,Other,"swelling, depression, fatigue",3,Pneumonia,95,82,35
+1098,75,Other,"runny nose, dizziness, diarrhea",3,Thyroid Disorder,99,0,22.2
+1099,74,Other,"tremors, anxiety, diarrhea, rash, chest pain, back pain, insomnia",7,Anemia,89,74,30.4
+1100,25,Female,"abdominal pain, back pain, diarrhea, fatigue, dizziness, tremors",6,Tuberculosis,80,74,30
+1101,53,Male,"headache, blurred vision, muscle pain",3,Ulcer,139,75,25.6
+1102,58,Male,"muscle pain, headache, sneezing",3,COVID-19,90,68,24.5
+1103,82,Female,"joint pain, weight gain, weight loss, abdominal pain, tremors, shortness of breath, sweating",7,Food Poisoning,141,0,42.4
+1104,59,Male,"back pain, muscle pain, nausea, headache, abdominal pain, swelling",6,Ulcer,140,85,37.4
+1105,21,Other,"tremors, abdominal pain, fatigue, blurred vision, vomiting, runny nose, sneezing",7,Anemia,147,75,29.9
+1106,16,Female,"anxiety, tremors, muscle pain",3,Food Poisoning,97,70,18.2
+1107,48,Female,"cough, abdominal pain, headache, fatigue, rash",5,Dementia,107,88,36.8
+1108,40,Female,"fever, appetite loss, headache, sweating, weight gain, muscle pain",6,Chronic Kidney Disease,189,104,34.3
+1109,71,Female,"sweating, back pain, sneezing, fever",4,Hypertension,83,66,32.2
+1110,73,Female,"muscle pain, sneezing, weight gain",3,COVID-19,117,64,33.2
+1111,78,Male,"appetite loss, joint pain, sneezing, sweating, back pain",5,Sinusitis,108,70,30.5
+1112,86,Female,"abdominal pain, depression, runny nose, swelling",4,Obesity,127,46,34.4
+1113,30,Female,"sore throat, appetite loss, anxiety, insomnia, muscle pain",5,Tuberculosis,164,78,32.8
+1114,4,Other,"cough, insomnia, runny nose, back pain, shortness of breath, depression, sore throat",7,Gastritis,93,64,38
+1115,70,Other,"weight loss, depression, fatigue, sore throat, vomiting",5,Allergy,158,64,31.2
+1116,61,Other,"weight gain, abdominal pain, vomiting",3,Obesity,126,78,29.6
+1117,3,Female,"fatigue, insomnia, weight loss",3,Sinusitis,129,62,41.2
+1118,11,Other,"diarrhea, sweating, blurred vision, weight gain",4,Depression,134,58,26.4
+1119,44,Female,"joint pain, weight gain, cough, sneezing, tremors",5,Parkinson's,102,74,29.5
+1120,13,Other,"fever, abdominal pain, dizziness, joint pain, shortness of breath, sore throat",6,Diabetes,187,50,33.9
+1121,40,Female,"headache, nausea, shortness of breath, swelling, sore throat",5,Diabetes,173,78,33.8
+1122,8,Female,"cough, anxiety, dizziness, nausea",4,Arthritis,158,70,29.8
+1123,34,Female,"dizziness, headache, muscle pain",3,IBS,103,108,39.2
+1124,77,Other,"cough, vomiting, diarrhea",3,Anxiety,146,78,38.5
+1125,41,Female,"abdominal pain, swelling, tremors, joint pain, fatigue, shortness of breath",6,Asthma,147,74,34.9
+1126,35,Other,"sore throat, sneezing, fever, muscle pain, depression, diarrhea",6,Stroke,99,54,34
+1127,17,Female,"diarrhea, swelling, weight loss",3,Dementia,124,72,27.6
+1128,70,Male,"runny nose, sore throat, depression, abdominal pain, vomiting, headache",6,Dementia,101,64,21
+1129,60,Other,"weight loss, muscle pain, runny nose, cough",4,Depression,81,86,27.5
+1130,33,Other,"fever, cough, sneezing, shortness of breath",4,Chronic Kidney Disease,133,102,32.8
+1131,6,Male,"sweating, depression, vomiting, weight gain, abdominal pain",5,IBS,173,82,38.4
+1132,18,Other,"weight gain, sore throat, chest pain, sweating, joint pain, blurred vision, fatigue",7,Thyroid Disorder,99,54,34
+1133,88,Female,"muscle pain, vomiting, anxiety, abdominal pain, appetite loss",5,Stroke,124,72,27.6
+1134,42,Female,"swelling, blurred vision, runny nose, shortness of breath, diarrhea",5,Allergy,101,64,21
+1135,78,Female,"anxiety, dizziness, fever, blurred vision, headache, depression",6,Hypertension,81,86,27.5
+1136,90,Other,"insomnia, nausea, muscle pain",3,Common Cold,133,102,32.8
+1137,4,Other,"weight loss, sore throat, appetite loss, depression, swelling, sweating",6,Migraine,173,82,38.4
+1138,77,Female,"rash, sweating, joint pain",3,Ulcer,118,64,0
+1139,16,Female,"sweating, swelling, appetite loss, blurred vision",4,IBS,84,64,35.8
+1140,36,Other,"runny nose, fever, diarrhea, back pain",4,Food Poisoning,105,58,34.9
+1141,29,Male,"vomiting, sore throat, sweating, anxiety, depression",5,Bronchitis,122,52,36.2
+1142,1,Male,"cough, shortness of breath, sneezing, blurred vision, anxiety",5,Migraine,140,82,39.2
+1143,25,Other,"fatigue, shortness of breath, weight gain, abdominal pain, sneezing, nausea",6,Anxiety,98,82,25.2
+1144,9,Male,"insomnia, tremors, anxiety, weight gain, nausea, sore throat, swelling",7,Thyroid Disorder,87,60,37.2
+1145,89,Other,"tremors, diarrhea, abdominal pain, back pain, shortness of breath, vomiting, insomnia",7,Heart Disease,156,75,48.3
+1146,84,Male,"shortness of breath, insomnia, weight loss, runny nose, fever, muscle pain, depression",7,Stroke,93,100,43.4
+1147,60,Female,"muscle pain, tremors, shortness of breath, fatigue, insomnia",5,Dermatitis,107,72,30.8
+1148,58,Female,"swelling, cough, back pain, diarrhea, sweating, shortness of breath, muscle pain",7,Food Poisoning,105,68,20
+1149,55,Male,"vomiting, dizziness, sore throat, weight gain, fever, diarrhea",6,Common Cold,109,60,25.4
+1150,81,Other,"vomiting, nausea, dizziness, chest pain",4,Bronchitis,90,62,25.1
+1151,76,Other,"sneezing, muscle pain, appetite loss",3,Pneumonia,125,70,24.3
+1152,44,Male,"sweating, shortness of breath, diarrhea, fatigue, sneezing",5,Bronchitis,119,54,22.3
+1153,80,Female,"abdominal pain, appetite loss, diarrhea, sore throat, swelling",5,Anxiety,116,74,32.3
+1154,11,Male,"depression, runny nose, weight gain",3,Obesity,105,100,43.3
+1155,9,Male,"joint pain, dizziness, tremors",3,Bronchitis,144,82,32
+1156,87,Male,"cough, chest pain, anxiety, depression, muscle pain, sore throat",6,Influenza,100,68,31.6
+1157,13,Other,"chest pain, tremors, joint pain",3,Stroke,100,66,32
+1158,50,Female,"diarrhea, anxiety, appetite loss, insomnia, sweating, fever",6,Obesity,166,76,45.7
+1159,4,Female,"anxiety, tremors, fatigue, dizziness, depression, insomnia",6,Depression,131,64,23.7
+1160,9,Other,"weight gain, vomiting, fatigue, fever, anxiety",5,Epilepsy,116,72,22.1
+1161,46,Female,"weight gain, headache, depression, abdominal pain",4,Depression,158,78,32.9
+1162,75,Female,"runny nose, nausea, diarrhea, headache, cough, back pain, swelling",7,Migraine,127,58,27.7
+1163,61,Female,"chest pain, weight gain, weight loss, swelling, headache",5,Epilepsy,96,56,24.7
+1164,87,Male,"chest pain, rash, fever, abdominal pain, weight gain",5,Parkinson's,131,66,34.3
+1165,55,Female,"abdominal pain, sweating, weight loss, tremors",4,Influenza,82,70,21.1
+1166,25,Other,"depression, vomiting, appetite loss, sore throat",4,Hypertension,193,70,34.9
+1167,39,Female,"anxiety, blurred vision, dizziness, weight gain, swelling, appetite loss",6,Migraine,95,64,32
+1168,29,Male,"fatigue, runny nose, appetite loss, cough",4,Gastritis,137,61,24.2
+1169,31,Female,"blurred vision, diarrhea, runny nose, anxiety",4,Allergy,136,84,35
+1170,1,Female,"appetite loss, back pain, joint pain, vomiting, nausea",5,Thyroid Disorder,72,78,31.6
+1171,19,Female,"rash, fever, weight loss",3,Common Cold,168,64,32.9
+1172,4,Male,"depression, weight gain, swelling, rash",4,Ulcer,123,48,42.1
+1173,71,Male,"nausea, diarrhea, shortness of breath, back pain, dizziness",5,Hypertension,115,72,28.9
+1174,3,Other,"fever, nausea, sweating, shortness of breath",4,Diabetes,101,62,21.9
+1175,31,Female,"depression, appetite loss, fatigue, dizziness, vomiting, chest pain",6,Tuberculosis,197,74,25.9
+1176,9,Male,"insomnia, nausea, abdominal pain, appetite loss, anxiety",5,Depression,172,68,42.4
+1177,48,Female,"appetite loss, vomiting, weight loss, joint pain",4,Tuberculosis,102,90,35.7
+1178,69,Female,"depression, diarrhea, cough, swelling, anxiety, weight gain",6,Parkinson's,112,72,34.4
+1179,36,Male,"dizziness, diarrhea, cough, depression",4,Depression,143,84,42.4
+1180,9,Male,"weight gain, sneezing, vomiting, back pain, sore throat, sweating, insomnia",7,Dermatitis,143,74,26.2
+1181,60,Male,"swelling, depression, tremors, abdominal pain, rash, sneezing",6,Epilepsy,138,60,34.6
+1182,82,Other,"abdominal pain, blurred vision, sneezing, shortness of breath, weight gain",5,Gastritis,173,84,35.7
+1183,51,Male,"vomiting, diarrhea, runny nose",3,Allergy,97,68,27.2
+1184,18,Male,"joint pain, weight gain, nausea, rash, shortness of breath, weight loss",6,Chronic Kidney Disease,144,82,38.5
+1185,80,Female,"abdominal pain, rash, diarrhea, weight gain, cough, runny nose",6,Chronic Kidney Disease,83,68,18.2
+1186,49,Male,"runny nose, muscle pain, sweating, rash, sneezing, dizziness",6,Liver Disease,129,64,26.4
+1187,65,Other,"diarrhea, shortness of breath, depression, sore throat, rash, swelling",6,Diabetes,119,88,45.3
+1188,16,Male,"appetite loss, shortness of breath, diarrhea",3,Stroke,94,68,26
+1189,87,Female,"weight loss, vomiting, dizziness",3,Food Poisoning,102,64,40.6
+1190,25,Other,"back pain, sweating, swelling, insomnia, tremors",5,Heart Disease,115,64,30.8
+1191,34,Male,"tremors, swelling, blurred vision, back pain",4,Parkinson's,151,78,42.9
+1192,75,Other,"chest pain, sweating, rash, appetite loss, joint pain",5,Obesity,184,78,37
+1193,27,Female,"depression, abdominal pain, swelling, headache, joint pain, diarrhea",6,Common Cold,94,0,0
+1194,11,Female,"weight gain, appetite loss, weight loss, swelling, runny nose, back pain, dizziness",7,Asthma,181,64,34.1
+1195,58,Other,"muscle pain, swelling, blurred vision, vomiting",4,Dermatitis,135,94,40.6
+1196,64,Other,"headache, weight gain, tremors, chest pain, back pain",5,Common Cold,95,82,35
+1197,89,Other,"dizziness, diarrhea, muscle pain, insomnia, swelling",5,Anxiety,99,0,22.2
+1198,43,Other,"weight gain, fever, appetite loss, cough, headache",5,Chronic Kidney Disease,89,74,30.4
+1199,50,Male,"anxiety, weight gain, joint pain, appetite loss, vomiting, swelling, sore throat",7,Allergy,80,74,30
+1200,39,Male,"dizziness, weight gain, runny nose",3,Migraine,139,75,25.6
+1201,89,Other,"insomnia, weight loss, nausea",3,Diabetes,90,68,24.5
+1202,37,Male,"nausea, vomiting, sore throat",3,Migraine,141,0,42.4
+1203,67,Male,"insomnia, abdominal pain, sore throat, runny nose, cough",5,Asthma,140,85,37.4
+1204,69,Female,"tremors, muscle pain, joint pain, nausea, fatigue",5,Diabetes,147,75,29.9
+1205,27,Female,"joint pain, tremors, vomiting",3,Migraine,97,70,18.2
+1206,88,Female,"nausea, anxiety, weight gain, chest pain, appetite loss, vomiting",6,Liver Disease,107,88,36.8
+1207,52,Other,"fever, headache, runny nose, sore throat",4,Heart Disease,189,104,34.3
+1208,60,Other,"abdominal pain, dizziness, weight gain, sneezing",4,Depression,83,66,32.2
+1209,90,Other,"chest pain, depression, runny nose",3,Influenza,117,64,33.2
+1210,54,Male,"joint pain, anxiety, sweating, appetite loss, tremors",5,Depression,108,70,30.5
+1211,51,Other,"back pain, muscle pain, runny nose, joint pain, insomnia, nausea, weight gain",7,Diabetes,127,46,34.4
+1212,38,Other,"tremors, nausea, shortness of breath, depression",4,Influenza,164,78,32.8
+1213,53,Other,"blurred vision, back pain, vomiting",3,Bronchitis,93,64,38
+1214,58,Male,"sore throat, swelling, fatigue, abdominal pain, dizziness",5,Pneumonia,158,64,31.2
+1215,82,Other,"abdominal pain, cough, runny nose, fever",4,Heart Disease,126,78,29.6
+1216,2,Female,"joint pain, dizziness, back pain, tremors, vomiting, swelling",6,Arthritis,129,62,41.2
+1217,60,Male,"dizziness, insomnia, back pain, runny nose",4,Pneumonia,134,58,26.4
+1218,21,Male,"insomnia, diarrhea, blurred vision, runny nose, headache, sneezing, shortness of breath",7,COVID-19,102,74,29.5
+1219,16,Other,"anxiety, fatigue, nausea",3,Anxiety,187,50,33.9
+1220,20,Female,"nausea, sore throat, insomnia, swelling, fever, appetite loss",6,Thyroid Disorder,173,78,33.8
+1221,28,Female,"vomiting, blurred vision, cough, insomnia",4,Food Poisoning,158,70,29.8
+1222,83,Other,"sweating, depression, appetite loss",3,Anemia,103,108,39.2
+1223,7,Other,"joint pain, blurred vision, chest pain",3,Anemia,146,78,38.5
+1224,48,Male,"swelling, joint pain, vomiting",3,Common Cold,147,74,34.9
+1225,25,Other,"fever, muscle pain, dizziness",3,Hypertension,99,54,34
+1226,86,Male,"diarrhea, fatigue, appetite loss",3,Arthritis,124,72,27.6
+1227,42,Female,"cough, muscle pain, abdominal pain, fatigue",4,Thyroid Disorder,101,64,21
+1228,16,Male,"anxiety, vomiting, weight loss, joint pain",4,Stroke,81,86,27.5
+1229,52,Other,"rash, dizziness, nausea",3,Hypertension,133,102,32.8
+1230,9,Other,"joint pain, vomiting, runny nose",3,Gastritis,173,82,38.4
+1231,53,Female,"depression, anxiety, rash, cough, sore throat",5,Anxiety,147,74,34.9
+1232,77,Female,"sneezing, fatigue, blurred vision, weight loss, weight gain, nausea, shortness of breath",7,Obesity,99,54,34
+1233,89,Female,"insomnia, swelling, blurred vision, headache, dizziness, nausea",6,Allergy,124,72,27.6
+1234,66,Other,"sore throat, dizziness, fever, anxiety, weight gain, runny nose",6,Dermatitis,101,64,21
+1235,3,Other,"abdominal pain, weight gain, blurred vision, fever",4,Thyroid Disorder,81,86,27.5
+1236,32,Other,"chest pain, diarrhea, back pain",3,Obesity,133,102,32.8
+1237,26,Male,"headache, rash, sneezing",3,COVID-19,173,82,38.4
+1238,57,Other,"depression, cough, diarrhea, back pain",4,IBS,118,64,0
+1239,6,Other,"headache, shortness of breath, dizziness, depression, appetite loss",5,Sinusitis,84,64,35.8
+1240,43,Female,"depression, sweating, chest pain, swelling, fever, diarrhea",6,Depression,105,58,34.9
+1241,88,Other,"weight loss, cough, insomnia, diarrhea",4,Asthma,122,52,36.2
+1242,24,Female,"anxiety, tremors, joint pain, abdominal pain",4,Thyroid Disorder,140,82,39.2
+1243,25,Male,"sore throat, tremors, sneezing",3,Allergy,98,82,25.2
+1244,71,Male,"vomiting, headache, sore throat, nausea",4,Allergy,87,60,37.2
+1245,55,Male,"sore throat, muscle pain, back pain, runny nose, chest pain, nausea, vomiting",7,Asthma,156,75,48.3
+1246,35,Female,"chest pain, weight gain, runny nose, depression",4,Parkinson's,93,100,43.4
+1247,79,Other,"joint pain, nausea, sneezing, runny nose, muscle pain",5,COVID-19,107,72,30.8
+1248,49,Female,"sweating, appetite loss, sneezing, fever",4,Liver Disease,105,68,20
+1249,20,Other,"swelling, chest pain, anxiety",3,Dermatitis,109,60,25.4
+1250,37,Female,"shortness of breath, joint pain, runny nose, chest pain",4,Thyroid Disorder,90,62,25.1
+1251,25,Male,"sneezing, sore throat, dizziness, headache, blurred vision, tremors, vomiting",7,Stroke,125,70,24.3
+1252,48,Female,"back pain, tremors, rash, sneezing, joint pain, muscle pain, sweating",7,Common Cold,119,54,22.3
+1253,50,Other,"depression, weight gain, sore throat, muscle pain, cough",5,Migraine,116,74,32.3
+1254,66,Other,"swelling, muscle pain, shortness of breath, back pain",4,Diabetes,105,100,43.3
+1255,32,Male,"blurred vision, cough, depression, joint pain, muscle pain",5,Migraine,144,82,32
+1256,87,Male,"sweating, rash, depression",3,Migraine,100,68,31.6
+1257,33,Male,"shortness of breath, anxiety, runny nose, insomnia",4,Anemia,100,66,32
+1258,50,Female,"insomnia, sweating, nausea, fever, fatigue, sore throat, depression",7,Parkinson's,166,76,45.7
+1259,39,Other,"sore throat, abdominal pain, vomiting, muscle pain, nausea, swelling, shortness of breath",7,Anemia,131,64,23.7
+1260,82,Other,"weight gain, chest pain, back pain, muscle pain, appetite loss, sore throat",6,Stroke,116,72,22.1
+1261,51,Other,"sweating, headache, shortness of breath, back pain, vomiting",5,Obesity,158,78,32.9
+1262,13,Male,"nausea, sweating, sneezing",3,Chronic Kidney Disease,127,58,27.7
+1263,23,Female,"abdominal pain, muscle pain, depression, chest pain, back pain, sweating",6,Obesity,96,56,24.7
+1264,58,Other,"vomiting, sneezing, nausea, abdominal pain",4,Diabetes,131,66,34.3
+1265,25,Female,"nausea, vomiting, cough, back pain",4,Anxiety,82,70,21.1
+1266,38,Male,"runny nose, depression, anxiety, fatigue, sweating, nausea",6,Sinusitis,193,70,34.9
+1267,75,Male,"shortness of breath, sore throat, dizziness",3,IBS,95,64,32
+1268,1,Other,"insomnia, swelling, fatigue, fever, cough, shortness of breath",6,Migraine,137,61,24.2
+1269,1,Female,"fatigue, vomiting, abdominal pain",3,Dementia,136,84,35
+1270,48,Other,"swelling, shortness of breath, sneezing, appetite loss, dizziness, anxiety, muscle pain",7,Parkinson's,72,78,31.6
+1271,49,Other,"dizziness, sweating, diarrhea, rash, insomnia",5,Sinusitis,168,64,32.9
+1272,90,Female,"tremors, dizziness, appetite loss, fatigue, fever",5,Influenza,123,48,42.1
+1273,36,Other,"fever, anxiety, fatigue, tremors",4,Thyroid Disorder,115,72,28.9
+1274,61,Other,"rash, runny nose, anxiety, insomnia",4,Obesity,101,62,21.9
+1275,82,Female,"fever, depression, sweating, dizziness",4,Liver Disease,197,74,25.9
+1276,57,Male,"appetite loss, back pain, dizziness",3,Dermatitis,172,68,42.4
+1277,85,Other,"joint pain, back pain, anxiety, sore throat, rash, muscle pain",6,Parkinson's,102,90,35.7
+1278,25,Other,"back pain, joint pain, chest pain",3,Sinusitis,112,72,34.4
+1279,12,Female,"weight gain, appetite loss, blurred vision, abdominal pain, cough, headache, sneezing",7,Tuberculosis,143,84,42.4
+1280,31,Male,"tremors, runny nose, nausea, sweating, fatigue, sneezing, insomnia",7,Anxiety,143,74,26.2
+1281,56,Other,"swelling, insomnia, blurred vision, sore throat",4,Hypertension,138,60,34.6
+1282,33,Other,"dizziness, joint pain, swelling, shortness of breath",4,Common Cold,173,84,35.7
+1283,63,Male,"insomnia, headache, weight loss",3,Migraine,97,68,27.2
+1284,83,Female,"tremors, diarrhea, weight gain, swelling, anxiety",5,Depression,144,82,38.5
+1285,34,Male,"depression, tremors, appetite loss, weight loss, muscle pain, diarrhea",6,IBS,83,68,18.2
+1286,76,Male,"fatigue, sore throat, dizziness",3,Chronic Kidney Disease,129,64,26.4
+1287,41,Female,"weight gain, rash, headache",3,Thyroid Disorder,119,88,45.3
+1288,25,Female,"chest pain, cough, weight gain",3,Dementia,94,68,26
+1289,85,Other,"swelling, rash, appetite loss, insomnia, headache",5,Liver Disease,102,64,40.6
+1290,59,Female,"fatigue, joint pain, fever, weight loss",4,Dementia,115,64,30.8
+1291,77,Female,"sweating, diarrhea, sneezing, insomnia, runny nose",5,Tuberculosis,151,78,42.9
+1292,89,Male,"anxiety, dizziness, chest pain",3,Tuberculosis,184,78,37
+1293,43,Male,"sneezing, depression, vomiting, tremors, chest pain, blurred vision, joint pain",7,Heart Disease,94,0,0
+1294,7,Male,"tremors, back pain, appetite loss, diarrhea",4,Anxiety,181,64,34.1
+1295,51,Female,"back pain, joint pain, chest pain, insomnia, nausea, fever",6,Dermatitis,135,94,40.6
+1296,37,Female,"rash, swelling, joint pain, appetite loss, sore throat, abdominal pain",6,Liver Disease,95,82,35
+1297,17,Female,"blurred vision, tremors, weight loss, joint pain",4,Anemia,99,0,22.2
+1298,74,Male,"tremors, appetite loss, cough, blurred vision, chest pain, runny nose, depression",7,Obesity,89,74,30.4
+1299,84,Male,"chest pain, headache, vomiting, appetite loss, back pain, swelling",6,Ulcer,80,74,30
+1300,22,Male,"fatigue, insomnia, appetite loss, headache, joint pain, muscle pain, sweating",7,Food Poisoning,139,75,25.6
+1301,44,Other,"sneezing, nausea, cough, fatigue, abdominal pain",5,Pneumonia,90,68,24.5
+1302,16,Male,"depression, back pain, joint pain, diarrhea",4,Liver Disease,141,0,42.4
+1303,89,Other,"chest pain, blurred vision, anxiety, nausea, depression, joint pain",6,IBS,140,85,37.4
+1304,84,Female,"swelling, runny nose, tremors",3,Arthritis,147,75,29.9
+1305,83,Other,"rash, fever, fatigue, appetite loss, sore throat, swelling",6,Heart Disease,97,70,18.2
+1306,13,Other,"diarrhea, fever, weight gain, appetite loss, swelling, sneezing, shortness of breath",7,Bronchitis,107,88,36.8
+1307,13,Female,"sneezing, depression, blurred vision, muscle pain, chest pain, weight gain",6,Diabetes,189,104,34.3
+1308,68,Female,"nausea, joint pain, blurred vision, fever, sweating, weight loss, appetite loss",7,COVID-19,83,66,32.2
+1309,16,Male,"sweating, weight gain, weight loss, blurred vision, depression, fatigue, vomiting",7,COVID-19,117,64,33.2
+1310,17,Other,"blurred vision, nausea, fever, weight loss, runny nose, dizziness, fatigue",7,Dermatitis,108,70,30.5
+1311,5,Male,"sore throat, weight loss, shortness of breath, tremors",4,Hypertension,127,46,34.4
+1312,39,Male,"chest pain, rash, weight loss, nausea, muscle pain, insomnia, fever",7,Pneumonia,164,78,32.8
+1313,89,Female,"insomnia, weight loss, runny nose, headache, weight gain",5,Epilepsy,93,64,38
+1314,85,Male,"anxiety, weight loss, abdominal pain, vomiting, blurred vision",5,Epilepsy,158,64,31.2
+1315,28,Male,"vomiting, headache, chest pain",3,Asthma,126,78,29.6
+1316,71,Female,"vomiting, weight gain, rash, shortness of breath, headache, anxiety, muscle pain",7,Parkinson's,129,62,41.2
+1317,55,Other,"depression, nausea, joint pain, runny nose, sore throat, shortness of breath",6,Heart Disease,134,58,26.4
+1318,48,Other,"vomiting, sore throat, depression, back pain, shortness of breath, appetite loss, blurred vision",7,Tuberculosis,102,74,29.5
+1319,78,Male,"anxiety, nausea, muscle pain, headache, dizziness, appetite loss, joint pain",7,Arthritis,187,50,33.9
+1320,82,Male,"fatigue, weight loss, insomnia, muscle pain, sore throat",5,COVID-19,173,78,33.8
+1321,36,Male,"swelling, shortness of breath, headache, tremors, appetite loss",5,Food Poisoning,158,70,29.8
+1322,40,Other,"diarrhea, joint pain, fatigue, appetite loss, nausea, abdominal pain",6,Pneumonia,103,108,39.2
+1323,35,Other,"fatigue, abdominal pain, rash, blurred vision, weight gain, chest pain",6,Anxiety,146,78,38.5
+1324,24,Female,"nausea, dizziness, swelling",3,Pneumonia,147,74,34.9
+1325,88,Other,"weight loss, anxiety, joint pain, sneezing, weight gain, headache, shortness of breath",7,Depression,99,54,34
+1326,35,Male,"insomnia, headache, joint pain, weight gain",4,Anemia,124,72,27.6
+1327,59,Male,"blurred vision, swelling, diarrhea, insomnia, anxiety",5,Bronchitis,101,64,21
+1328,67,Other,"appetite loss, runny nose, abdominal pain, chest pain, shortness of breath",5,Ulcer,81,86,27.5
+1329,53,Female,"chest pain, depression, tremors, sore throat",4,Sinusitis,133,102,32.8
+1330,12,Male,"depression, sore throat, back pain",3,Dermatitis,173,82,38.4
+1331,64,Male,"sore throat, back pain, chest pain",3,Dementia,147,74,34.9
+1332,90,Male,"back pain, headache, sneezing, appetite loss, abdominal pain, insomnia, blurred vision",7,Liver Disease,99,54,34
+1333,1,Other,"anxiety, vomiting, sweating",3,IBS,124,72,27.6
+1334,6,Other,"back pain, rash, diarrhea, tremors, insomnia, abdominal pain, swelling",7,Liver Disease,101,64,21
+1335,10,Female,"insomnia, swelling, abdominal pain, diarrhea",4,Ulcer,81,86,27.5
+1336,49,Male,"abdominal pain, rash, cough, muscle pain",4,Anxiety,133,102,32.8
+1337,70,Male,"dizziness, insomnia, diarrhea",3,Food Poisoning,173,82,38.4
+1338,81,Other,"sneezing, chest pain, shortness of breath, vomiting, fever",5,Chronic Kidney Disease,118,64,0
+1339,60,Other,"chest pain, depression, abdominal pain, sweating",4,IBS,84,64,35.8
+1340,46,Male,"cough, rash, fever, anxiety, runny nose, dizziness",6,Dermatitis,105,58,34.9
+1341,56,Female,"back pain, nausea, joint pain, rash, fever",5,Common Cold,122,52,36.2
+1342,63,Male,"abdominal pain, headache, muscle pain",3,Hypertension,140,82,39.2
+1343,55,Male,"diarrhea, sneezing, joint pain, rash, chest pain",5,Tuberculosis,98,82,25.2
+1344,46,Other,"fatigue, runny nose, insomnia, sweating, nausea",5,Stroke,87,60,37.2
+1345,15,Male,"rash, tremors, blurred vision",3,Liver Disease,156,75,48.3
+1346,43,Male,"headache, joint pain, muscle pain",3,Chronic Kidney Disease,93,100,43.4
+1347,63,Other,"sneezing, insomnia, shortness of breath, fatigue",4,Diabetes,107,72,30.8
+1348,50,Male,"dizziness, swelling, joint pain, abdominal pain",4,Migraine,105,68,20
+1349,45,Other,"appetite loss, fever, headache",3,Pneumonia,109,60,25.4
+1350,77,Other,"cough, insomnia, sweating, dizziness",4,Common Cold,90,62,25.1
+1351,80,Male,"sneezing, chest pain, sweating, tremors, sore throat, muscle pain",6,Common Cold,125,70,24.3
+1352,55,Male,"nausea, diarrhea, shortness of breath, swelling, fatigue, appetite loss, sweating",7,Thyroid Disorder,119,54,22.3
+1353,24,Male,"blurred vision, back pain, abdominal pain",3,Migraine,116,74,32.3
+1354,36,Male,"depression, tremors, headache, diarrhea, fatigue, appetite loss, joint pain",7,Dermatitis,105,100,43.3
+1355,7,Female,"muscle pain, fever, anxiety, vomiting",4,Bronchitis,144,82,32
+1356,8,Other,"chest pain, blurred vision, depression, diarrhea, swelling, dizziness, muscle pain",7,Liver Disease,100,68,31.6
+1357,36,Female,"chest pain, fatigue, shortness of breath",3,Liver Disease,100,66,32
+1358,85,Other,"diarrhea, dizziness, cough, nausea, appetite loss, fever",6,Anemia,166,76,45.7
+1359,56,Male,"chest pain, sneezing, shortness of breath, anxiety",4,Gastritis,131,64,23.7
+1360,88,Other,"rash, dizziness, chest pain, fatigue, swelling, insomnia",6,Heart Disease,116,72,22.1
+1361,76,Other,"dizziness, rash, back pain, appetite loss",4,Obesity,158,78,32.9
+1362,12,Male,"diarrhea, depression, shortness of breath, vomiting, weight gain",5,Parkinson's,127,58,27.7
+1363,10,Other,"fatigue, cough, weight gain, depression, vomiting, back pain, runny nose",7,Tuberculosis,96,56,24.7
+1364,20,Male,"chest pain, back pain, sneezing, swelling, vomiting",5,Parkinson's,131,66,34.3
+1365,72,Female,"muscle pain, weight loss, blurred vision, shortness of breath",4,Tuberculosis,82,70,21.1
+1366,62,Female,"runny nose, depression, blurred vision, fatigue, muscle pain",5,Sinusitis,193,70,34.9
+1367,6,Other,"appetite loss, fever, nausea, anxiety, shortness of breath, blurred vision, headache",7,Epilepsy,95,64,32
+1368,69,Other,"back pain, sweating, joint pain, sneezing",4,Influenza,137,61,24.2
+1369,50,Female,"runny nose, swelling, abdominal pain, joint pain",4,COVID-19,136,84,35
+1370,66,Female,"vomiting, nausea, fever, weight gain, blurred vision",5,Parkinson's,72,78,31.6
+1371,22,Male,"shortness of breath, chest pain, diarrhea, sweating, blurred vision, tremors, weight loss",7,Epilepsy,168,64,32.9
+1372,7,Other,"diarrhea, chest pain, cough, depression, headache, shortness of breath, back pain",7,Influenza,123,48,42.1
+1373,81,Other,"weight loss, fatigue, fever, depression",4,Asthma,115,72,28.9
+1374,53,Other,"sore throat, blurred vision, weight loss, shortness of breath, back pain",5,Food Poisoning,101,62,21.9
+1375,36,Male,"cough, depression, sweating, fever, rash",5,Chronic Kidney Disease,197,74,25.9
+1376,75,Male,"weight loss, insomnia, tremors",3,Heart Disease,172,68,42.4
+1377,57,Male,"depression, shortness of breath, tremors, appetite loss, anxiety, weight loss",6,Thyroid Disorder,102,90,35.7
+1378,51,Male,"vomiting, weight gain, depression, appetite loss, tremors",5,Gastritis,112,72,34.4
+1379,12,Female,"back pain, muscle pain, rash, headache",4,Ulcer,143,84,42.4
+1380,24,Other,"nausea, sweating, tremors, vomiting, weight gain, sneezing",6,Diabetes,143,74,26.2
+1381,88,Other,"chest pain, nausea, sweating",3,Chronic Kidney Disease,138,60,34.6
+1382,59,Other,"headache, sore throat, muscle pain",3,Hypertension,173,84,35.7
+1383,2,Other,"back pain, abdominal pain, headache",3,IBS,97,68,27.2
+1384,32,Male,"joint pain, fever, fatigue, sweating, depression, cough",6,Pneumonia,144,82,38.5
+1385,14,Other,"depression, anxiety, fever, appetite loss",4,Heart Disease,83,68,18.2
+1386,73,Female,"tremors, blurred vision, sore throat, vomiting, headache",5,Thyroid Disorder,129,64,26.4
+1387,8,Other,"chest pain, dizziness, sneezing, headache",4,Anxiety,119,88,45.3
+1388,14,Other,"depression, weight loss, fatigue, fever, sweating",5,Anemia,94,68,26
+1389,1,Male,"abdominal pain, sweating, muscle pain",3,Chronic Kidney Disease,102,64,40.6
+1390,37,Male,"muscle pain, joint pain, headache, rash",4,Common Cold,115,64,30.8
+1391,14,Female,"insomnia, blurred vision, fatigue, sneezing, nausea, appetite loss",6,Bronchitis,151,78,42.9
+1392,11,Male,"anxiety, dizziness, fatigue",3,Food Poisoning,184,78,37
+1393,24,Other,"nausea, muscle pain, abdominal pain, dizziness",4,Parkinson's,94,0,0
+1394,45,Male,"insomnia, chest pain, anxiety, sweating",4,Liver Disease,181,64,34.1
+1395,84,Male,"insomnia, rash, shortness of breath, blurred vision, sore throat, fever",6,Heart Disease,135,94,40.6
+1396,62,Male,"joint pain, runny nose, back pain, appetite loss",4,Gastritis,95,82,35
+1397,50,Female,"muscle pain, back pain, shortness of breath, headache, sore throat, dizziness, swelling",7,Pneumonia,99,0,22.2
+1398,18,Other,"muscle pain, sneezing, blurred vision, tremors, anxiety, depression",6,Gastritis,89,74,30.4
+1399,69,Female,"joint pain, muscle pain, weight loss, sneezing",4,Bronchitis,80,74,30
+1400,74,Other,"sweating, diarrhea, joint pain, sore throat, weight gain, blurred vision, muscle pain",7,Stroke,139,75,25.6
+1401,27,Male,"blurred vision, sore throat, diarrhea, rash",4,Depression,90,68,24.5
+1402,59,Male,"sneezing, headache, fatigue, cough, rash, back pain, sweating",7,Food Poisoning,141,0,42.4
+1403,19,Female,"muscle pain, diarrhea, vomiting, sweating, cough, headache, fatigue",7,Anxiety,140,85,37.4
+1404,90,Male,"blurred vision, muscle pain, rash",3,Thyroid Disorder,147,75,29.9
+1405,11,Male,"sore throat, sneezing, anxiety, nausea, fever, headache, rash",7,Arthritis,97,70,18.2
+1406,24,Female,"weight gain, sweating, muscle pain",3,COVID-19,107,88,36.8
+1407,53,Other,"back pain, abdominal pain, blurred vision, chest pain",4,Thyroid Disorder,189,104,34.3
+1408,8,Other,"appetite loss, depression, blurred vision, fever, chest pain, fatigue",6,Gastritis,83,66,32.2
+1409,59,Other,"swelling, nausea, abdominal pain, sweating, fever, joint pain, muscle pain",7,Influenza,117,64,33.2
+1410,21,Female,"weight gain, abdominal pain, chest pain, blurred vision, diarrhea",5,Anemia,108,70,30.5
+1411,51,Male,"joint pain, headache, back pain, vomiting, tremors, anxiety, cough",7,COVID-19,139,75,25.6
+1412,83,Female,"anxiety, sweating, sore throat, blurred vision, runny nose, sneezing, dizziness",7,Anxiety,90,68,24.5
+1413,35,Male,"nausea, cough, appetite loss, rash, depression, muscle pain",6,Anxiety,141,0,42.4
+1414,43,Male,"rash, anxiety, swelling",3,Pneumonia,140,85,37.4
+1415,2,Female,"nausea, weight loss, fatigue, sore throat, vomiting",5,Asthma,147,75,29.9
+1416,6,Other,"vomiting, depression, cough, diarrhea, shortness of breath, sore throat, weight gain",7,Hypertension,97,70,18.2
+1417,37,Female,"cough, tremors, dizziness, sore throat, chest pain, fever",6,Depression,107,88,36.8
+1418,17,Other,"dizziness, swelling, joint pain, back pain",4,Epilepsy,189,104,34.3
+1419,13,Other,"dizziness, muscle pain, back pain",3,Arthritis,83,66,32.2
+1420,76,Male,"fever, weight gain, appetite loss, joint pain",4,Depression,117,64,33.2
+1421,12,Other,"headache, insomnia, runny nose, sore throat",4,Chronic Kidney Disease,108,70,30.5
+1422,21,Other,"appetite loss, insomnia, depression, headache",4,Asthma,99,54,34
+1423,47,Other,"depression, abdominal pain, swelling, dizziness, runny nose, headache, appetite loss",7,Epilepsy,124,72,27.6
+1424,79,Other,"cough, blurred vision, swelling, insomnia, joint pain, diarrhea",6,Dermatitis,101,64,21
+1425,2,Male,"weight gain, depression, sneezing, fatigue",4,COVID-19,81,86,27.5
+1426,59,Female,"weight loss, tremors, appetite loss, sore throat, sneezing",5,Obesity,133,102,32.8
+1427,12,Male,"nausea, sore throat, shortness of breath, weight gain, rash",5,Diabetes,173,82,38.4
+1428,16,Other,"shortness of breath, sneezing, tremors, swelling, runny nose, depression",6,Diabetes,118,64,0
+1429,53,Other,"rash, tremors, chest pain",3,Migraine,84,64,35.8
+1430,41,Female,"runny nose, rash, abdominal pain, tremors",4,Bronchitis,105,58,34.9
+1431,8,Other,"abdominal pain, runny nose, shortness of breath, insomnia, cough, anxiety",6,COVID-19,122,52,36.2
+1432,14,Female,"blurred vision, sweating, weight loss, fever",4,Depression,140,82,39.2
+1433,50,Female,"weight gain, joint pain, tremors, sore throat",4,IBS,98,82,25.2
+1434,60,Male,"rash, runny nose, depression",3,Arthritis,87,60,37.2
+1435,26,Female,"back pain, fatigue, joint pain, swelling",4,COVID-19,156,75,48.3
+1436,90,Other,"dizziness, anxiety, sneezing",3,Gastritis,93,100,43.4
+1437,20,Female,"shortness of breath, runny nose, cough",3,Migraine,107,72,30.8
+1438,49,Male,"dizziness, weight gain, cough, anxiety",4,Tuberculosis,105,68,20
+1439,3,Other,"appetite loss, muscle pain, sneezing, vomiting, cough",5,Bronchitis,109,60,25.4
+1440,36,Female,"shortness of breath, depression, nausea, sore throat, headache",5,Liver Disease,90,62,25.1
+1441,86,Female,"tremors, blurred vision, runny nose, muscle pain, abdominal pain",5,COVID-19,125,70,24.3
+1442,39,Male,"sore throat, muscle pain, dizziness",3,Diabetes,119,54,22.3
+1443,90,Female,"muscle pain, sneezing, weight loss, blurred vision, appetite loss",5,Hypertension,116,74,32.3
+1444,86,Other,"joint pain, sweating, fever, weight loss, anxiety, vomiting, sore throat",7,Food Poisoning,105,100,43.3
+1445,41,Male,"dizziness, insomnia, sweating, back pain",4,Parkinson's,144,82,32
+1446,67,Other,"headache, sneezing, dizziness, fatigue, insomnia, muscle pain",6,Tuberculosis,100,68,31.6
+1447,5,Male,"sweating, headache, depression, runny nose, appetite loss, weight gain",6,Common Cold,100,66,32
+1448,77,Female,"muscle pain, blurred vision, weight loss, swelling",4,Thyroid Disorder,166,76,45.7
+1449,47,Male,"vomiting, insomnia, weight gain, fever, rash",5,Hypertension,131,64,23.7
+1450,84,Female,"abdominal pain, sweating, tremors, fatigue, blurred vision",5,Chronic Kidney Disease,116,72,22.1
+1451,23,Female,"rash, tremors, weight loss, muscle pain, abdominal pain, dizziness",6,Liver Disease,158,78,32.9
+1452,85,Other,"nausea, weight loss, anxiety, muscle pain, joint pain",5,Liver Disease,127,58,27.7
+1453,14,Male,"depression, chest pain, blurred vision, anxiety, fatigue, sore throat",6,Arthritis,96,56,24.7
+1454,80,Other,"anxiety, muscle pain, fatigue",3,Allergy,131,66,34.3
+1455,54,Male,"abdominal pain, weight gain, appetite loss, cough, insomnia, chest pain",6,Pneumonia,82,70,21.1
+1456,60,Female,"weight loss, joint pain, fatigue, vomiting, sneezing, appetite loss",6,Asthma,193,70,34.9
+1457,85,Female,"fever, rash, appetite loss, diarrhea, abdominal pain, chest pain",6,Bronchitis,95,64,32
+1458,20,Female,"insomnia, diarrhea, fever, muscle pain, cough, appetite loss",6,Chronic Kidney Disease,137,61,24.2
+1459,31,Other,"sweating, back pain, anxiety, dizziness, swelling, nausea, weight gain",7,Anxiety,136,84,35
+1460,74,Female,"anxiety, depression, joint pain, sweating",4,IBS,72,78,31.6
+1461,30,Male,"back pain, nausea, joint pain, dizziness, abdominal pain, sweating",6,Tuberculosis,168,64,32.9
+1462,51,Other,"abdominal pain, fatigue, depression, weight gain",4,Anemia,123,48,42.1
+1463,12,Male,"sweating, weight loss, nausea, dizziness, vomiting",5,Bronchitis,115,72,28.9
+1464,4,Other,"depression, swelling, weight gain",3,Liver Disease,101,62,21.9
+1465,81,Female,"sore throat, weight gain, joint pain, fever, back pain, headache, runny nose",7,Anemia,197,74,25.9
+1466,32,Other,"depression, diarrhea, chest pain, vomiting",4,Diabetes,172,68,42.4
+1467,81,Male,"swelling, shortness of breath, insomnia, cough, sweating, sore throat",6,Obesity,102,90,35.7
+1468,37,Female,"tremors, fatigue, sweating, runny nose, anxiety, appetite loss, blurred vision",7,Allergy,112,72,34.4
+1469,27,Female,"sore throat, sneezing, tremors, rash",4,Sinusitis,143,84,42.4
+1470,27,Other,"appetite loss, fever, muscle pain, sore throat, sneezing, depression",6,Pneumonia,143,74,26.2
+1471,23,Other,"dizziness, depression, runny nose, nausea, swelling, chest pain",6,Liver Disease,138,60,34.6
+1472,70,Male,"tremors, cough, fatigue, dizziness, rash, sneezing, anxiety",7,Dementia,173,84,35.7
+1473,67,Other,"back pain, shortness of breath, fatigue, vomiting, anxiety, fever, weight loss",7,Diabetes,97,68,27.2
+1474,4,Female,"vomiting, tremors, rash, fatigue",4,Obesity,144,82,38.5
+1475,36,Female,"sore throat, back pain, blurred vision, headache",4,Tuberculosis,83,68,18.2
+1476,38,Female,"rash, blurred vision, weight loss",3,Hypertension,129,64,26.4
+1477,88,Other,"muscle pain, abdominal pain, joint pain, vomiting, shortness of breath, nausea",6,Thyroid Disorder,119,88,45.3
+1478,27,Other,"fatigue, weight gain, appetite loss, swelling, sweating, chest pain",6,Heart Disease,94,68,26
+1479,14,Other,"runny nose, muscle pain, anxiety, back pain, shortness of breath, dizziness",6,Migraine,102,64,40.6
+1480,22,Male,"vomiting, weight gain, rash, appetite loss, depression, sore throat",6,IBS,115,64,30.8
+1481,68,Female,"weight gain, muscle pain, chest pain, anxiety, sweating",5,Epilepsy,151,78,42.9
+1482,55,Male,"fatigue, nausea, appetite loss",3,IBS,184,78,37
+1483,19,Female,"sore throat, vomiting, insomnia, rash",4,Food Poisoning,94,0,0
+1484,43,Male,"dizziness, blurred vision, fever",3,Pneumonia,181,64,34.1
+1485,28,Other,"appetite loss, dizziness, diarrhea, weight loss, sore throat, joint pain, chest pain",7,Ulcer,135,94,40.6
+1486,86,Male,"weight loss, shortness of breath, blurred vision",3,Hypertension,95,82,35
+1487,7,Female,"insomnia, swelling, muscle pain, dizziness, sweating, vomiting",6,Dementia,99,0,22.2
+1488,58,Male,"shortness of breath, muscle pain, fatigue",3,Migraine,89,74,30.4
+1489,83,Other,"weight gain, joint pain, diarrhea, fever, chest pain",5,Parkinson's,80,74,30
+1490,44,Other,"chest pain, headache, joint pain, cough, weight loss, abdominal pain",6,Common Cold,139,75,25.6
+1491,54,Other,"sneezing, fatigue, sweating",3,Common Cold,90,68,24.5
+1492,41,Female,"dizziness, swelling, rash, joint pain, sore throat",5,Chronic Kidney Disease,141,0,42.4
+1493,64,Other,"joint pain, chest pain, blurred vision",3,Parkinson's,140,85,37.4
+1494,4,Male,"sweating, rash, anxiety",3,Bronchitis,147,75,29.9
+1495,56,Male,"headache, fatigue, dizziness",3,Influenza,97,70,18.2
+1496,69,Male,"vomiting, back pain, appetite loss",3,Diabetes,107,88,36.8
+1497,7,Female,"shortness of breath, appetite loss, cough",3,Bronchitis,189,104,34.3
+1498,90,Male,"dizziness, blurred vision, anxiety, appetite loss, joint pain",5,COVID-19,83,66,32.2
+1499,19,Other,"weight gain, runny nose, fatigue, headache",4,Bronchitis,117,64,33.2
+1500,74,Female,"depression, runny nose, insomnia, fatigue, abdominal pain, back pain",6,Sinusitis,108,70,30.5
+1501,34,Female,"shortness of breath, dizziness, swelling, back pain, sneezing, diarrhea",6,Arthritis,140,85,37.4
+1502,85,Other,"rash, weight loss, sweating",3,Anemia,147,75,29.9
+1503,2,Other,"blurred vision, sore throat, sneezing, cough",4,Thyroid Disorder,97,70,18.2
+1504,76,Other,"sweating, joint pain, vomiting, sneezing, fatigue, dizziness",6,Hypertension,107,88,36.8
+1505,65,Male,"swelling, chest pain, blurred vision, runny nose, depression",5,Epilepsy,189,104,34.3
+1506,66,Male,"diarrhea, rash, joint pain, runny nose",4,Bronchitis,83,66,32.2
+1507,74,Other,"vomiting, sore throat, shortness of breath, muscle pain, nausea, insomnia",6,Obesity,117,64,33.2
+1508,59,Male,"runny nose, fatigue, back pain, diarrhea",4,Pneumonia,108,70,30.5
+1509,46,Female,"sneezing, insomnia, abdominal pain",3,Heart Disease,103,108,39.2
+1510,66,Female,"sore throat, rash, muscle pain, vomiting, headache, joint pain, abdominal pain",7,Pneumonia,146,78,38.5
+1511,55,Male,"shortness of breath, rash, fatigue, cough, depression, joint pain",6,Influenza,147,74,34.9
+1512,78,Female,"joint pain, nausea, anxiety, shortness of breath",4,Chronic Kidney Disease,99,54,34
+1513,15,Male,"fatigue, insomnia, cough, depression, diarrhea, tremors",6,Epilepsy,124,72,27.6
+1514,69,Male,"weight gain, shortness of breath, diarrhea",3,Sinusitis,101,64,21
+1515,89,Female,"anxiety, blurred vision, joint pain, fatigue",4,Heart Disease,81,86,27.5
+1516,37,Other,"nausea, appetite loss, vomiting, rash",4,Migraine,133,102,32.8
+1517,80,Female,"back pain, fever, fatigue, nausea, abdominal pain",5,Parkinson's,173,82,38.4
+1518,9,Male,"tremors, blurred vision, diarrhea, nausea, dizziness",5,Thyroid Disorder,118,64,0
+1519,43,Male,"runny nose, headache, fever, insomnia, sneezing",5,Diabetes,84,64,35.8
+1520,77,Female,"sore throat, nausea, insomnia, swelling, tremors",5,Diabetes,105,58,34.9
+1521,88,Female,"fever, sneezing, diarrhea, sweating, fatigue, cough, tremors",7,Migraine,122,52,36.2
+1522,13,Male,"abdominal pain, nausea, swelling, headache",4,Anxiety,140,82,39.2
+1523,85,Female,"runny nose, sneezing, back pain, rash, weight loss",5,Chronic Kidney Disease,98,82,25.2
+1524,43,Other,"runny nose, fever, sweating, rash, chest pain",5,Heart Disease,87,60,37.2
+1525,53,Male,"sneezing, fatigue, shortness of breath, insomnia, abdominal pain, depression, fever",7,Obesity,156,75,48.3
+1526,90,Female,"rash, sneezing, fever, diarrhea",4,Arthritis,93,100,43.4
+1527,14,Female,"back pain, sore throat, vomiting, joint pain",4,Food Poisoning,107,72,30.8
+1528,76,Female,"runny nose, abdominal pain, nausea, shortness of breath, insomnia, rash, dizziness",7,Sinusitis,105,68,20
+1529,79,Male,"vomiting, cough, weight gain, abdominal pain, blurred vision",5,Heart Disease,109,60,25.4
+1530,64,Other,"weight gain, appetite loss, sweating, rash, chest pain, fatigue",6,Liver Disease,90,62,25.1
