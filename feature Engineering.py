@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 import re
+import warnings
+warnings.filterwarnings("ignore") 
+
 # Load CLEANED dataset
 df = pd.read_csv("Healthcare_Cleaned.csv")
 print("Cleaned dataset loaded")
@@ -54,7 +57,7 @@ if "BloodPressure" in df.columns:
 df.drop(columns=["Symptoms_List"], inplace=True)
 # Save Feature Engineered Dataset
 df.to_csv("Healthcare_FeatureEngineered.csv", index=False)
-print("🎯 Feature engineered dataset saved as 'Healthcare_FeatureEngineered.csv'")
-print("\n📌 Sample Columns:")
+print(" Feature engineered dataset saved as 'Healthcare_FeatureEngineered.csv'")
+print("\n Sample Columns:")
 print(df.columns[:25])
 print("Feature Engineering done")

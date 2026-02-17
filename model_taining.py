@@ -1,12 +1,12 @@
-# ======================================================
-# STEP 5 & 6: Model Selection, Training & Evaluation
-# Accuracy shown in Percentage (%)
-# ======================================================
-
 import pandas as pd
 import numpy as np
 import joblib
-
+try:
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    HAS_PLOTTING = True
+except ModuleNotFoundError:
+    HAS_PLOTTING = False
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
@@ -16,18 +16,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import warnings
+warnings.filterwarnings("ignore") 
 
-# ------------------------------------------------------
-# 1️⃣ Load Dataset
-# ------------------------------------------------------
-
+#  Load Dataset
 df = pd.read_csv("Healthcare_FeatureEngineered.csv")
 print("Dataset Loaded:", df.shape)
 
-# ------------------------------------------------------
-# 2️⃣ Create Risk_Level if missing
-# ------------------------------------------------------
-
+#  Create Risk_Level if missing
 if "Risk_Level" not in df.columns:
 
     def risk_category(row):
@@ -51,31 +47,23 @@ if "Risk_Level" not in df.columns:
 
     df["Risk_Level"] = df.apply(risk_category, axis=1)
 
-# ------------------------------------------------------
-# 3️⃣ Features & Target
-# ------------------------------------------------------
+#  Features & Target
 
 y = df["Risk_Level"]
 X = df.drop(columns=["Risk_Level", "Disease", "Patient_ID"], errors="ignore")
 
-# ------------------------------------------------------
-# 4️⃣ Encode Target
-# ------------------------------------------------------
+#  Encode Target
 
 label_encoder = LabelEncoder()
 y_encoded = label_encoder.fit_transform(y)
 joblib.dump(label_encoder, "label_encoder.pkl")
 
-# ------------------------------------------------------
-# 5️⃣ Identify Column Types
-# ------------------------------------------------------
-
+#  Identify Column Types
 cat_cols = X.select_dtypes(include=["object", "category", "string"]).columns
 num_cols = X.select_dtypes(include=["number"]).columns
 
-# ------------------------------------------------------
-# 6️⃣ Preprocessing Pipeline
-# ------------------------------------------------------
+#  Preprocessing Pipeline
+
 
 numeric_transformer = Pipeline(steps=[
     ("imputer", SimpleImputer(strategy="median")),
@@ -94,10 +82,7 @@ preprocessor = ColumnTransformer(
     ]
 )
 
-# ------------------------------------------------------
-# 7️⃣ Train-Test Split
-# ------------------------------------------------------
-
+# Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y_encoded,
     test_size=0.2,
@@ -108,9 +93,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 print("\nTrain size:", X_train.shape[0])
 print("Test size:", X_test.shape[0])
 
-# ------------------------------------------------------
-# 8️⃣ Define Models
-# ------------------------------------------------------
+#  Define Models
 
 models = {
     "Logistic Regression": LogisticRegression(max_iter=500),
@@ -121,10 +104,10 @@ models = {
 best_model = None
 best_accuracy = 0
 best_model_name = ""
+model_accuracies = {}
+conf_matrices = {}
 
-# ------------------------------------------------------
-# 9️⃣ Train & Evaluate Models
-# ------------------------------------------------------
+#  Train & Evaluate Models
 
 for name, model in models.items():
 
@@ -154,7 +137,10 @@ for name, model in models.items():
     print(classification_report(y_test, y_pred, zero_division=0))
 
     print("Confusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
+    cm = confusion_matrix(y_test, y_pred)
+    print(cm)
+    conf_matrices[name] = cm
+    model_accuracies[name] = acc_percent
 
     # Save individual model
     filename = name.lower().replace(" ", "_") + "_model.pkl"
@@ -167,9 +153,7 @@ for name, model in models.items():
         best_model = pipeline
         best_model_name = name
 
-# ------------------------------------------------------
-# 🔟 Save Best Model
-# ------------------------------------------------------
+#  Save Best Model
 
 joblib.dump(best_model, "best_model.pkl")
 
@@ -178,3 +162,40 @@ print(f"Best Model: {best_model_name}")
 print(f"Best Accuracy: {best_accuracy * 100:.2f}%")
 print("Saved: best_model.pkl")
 print("==============================")
+
+#  Graphical Representation
+if HAS_PLOTTING:
+    plt.figure(figsize=(8, 5))
+    sns.barplot(x=list(model_accuracies.keys()), y=list(model_accuracies.values()), palette="viridis")
+    plt.title("Model Accuracy Comparison")
+    plt.xlabel("Models")
+    plt.ylabel("Accuracy (%)")
+    plt.ylim(0, 100)
+    plt.xticks(rotation=15)
+    plt.tight_layout()
+    plt.savefig("model_accuracy_comparison.png", dpi=300)
+    plt.show()
+
+    class_names = label_encoder.classes_
+    for model_name, cm in conf_matrices.items():
+        plt.figure(figsize=(6, 5))
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt="d",
+            cmap="Blues",
+            xticklabels=class_names,
+            yticklabels=class_names
+        )
+        plt.title(f"Confusion Matrix - {model_name}")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.tight_layout()
+        output_name = model_name.lower().replace(" ", "_") + "_confusion_matrix.png"
+        plt.savefig(output_name, dpi=300)
+        plt.show()
+else:
+    print(
+        "Plotting skipped: install packages with "
+        "\"python -m pip install matplotlib seaborn\""
+    )
