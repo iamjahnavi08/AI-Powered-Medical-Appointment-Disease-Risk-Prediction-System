@@ -205,6 +205,32 @@ class RiskEngine:
     def _risk_score(self, risk_level: str) -> int:
         return {"low": 1, "medium": 2, "high": 3}.get(risk_level, 1)
 
+    def _has_red_flag_symptoms(self, row: pd.DataFrame) -> bool:
+        symptom_flags = {
+            "SYM_chest_pain": "chest pain",
+            "SYM_dizziness": "dizziness",
+            "SYM_diarrhea": "diarrhea",
+            "SYM_shortness_of_breath": "shortness of breath",
+        }
+
+        for col in symptom_flags:
+            if col not in row.columns:
+                continue
+            value = row.iloc[0][col]
+            try:
+                if float(value) >= 1:
+                    return True
+            except (TypeError, ValueError):
+                continue
+
+        if "Symptoms" in row.columns:
+            symptoms = str(row.iloc[0]["Symptoms"]).strip().lower()
+            for keyword in symptom_flags.values():
+                if keyword in symptoms:
+                    return True
+
+        return False
+
     def predict(self, features: Dict[str, Any]) -> RiskPredictionResponse:
         if not features:
             raise ValueError("patient_features cannot be empty")
@@ -223,7 +249,7 @@ class RiskEngine:
         predicted_idx = self.model.predict(row)[0]
 
         if self.label_encoder is not None:
-            predicted_class = self.label_encoder.inverse_transform([predicted_idx])[0]
+            predicted_class = str(self.label_encoder.inverse_transform([predicted_idx])[0])
         else:
             predicted_class = str(predicted_idx)
 
@@ -249,6 +275,12 @@ class RiskEngine:
             risk_probability = 1.0
 
         risk_level = self._risk_level(str(predicted_class), risk_probability)
+        if self._has_red_flag_symptoms(row):
+            predicted_class = "High"
+            risk_level = "high"
+            risk_probability = 1.0
+            confidence_breakdown = {"Low": 0.0, "Medium": 0.0, "High": 1.0}
+
         return RiskPredictionResponse(
             predicted_class=str(predicted_class),
             risk_probability=risk_probability,
