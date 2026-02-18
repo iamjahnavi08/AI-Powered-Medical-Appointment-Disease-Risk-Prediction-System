@@ -924,8 +924,8 @@ Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Glucose,BloodPressure,BMI
 923,20,1,"nausea, blurred vision, weight loss, chest pain, tremors, back pain, insomnia",7,Diabetes,81.0,86.0,27.5
 924,57,0,"cough, dizziness, weight gain",3,Asthma,133.0,102.0,32.8
 925,41,0,"vomiting, weight loss, blurred vision, cough",4,Food Poisoning,173.0,82.0,38.4
-926,52,0,"runny nose, weight loss, nausea, chest pain, fatigue",5,Tuberculosis,118.5,72.0,32.3
-927,70,-1,"runny nose, dizziness, headache, fever",4,Obesity,118.5,72.0,32.3
+926,52,0,"runny nose, weight loss, nausea, chest pain, fatigue",5,Tuberculosis,,,
+927,70,-1,"runny nose, dizziness, headache, fever",4,Obesity,,,
 928,73,-1,"sneezing, chest pain, swelling, weight gain, insomnia",5,Gastritis,158.0,70.0,29.8
 929,87,-1,"dizziness, blurred vision, fatigue, back pain, sneezing, cough",6,Bronchitis,103.0,108.0,39.2
 930,46,1,"fever, joint pain, anxiety, sweating, diarrhea",5,Pneumonia,146.0,78.0,38.5

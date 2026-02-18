@@ -12,53 +12,42 @@ df = pd.read_csv(file_path)
 print(" Original shape:", df.shape)
 print("\n Original dtypes:\n", df.dtypes)
 
-# Basic cleaning (keep text columns as TEXT/strings)
+# Basic cleaning (preserve missing values as NaN/<NA>)
 if "Patient_ID" in df.columns:
-    df["Patient_ID"] = df["Patient_ID"].astype(str).str.strip()
+    df["Patient_ID"] = df["Patient_ID"].astype("string").str.strip()
     
-    if df["Patient_ID"].str.fullmatch(r"\d+").all():
+    if df["Patient_ID"].dropna().str.fullmatch(r"\d+").all():
         df["Patient_ID"] = df["Patient_ID"].astype("Int64")
 
 if "Age" in df.columns:
     df["Age"] = pd.to_numeric(df["Age"], errors="coerce").round().astype("Int64")
 
 if "Symptoms" in df.columns:
-    df["Symptoms"] = df["Symptoms"].astype(str).str.strip()
+    df["Symptoms"] = df["Symptoms"].astype("string").str.strip()
 
 if "Disease" in df.columns:
-    df["Disease"] = df["Disease"].astype(str).str.strip()
+    df["Disease"] = df["Disease"].astype("string").str.strip()
 
 #before encoding 
 if "Gender" in df.columns:
-    df["Gender"] = df["Gender"].astype(str).str.strip()
+    df["Gender"] = df["Gender"].astype("string").str.strip()
 
 df = df.drop_duplicates()
 
-# Fill missing for TEXT columns
-for col in df.select_dtypes(include=["object"]).columns:
-    if df[col].isna().any():
-        mode_val = df[col].mode(dropna=True)
-        fill_val = mode_val.iloc[0] if len(mode_val) > 0 else "Unknown"
-        df[col] = df[col].fillna(fill_val)
-
-# Fill missing for NUMERIC columns 
-numeric_cols = df.select_dtypes(include=["number", "Int64", "float64", "int64"]).columns
-for col in numeric_cols:
-    if df[col].isna().any():
-        df[col] = df[col].fillna(df[col].median())
-
 if "Gender" in df.columns:
-    df["Gender"] = df["Gender"].astype(str).str.strip().str.lower()
+    df["Gender"] = df["Gender"].astype("string").str.strip().str.lower()
     gender_map = {"male": 1, "female": 0, "m": 1, "f": 0}
     df["Gender"] = df["Gender"].map(gender_map).fillna(-1).astype("Int64")
 
 
 # Symptom_Count (only if needed / correct it)
 if "Symptoms" in df.columns:
-    def count_symptoms(x: str) -> int:
+    def count_symptoms(x: str):
+        if pd.isna(x):
+            return pd.NA
         x = str(x).strip()
-        if x == "" or x.lower() == "nan":
-            return 0
+        if x == "":
+            return pd.NA
         parts = [p.strip() for p in re.split(r"[,;|]+", x) if p.strip()]
         return len(parts)
 

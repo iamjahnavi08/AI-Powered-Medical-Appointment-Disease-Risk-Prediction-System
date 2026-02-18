@@ -11,24 +11,32 @@ print("Shape:", df.shape)
 
 #  Create Symptom List Column
 def split_symptoms(text):
+    if pd.isna(text):
+        return pd.NA
     text = str(text).lower().strip()
-    if text in ["", "nan", "none"]:
-        return []
+    if text in ["", "none"]:
+        return pd.NA
     return [s.strip() for s in re.split(r"[,;|]+", text) if s.strip()]
 
 df["Symptoms_List"] = df["Symptoms"].apply(split_symptoms)
 
 #  Symptom Count Feature
-df["Symptom_Count"] = df["Symptoms_List"].apply(len)
+df["Symptom_Count"] = df["Symptoms_List"].apply(
+    lambda x: len(x) if isinstance(x, list) else pd.NA
+).astype("Int64")
 
 # Create Binary Symptom Columns
 # Get top 15 most common symptoms
-all_symptoms = [sym for sublist in df["Symptoms_List"] for sym in sublist]
+all_symptoms = [
+    sym for sublist in df["Symptoms_List"] if isinstance(sublist, list) for sym in sublist
+]
 top_symptoms = pd.Series(all_symptoms).value_counts().head(15).index
 
 for symptom in top_symptoms:
     safe = re.sub(r"[^a-z0-9_]+", "_", symptom.replace(" ", "_"))
-    df[f"SYM_{safe}"] = df["Symptoms_List"].apply(lambda x: 1 if symptom in x else 0)
+    df[f"SYM_{safe}"] = df["Symptoms_List"].apply(
+        lambda x: (1 if symptom in x else 0) if isinstance(x, list) else pd.NA
+    ).astype("Int64")
 
 print(" Symptom binary features created")
 #  Age Group Feature

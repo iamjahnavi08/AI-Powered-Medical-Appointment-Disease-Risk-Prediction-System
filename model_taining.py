@@ -11,11 +11,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_curve, auc
+from sklearn.metrics import precision_recall_fscore_support
 import warnings
 warnings.filterwarnings("ignore") 
 
@@ -27,6 +27,8 @@ print("Dataset Loaded:", df.shape)
 if "Risk_Level" not in df.columns:
 
     def risk_category(row):
+        if pd.isna(row["Age"]) or pd.isna(row["Symptom_Count"]):
+            return pd.NA
         score = 0
         if row["Age"] > 60:
             score += 2
@@ -48,9 +50,14 @@ if "Risk_Level" not in df.columns:
     df["Risk_Level"] = df.apply(risk_category, axis=1)
 
 #  Features & Target
+feature_cols_df = df.drop(columns=["Risk_Level", "Disease", "Patient_ID"], errors="ignore")
+required_cols = list(feature_cols_df.columns) + ["Risk_Level"]
+df_model = df.dropna(subset=required_cols).copy()
+rows_dropped = len(df) - len(df_model)
+print(f"Rows dropped due to missing values (no imputation): {rows_dropped}")
 
-y = df["Risk_Level"]
-X = df.drop(columns=["Risk_Level", "Disease", "Patient_ID"], errors="ignore")
+y = df_model["Risk_Level"]
+X = df_model.drop(columns=["Risk_Level", "Disease", "Patient_ID"], errors="ignore")
 
 #  Encode Target
 
@@ -66,12 +73,10 @@ num_cols = X.select_dtypes(include=["number"]).columns
 
 
 numeric_transformer = Pipeline(steps=[
-    ("imputer", SimpleImputer(strategy="median")),
     ("scaler", StandardScaler())
 ])
 
 categorical_transformer = Pipeline(steps=[
-    ("imputer", SimpleImputer(strategy="most_frequent")),
     ("onehot", OneHotEncoder(handle_unknown="ignore"))
 ])
 
@@ -106,6 +111,7 @@ best_accuracy = 0
 best_model_name = ""
 model_accuracies = {}
 conf_matrices = {}
+model_metrics = {}
 
 #  Train & Evaluate Models
 
@@ -121,6 +127,7 @@ for name, model in models.items():
 
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
+    y_prob = pipeline.predict_proba(X_test)[:, 1]
 
     # Accuracy
     acc = accuracy_score(y_test, y_pred)
@@ -141,6 +148,18 @@ for name, model in models.items():
     print(cm)
     conf_matrices[name] = cm
     model_accuracies[name] = acc_percent
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
+    roc_auc = auc(fpr, tpr)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y_test, y_pred, average="weighted", zero_division=0
+    )
+    model_metrics[name] = {
+        "Accuracy": acc_percent,
+        "Precision": precision * 100,
+        "Recall": recall * 100,
+        "F1": f1 * 100,
+        "AUC": roc_auc * 100,
+    }
 
     # Save individual model
     filename = name.lower().replace(" ", "_") + "_model.pkl"
@@ -165,15 +184,66 @@ print("==============================")
 
 #  Graphical Representation
 if HAS_PLOTTING:
+    # Best-model highlight chart for project presentation
     plt.figure(figsize=(8, 5))
-    sns.barplot(x=list(model_accuracies.keys()), y=list(model_accuracies.values()), palette="viridis")
-    plt.title("Model Accuracy Comparison")
+    model_names = list(model_accuracies.keys())
+    accuracy_values = list(model_accuracies.values())
+    colors = [
+        "#0b7a75" if name == best_model_name else "#b8c2d6"
+        for name in model_names
+    ]
+    bars = plt.bar(model_names, accuracy_values, color=colors, edgecolor="#26344f")
+    for bar, score in zip(bars, accuracy_values):
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.5,
+            f"{score:.2f}%",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+    plt.title(f"Best Model Selection: {best_model_name}")
     plt.xlabel("Models")
     plt.ylabel("Accuracy (%)")
     plt.ylim(0, 100)
     plt.xticks(rotation=15)
     plt.tight_layout()
-    plt.savefig("model_accuracy_comparison.png", dpi=300)
+    plt.savefig("best_model_selection.png", dpi=300)
+    plt.show()
+
+    # Spaghetti-style comparison: one line per model across all metrics
+    metrics_order = ["Accuracy", "Precision", "Recall", "F1", "AUC"]
+    model_names = list(model_metrics.keys())
+    plt.figure(figsize=(11, 6))
+    x = np.arange(len(metrics_order))
+    for model_name in model_names:
+        values = [model_metrics[model_name][metric_name] for metric_name in metrics_order]
+        line_width = 2.8 if model_name == best_model_name else 2
+        plt.plot(
+            x,
+            values,
+            marker="o",
+            linewidth=line_width,
+            label=model_name,
+        )
+        for idx, val in enumerate(values):
+            plt.text(
+                idx,
+                val + 0.15,
+                f"{val:.1f}",
+                ha="center",
+                va="bottom",
+                fontsize=8,
+            )
+    plt.title("Spaghetti Plot: Model Performance Across Metrics")
+    plt.xlabel("Metrics")
+    plt.ylabel("Score (%)")
+    plt.ylim(0, 105)
+    plt.xticks(x, metrics_order, rotation=12)
+    plt.grid(axis="y", linestyle="--", alpha=0.35)
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    plt.savefig("all_models_metrics_comparison.png", dpi=300)
     plt.show()
 
     class_names = label_encoder.classes_
