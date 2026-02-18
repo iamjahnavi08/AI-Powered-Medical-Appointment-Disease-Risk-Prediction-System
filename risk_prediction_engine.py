@@ -117,7 +117,7 @@ class RiskEngine:
     def get_patient_features(self, patient_id: str) -> Dict[str, Any]:
         pid = self._normalize_patient_id(patient_id)
         if pid not in self.patient_feature_map:
-            raise ValueError(f"Patient_ID not found in dataset: {patient_id}")
+            raise ValueError("Patient_ID not found")
         return self.patient_feature_map[pid]
 
     def _normalize_features(self, features: Dict[str, Any]) -> Dict[str, Any]:
@@ -525,6 +525,8 @@ def patient_page() -> str:
   </main>
 
   <script>
+    let hasLoadedPatientFeatures = false;
+
     async function postJson(url, payload) {
       const res = await fetch(url, {
         method: "POST",
@@ -557,17 +559,23 @@ def patient_page() -> str:
     async function loadPatientFeatures() {
       const patientId = document.getElementById("patientId").value.trim();
       if (!patientId) {
+        hasLoadedPatientFeatures = false;
+        document.getElementById("bookFeatures").value = "Enter Patient ID first.";
         throw new Error("Enter Patient ID first.");
       }
       renderOutput("bookOutput", "Loading patient features...", false);
       const data = await fetch(`/patient-features/${encodeURIComponent(patientId)}`);
       const payload = await data.json();
       if (!data.ok) {
+        hasLoadedPatientFeatures = false;
         const detail = payload && payload.detail ? payload.detail : "Patient lookup failed";
-        throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+        const msg = typeof detail === "string" ? detail : JSON.stringify(detail);
+        document.getElementById("bookFeatures").value = msg;
+        throw new Error(msg);
       }
       const featuresPretty = JSON.stringify(payload.patient_features, null, 2);
       document.getElementById("bookFeatures").value = featuresPretty;
+      hasLoadedPatientFeatures = true;
       renderOutput("bookOutput", payload, false);
     }
 
@@ -575,17 +583,28 @@ def patient_page() -> str:
       try {
         await loadPatientFeatures();
       } catch (err) {
+        hasLoadedPatientFeatures = false;
         renderOutput("bookOutput", err.message, true);
       }
+    });
+
+    document.getElementById("patientId").addEventListener("input", () => {
+      hasLoadedPatientFeatures = false;
+      document.getElementById("bookFeatures").value = "";
     });
 
     document.getElementById("bookBtn").addEventListener("click", async () => {
       try {
         let patient_features;
-        try {
-          patient_features = parseFeatures("bookFeatures");
-        } catch (_) {
+        // If patient features were not loaded from dataset, force backend lookup by patient_id.
+        if (!hasLoadedPatientFeatures) {
           patient_features = null;
+        } else {
+          try {
+            patient_features = parseFeatures("bookFeatures");
+          } catch (_) {
+            patient_features = null;
+          }
         }
         const payload = {
           patient_id: document.getElementById("patientId").value.trim(),
@@ -615,7 +634,6 @@ def patient_page() -> str:
 
 @app.get("/doctor", response_class=HTMLResponse)
 def doctor_page() -> str:
-    default_features_json = _default_features_json()
     html_template = """
 <!DOCTYPE html>
 <html lang="en">
@@ -630,6 +648,8 @@ def doctor_page() -> str:
     table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
     th, td { border-bottom: 1px solid #e5e9f5; text-align: left; padding: 10px 8px; vertical-align: top; }
     th { background: #eef4ff; }
+    tr.clickable { cursor: pointer; }
+    tr.selected { background: #e6f3ff; }
     .pill { padding: 2px 8px; border-radius: 999px; font-weight: 700; }
     .high { background: #fee2e2; color: #991b1b; }
     .medium { background: #fef3c7; color: #92400e; }
@@ -679,9 +699,9 @@ def doctor_page() -> str:
     <div class="card">
       <h2>Predict Risk</h2>
       <label for="riskFeatures">Patient Features (JSON)</label>
-      <textarea id="riskFeatures">__DEFAULT_FEATURES_JSON__</textarea>
+      <textarea id="riskFeatures" placeholder="No appointment booked yet."></textarea>
       <button id="predictBtn" type="button">Run Prediction</button>
-      <pre class="output" id="predictOutput">Waiting for input...</pre>
+      <pre class="output" id="predictOutput">No appointment booked yet.</pre>
     </div>
     <div class="card">
       <table>
@@ -702,6 +722,9 @@ def doctor_page() -> str:
     </div>
   </main>
   <script>
+    let cachedAppointments = [];
+    let selectedAppointmentKey = null;
+
     async function postJson(url, payload) {
       const res = await fetch(url, {
         method: "POST",
@@ -718,6 +741,9 @@ def doctor_page() -> str:
 
     function parseFeatures() {
       const raw = document.getElementById("riskFeatures").value;
+      if (!raw.trim()) {
+        throw new Error("No appointment booked yet.");
+      }
       try {
         return JSON.parse(raw);
       } catch (_) {
@@ -740,16 +766,45 @@ def doctor_page() -> str:
       return value == null ? "" : String(value);
     }
 
+    function appointmentKey(item) {
+      return `${toSafeText(item.booked_at)}|${toSafeText(item.patient_id)}|${toSafeText(item.doctor_id)}`;
+    }
+
+    function selectAppointment(index) {
+      if (!cachedAppointments[index]) {
+        return;
+      }
+      const item = cachedAppointments[index];
+      selectedAppointmentKey = appointmentKey(item);
+      const features = item.patient_features || {};
+      document.getElementById("riskFeatures").value = JSON.stringify(features, null, 2);
+      renderOutput("predictOutput", `Loaded Patient_ID ${toSafeText(item.patient_id)} for prediction.`, false);
+
+      const rows = document.querySelectorAll("#rows tr[data-index]");
+      rows.forEach((row) => {
+        if (Number(row.dataset.index) === index) {
+          row.classList.add("selected");
+        } else {
+          row.classList.remove("selected");
+        }
+      });
+    }
+
     async function refreshAppointments() {
       const res = await fetch("/appointments");
       const data = await res.json();
       const rows = document.getElementById("rows");
       if (!data.appointments || data.appointments.length === 0) {
+        cachedAppointments = [];
+        selectedAppointmentKey = null;
+        document.getElementById("riskFeatures").value = "";
+        renderOutput("predictOutput", "No appointment booked yet.", false);
         rows.innerHTML = '<tr><td colspan="6">No appointments yet.</td></tr>';
         return;
       }
-      rows.innerHTML = data.appointments.map((item) => `
-        <tr>
+      cachedAppointments = data.appointments;
+      rows.innerHTML = data.appointments.map((item, idx) => `
+        <tr class="clickable" data-index="${idx}">
           <td>${toSafeText(item.booked_at)}</td>
           <td>${toSafeText(item.patient_id)}</td>
           <td>${toSafeText(item.doctor_id)}</td>
@@ -758,6 +813,23 @@ def doctor_page() -> str:
           <td><pre>${toSafeText(JSON.stringify(item.patient_features, null, 2))}</pre></td>
         </tr>
       `).join("");
+
+      rows.querySelectorAll("tr[data-index]").forEach((row) => {
+        row.addEventListener("click", () => {
+          const idx = Number(row.dataset.index);
+          selectAppointment(idx);
+        });
+      });
+
+      // Keep selected appointment after auto-refresh; otherwise default to latest booking.
+      let selectedIndex = -1;
+      if (selectedAppointmentKey !== null) {
+        selectedIndex = data.appointments.findIndex((item) => appointmentKey(item) === selectedAppointmentKey);
+      }
+      if (selectedIndex === -1) {
+        selectedIndex = data.appointments.length - 1;
+      }
+      selectAppointment(selectedIndex);
     }
 
     document.getElementById("predictBtn").addEventListener("click", async () => {
@@ -777,7 +849,7 @@ def doctor_page() -> str:
 </body>
 </html>
 """
-    return html_template.replace("__DEFAULT_FEATURES_JSON__", default_features_json)
+    return html_template
 
 
 @app.get("/health")
