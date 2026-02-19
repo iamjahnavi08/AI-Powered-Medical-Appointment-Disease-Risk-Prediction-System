@@ -136,9 +136,148 @@
       color: var(--danger);
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 20, 40, 0.52);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+      animation: fadeIn 180ms ease;
+    }
+
+    .confirm-modal {
+      width: min(460px, 100%);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid #8fd8ef;
+      background: #ffffff;
+      box-shadow: 0 24px 44px rgba(5, 30, 68, 0.35);
+      animation: popIn 220ms ease;
+    }
+
+    .confirm-top {
+      padding: 14px 18px;
+      color: #ffffff;
+      background: linear-gradient(110deg, #1c6dd0, #26b6cf);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .confirm-body {
+      padding: 22px 20px 20px;
+      text-align: center;
+    }
+
+    .orbit-wrap {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 14px;
+      position: relative;
+    }
+
+    .sun-core {
+      width: 66px;
+      height: 66px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fff59a, #f5cb16 55%, #e5b800);
+      position: absolute;
+      top: 27px;
+      left: 27px;
+      box-shadow: 0 0 18px rgba(245, 203, 22, 0.45);
+    }
+
+    .sun-ring {
+      width: 98px;
+      height: 98px;
+      border-radius: 999px;
+      border: 3px dashed #f59e0b;
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      animation: spin 5s linear infinite;
+      opacity: 0.85;
+    }
+
+    .status-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #22c55e;
+      top: 12px;
+      right: 16px;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.55);
+    }
+
+    .confirm-title {
+      margin: 6px 0 8px;
+      font-family: "Palatino Linotype", "Book Antiqua", serif;
+      font-size: 1.6rem;
+      color: #0f766e;
+    }
+
+    .confirm-text {
+      margin: 0;
+      color: #41516f;
+      line-height: 1.45;
+    }
+
+    .confirm-meta {
+      margin-top: 14px;
+      padding: 10px;
+      border: 1px solid #d5dcf0;
+      border-radius: 10px;
+      background: #f8fbff;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #23314f;
+      white-space: pre-wrap;
+    }
+
+    .confirm-actions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-close {
+      min-width: 140px;
+      margin: 0;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      background: linear-gradient(120deg, #148a82, #2477d0);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
     @keyframes rise {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(6px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     @media (max-width: 900px) {
@@ -177,6 +316,25 @@
     </div>
   </main>
 
+  <div class="modal-backdrop" id="bookingConfirmModal" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="confirm-top">Appointment</div>
+      <div class="confirm-body">
+        <div class="orbit-wrap" aria-hidden="true">
+          <div class="sun-ring"></div>
+          <div class="sun-core"></div>
+          <div class="status-dot"></div>
+        </div>
+        <h2 class="confirm-title" id="confirmTitle">Appointment Confirmed!</h2>
+        <p class="confirm-text" id="confirmText">Your booking is confirmed.</p>
+        <div class="confirm-meta" id="confirmMeta">Waiting for booking details...</div>
+        <div class="confirm-actions">
+          <button type="button" class="btn-close" id="closeConfirmBtn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     let hasLoadedPatientFeatures = false;
 
@@ -207,6 +365,37 @@
       const el = document.getElementById(targetId);
       el.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
       el.className = isError ? "output error" : "output";
+    }
+
+    function formatAppointmentTime(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return value || "Not provided";
+      }
+      return date.toLocaleString();
+    }
+
+    function showBookingPopup(data) {
+      const modal = document.getElementById("bookingConfirmModal");
+      const confirmText = document.getElementById("confirmText");
+      const confirmMeta = document.getElementById("confirmMeta");
+
+      confirmText.textContent = `Patient ${data.patient_id} booked with Doctor ${data.doctor_id}.`;
+      confirmMeta.textContent = [
+        `Status: ${data.booking_status || "confirmed"}`,
+        `Patient ID: ${data.patient_id || "-"}`,
+        `Doctor ID: ${data.doctor_id || "-"}`,
+        `Appointment Time: ${formatAppointmentTime(data.appointment_time)}`
+      ].join("\n");
+
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeBookingPopup() {
+      const modal = document.getElementById("bookingConfirmModal");
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
     }
 
     async function loadPatientFeatures() {
@@ -273,8 +462,23 @@
           appointment_time: data.appointment_time
         };
         renderOutput("bookOutput", bookingSummary, false);
+        showBookingPopup(bookingSummary);
       } catch (err) {
         renderOutput("bookOutput", err.message, true);
+      }
+    });
+
+    document.getElementById("closeConfirmBtn").addEventListener("click", closeBookingPopup);
+
+    document.getElementById("bookingConfirmModal").addEventListener("click", (event) => {
+      if (event.target.id === "bookingConfirmModal") {
+        closeBookingPopup();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeBookingPopup();
       }
     });
   </script>
