@@ -182,11 +182,11 @@ def _load_new_patient_features(patient_id: str) -> Optional[Dict[str, Any]]:
 
 
 def get_features_for_patient(patient_id: str) -> Dict[str, Any]:
-    # New patient records override training dataset rows for the same Patient_ID.
+    # Use only newly collected patient data; do not fallback to old training dataset.
     new_features = _load_new_patient_features(patient_id)
     if new_features is not None:
         return new_features
-    return risk_engine.get_patient_features(patient_id)
+    raise ValueError("Patient_ID not found in new_patient_data.csv")
 
 
 @app.route("/")
