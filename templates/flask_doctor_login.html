@@ -1,37 +1,257 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Doctor Login</title>
+  <title>Exafluence Hospital - Doctor Login</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f3f7ff; color: #162033; }
-    .wrap { max-width: 620px; margin: 36px auto; background: #fff; border: 1px solid #d8dfef; border-radius: 12px; padding: 18px; }
-    label { display: block; margin: 10px 0 6px; font-weight: 700; }
-    input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cad5ee; }
-    button { margin-top: 14px; width: 100%; padding: 10px; border: 0; border-radius: 8px; color: #fff; background: #1d4ed8; font-weight: 700; }
-    .errors { margin: 10px 0; padding: 10px; border: 1px solid #f0c2c2; background: #fff0f0; border-radius: 8px; color: #921d1d; }
-    a { color: #1d4ed8; font-weight: 700; text-decoration: none; }
+    :root {
+      --bg: #dfe5ef;
+      --ink: #1e2f57;
+      --muted: #5d6b89;
+      --line: #c6d0e4;
+      --panel: #f3f7ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    .bg-shape-top,
+    .bg-shape-right {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .bg-shape-top {
+      top: 0;
+      right: 0;
+      width: min(760px, 70vw);
+      height: 190px;
+      background: #eef2f8;
+      border-bottom-left-radius: 90px;
+    }
+
+    .bg-shape-right {
+      right: -160px;
+      bottom: -120px;
+      width: 600px;
+      height: 600px;
+      background: #eef2f8;
+      border-radius: 50%;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 36px 22px;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .left h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+    }
+
+    .hospital {
+      display: inline-block;
+      margin-bottom: 18px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #2b5f9b;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      margin: 0 0 14px;
+      color: #2b3a5f;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 530px;
+      line-height: 1.5;
+    }
+
+    .bullets {
+      margin: 0;
+      padding-left: 18px;
+      color: #3d4a68;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .left-image {
+      margin-top: 18px;
+      width: 100%;
+      max-width: 620px;
+      border-radius: 16px;
+      border: 1px solid #c4d0e6;
+      background: #edf3ff;
+      overflow: hidden;
+      box-shadow: 0 10px 22px rgba(38, 58, 99, 0.1);
+    }
+
+    .left-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .right {
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      width: min(540px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 26px;
+      box-shadow: 0 14px 30px rgba(35, 52, 88, 0.12);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 2rem;
+      color: #10264d;
+    }
+
+    label {
+      display: block;
+      margin: 11px 0 7px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f2142;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #b8c5df;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      background: var(--panel);
+      color: #14284f;
+    }
+
+    button {
+      margin-top: 16px;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px;
+      background: linear-gradient(120deg, #1c7f8e, #2b69c2);
+      color: #fff;
+      font-size: 1.12rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .create {
+      margin-top: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1f67a6;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .errors {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #f0c2c2;
+      background: #fff0f0;
+      border-radius: 10px;
+      color: #921d1d;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding-top: 22px;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>Doctor Login</h1>
-    {% if errors %}
-      <div class="errors">
-        {% for error in errors %}
-          <div>{{ error }}</div>
-        {% endfor %}
+  <div class="bg-shape-top"></div>
+  <div class="bg-shape-right"></div>
+
+  <main class="shell">
+    <section class="left">
+      <span class="hospital">Exafluence Hospital</span>
+      <h1>Doctor Portal</h1>
+      <p class="sub">Secure access for clinical operations</p>
+      <p class="desc">
+        Access your appointments, review patient details, and continue your workflow through a focused doctor portal.
+      </p>
+      <ul class="bullets">
+        <li>View scheduled patient appointments</li>
+        <li>Access patient health information securely</li>
+        <li>Continue with doctor login</li>
+      </ul>
+      <div class="left-image">
+        <img
+          src="https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          alt="Doctor with stethoscope"
+          onerror="this.onerror=null;this.src='https://images.pexels.com/photos/8460037/pexels-photo-8460037.jpeg?auto=compress&cs=tinysrgb&w=1200';" />
       </div>
-    {% endif %}
-    <form method="post">
-      <label for="doctor_id">Doctor ID</label>
-      <input id="doctor_id" name="doctor_id" value="{{ form_data.doctor_id }}" required />
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" required />
-      <button type="submit">Login</button>
-    </form>
-    <p><a href="/doctor/signup">Create new doctor account</a></p>
+    </section>
+
+    <section class="right">
+      <div class="card">
+        <h2>Doctor Login</h2>
+
+        {% if errors %}
+          <div class="errors">
+            {% for error in errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          <label for="doctor_id">Doctor Name / ID</label>
+          <input id="doctor_id" name="doctor_id" value="{{ form_data.doctor_id }}" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required />
+
+          <button type="submit">Login</button>
+        </form>
+
+        <a class="create" href="/doctor/signup">Create new doctor account</a>
+      </div>
+    </section>
   </main>
 </body>
 </html>
+
+
+
+
