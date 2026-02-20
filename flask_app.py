@@ -9,17 +9,17 @@ import pandas as pd
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 from doctor_auth import DoctorAuthManager
-from patient_auth import PatientAuthManager
 from predict import LABEL_ENCODER_PATH, MODEL_PATH, RiskEngine, to_jsonable
 
 
 BASE_DIR = Path(__file__).resolve().parent
-NEW_PATIENT_DATA_CSV = BASE_DIR / "new_patient_data.csv"
+NEW_PATIENT_CSV = BASE_DIR / "new_patient_data.csv"
+PATIENTS_CSV = BASE_DIR / "patients.csv"
+DOCTOR_ACCOUNTS_CSV = BASE_DIR / "doctor_accounts.csv"
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
 
-patient_auth_manager = PatientAuthManager()
 doctor_auth_manager = DoctorAuthManager()
 risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
 APPOINTMENTS: list[Dict[str, Any]] = []
@@ -45,7 +45,7 @@ def _to_float(value: str, field_name: str, min_value: float, max_value: float) -
     return parsed
 
 
-def append_to_new_patient_csv(row: Dict[str, Any], csv_path: Path = NEW_PATIENT_DATA_CSV) -> None:
+def append_to_new_patient_csv(row: Dict[str, Any], csv_path: Path = NEW_PATIENT_CSV) -> None:
     new_row_df = pd.DataFrame([row])
     if csv_path.exists():
         existing_df = pd.read_csv(csv_path)
@@ -53,6 +53,89 @@ def append_to_new_patient_csv(row: Dict[str, Any], csv_path: Path = NEW_PATIENT_
     else:
         updated_df = new_row_df
     updated_df.to_csv(csv_path, index=False)
+
+
+def _load_patients_df() -> pd.DataFrame:
+    columns = ["patient_id", "name", "password", "health_details_submitted", "created_at"]
+    if not PATIENTS_CSV.exists():
+        return pd.DataFrame(columns=columns)
+    try:
+        df = pd.read_csv(PATIENTS_CSV)
+    except Exception:
+        return pd.DataFrame(columns=columns)
+    for col in columns:
+        if col not in df.columns:
+            df[col] = ""
+    return df[columns]
+
+
+def _save_patients_df(df: pd.DataFrame) -> None:
+    df.to_csv(PATIENTS_CSV, index=False)
+
+
+def _next_patient_id(df: pd.DataFrame) -> str:
+    if df.empty:
+        return "1"
+    ids = pd.to_numeric(df["patient_id"], errors="coerce").dropna()
+    if ids.empty:
+        return "1"
+    return str(int(ids.max()) + 1)
+
+
+def _create_patient_account(name: str, password: str) -> str:
+    df = _load_patients_df()
+    if df["name"].astype(str).str.strip().str.lower().eq(name.lower()).any():
+        raise ValueError("Patient name already exists. Use a different name.")
+    patient_id = _next_patient_id(df)
+    new_row = {
+        "patient_id": patient_id,
+        "name": name,
+        "password": password,
+        "health_details_submitted": 0,
+        "created_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    _save_patients_df(df)
+    return patient_id
+
+
+def _authenticate_patient(name: str, password: str) -> Optional[Dict[str, Any]]:
+    df = _load_patients_df()
+    matches = df[
+        (df["name"].astype(str).str.strip().str.lower() == name.lower())
+        & (df["password"].astype(str) == password)
+    ]
+    if matches.empty:
+        return None
+    return matches.iloc[-1].to_dict()
+
+
+def _mark_health_details_submitted(patient_id: str) -> None:
+    df = _load_patients_df()
+    if df.empty:
+        return
+    mask = df["patient_id"].astype(str).str.strip() == str(patient_id).strip()
+    if mask.any():
+        df.loc[mask, "health_details_submitted"] = 1
+        _save_patients_df(df)
+
+
+def _health_details_submitted(value: Any) -> bool:
+    text = str(value).strip().lower()
+    return text in {"1", "true", "yes"}
+
+
+def _load_doctor_ids() -> list[str]:
+    if not DOCTOR_ACCOUNTS_CSV.exists():
+        return []
+    try:
+        df = pd.read_csv(DOCTOR_ACCOUNTS_CSV)
+    except Exception:
+        return []
+    if "doctor_id" not in df.columns:
+        return []
+    doctor_ids = [str(v).strip() for v in df["doctor_id"].tolist() if str(v).strip()]
+    return sorted(set(doctor_ids))
 
 
 def _normalize_patient_id(value: Any) -> str:
@@ -162,10 +245,10 @@ def _build_features_from_new_patient_row(row: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _load_new_patient_features(patient_id: str) -> Optional[Dict[str, Any]]:
-    if not NEW_PATIENT_DATA_CSV.exists():
+    if not NEW_PATIENT_CSV.exists():
         return None
     try:
-        df = pd.read_csv(NEW_PATIENT_DATA_CSV)
+        df = pd.read_csv(NEW_PATIENT_CSV)
     except Exception:
         return None
 
@@ -182,7 +265,6 @@ def _load_new_patient_features(patient_id: str) -> Optional[Dict[str, Any]]:
 
 
 def get_features_for_patient(patient_id: str) -> Dict[str, Any]:
-    # Use only newly collected patient data; do not fallback to old training dataset.
     new_features = _load_new_patient_features(patient_id)
     if new_features is not None:
         return new_features
@@ -202,16 +284,16 @@ def role_login() -> Any:
 @app.route("/patient/signup", methods=["GET", "POST"])
 def patient_signup() -> Any:
     errors: list[str] = []
-    form_data = {"patient_id": ""}
+    form_data = {"name": ""}
 
     if request.method == "POST":
-        patient_id = request.form.get("patient_id", "").strip()
+        name = request.form.get("name", "").strip()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
-        form_data["patient_id"] = patient_id
+        form_data["name"] = name
 
-        if not patient_id:
-            errors.append("Patient ID is required.")
+        if not name:
+            errors.append("Patient Name is required.")
         if len(password) < 4:
             errors.append("Password must be at least 4 characters.")
         if password != confirm_password:
@@ -219,7 +301,9 @@ def patient_signup() -> Any:
 
         if not errors:
             try:
-                patient_auth_manager.signup(patient_id, password)
+                patient_id = _create_patient_account(name, password)
+                session["patient_id"] = patient_id
+                session["patient_name"] = name
                 return redirect(url_for("health_details", patient_id=patient_id))
             except ValueError as exc:
                 errors.append(str(exc))
@@ -232,7 +316,11 @@ def patient_signup() -> Any:
 @app.route("/patient/health-details", methods=["GET", "POST"])
 def health_details() -> Any:
     errors: list[str] = []
-    patient_id = request.args.get("patient_id", "").strip() or request.form.get("patient_id", "").strip()
+    patient_id = (
+        session.get("patient_id", "")
+        or request.args.get("patient_id", "").strip()
+        or request.form.get("patient_id", "").strip()
+    )
     form_data = {
         "patient_id": patient_id,
         "age": "",
@@ -288,11 +376,14 @@ def health_details() -> Any:
             }
             try:
                 append_to_new_patient_csv(row)
+                _mark_health_details_submitted(patient_id)
             except Exception as exc:  # pragma: no cover - guard
                 errors.append(f"Could not save health details: {exc}")
 
             if not errors:
                 session["health_confirmation"] = row
+                session.pop("patient_id", None)
+                session.pop("patient_name", None)
                 return redirect(url_for("health_confirmation"))
 
     return render_template("flask_health_details.html", errors=errors, form_data=form_data)
@@ -309,24 +400,30 @@ def health_confirmation() -> Any:
 @app.route("/patient/login", methods=["GET", "POST"])
 def patient_login() -> Any:
     errors: list[str] = []
-    form_data = {"patient_id": ""}
+    form_data = {"patient_name": ""}
 
     if request.method == "POST":
-        patient_id = request.form.get("patient_id", "").strip()
+        patient_name = request.form.get("patient_name", "").strip()
         password = request.form.get("password", "").strip()
-        form_data["patient_id"] = patient_id
+        form_data["patient_name"] = patient_name
 
-        if not patient_id:
-            errors.append("Patient ID is required.")
+        if not patient_name:
+            errors.append("Patient Name is required.")
         if not password:
             errors.append("Password is required.")
 
         if not errors:
             try:
-                patient_auth_manager.login(patient_id, password)
+                patient = _authenticate_patient(patient_name, password)
+                if not patient:
+                    raise ValueError("Invalid patient name or password.")
+                patient_id = str(patient.get("patient_id", "")).strip()
                 session["patient_id"] = patient_id
+                session["patient_name"] = patient_name
                 session.pop("health_confirmation", None)
-                return redirect(url_for("book_appointment"))
+                if _health_details_submitted(patient.get("health_details_submitted")):
+                    return redirect(url_for("book_appointment"))
+                return redirect(url_for("health_details", patient_id=patient_id))
             except ValueError as exc:
                 errors.append(str(exc))
             except Exception as exc:  # pragma: no cover - guard
@@ -340,7 +437,8 @@ def book_appointment() -> Any:
     patient_id = session.get("patient_id")
     if not patient_id:
         return redirect(url_for("patient_login"))
-    return render_template("flask_book_appointment.html", patient_id=patient_id)
+    doctor_ids = _load_doctor_ids()
+    return render_template("flask_book_appointment.html", patient_id=patient_id, doctor_ids=doctor_ids)
 
 
 @app.get("/patient/features/<patient_id>")
@@ -358,12 +456,14 @@ def patient_features(patient_id: str) -> Any:
 def submit_appointment() -> Any:
     payload = request.get_json(silent=True) or {}
     patient_id = str(payload.get("patient_id", "")).strip()
-    doctor_id = str(payload.get("doctor_id", "")).strip() or "Unassigned"
+    doctor_id = str(payload.get("doctor_id", "")).strip()
     appointment_time = str(payload.get("appointment_time", "")).strip()
     patient_features = payload.get("patient_features")
 
     if not patient_id:
         return jsonify({"detail": "patient_id is required"}), 400
+    if not doctor_id:
+        return jsonify({"detail": "doctor_id is required"}), 400
     if not appointment_time:
         return jsonify({"detail": "appointment_time is required"}), 400
 

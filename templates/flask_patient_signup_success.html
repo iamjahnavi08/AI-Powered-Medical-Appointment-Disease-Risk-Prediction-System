@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient ID Generated</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #eef3fb; color: #162033; }
+    .wrap { max-width: 620px; margin: 36px auto; background: #fff; border: 1px solid #d8dfef; border-radius: 12px; padding: 20px; }
+    h1 { margin-top: 0; }
+    .idbox { margin-top: 12px; padding: 12px; border-radius: 10px; border: 1px solid #bfdbfe; background: #eff6ff; font-size: 1.05rem; }
+    a { color: #176b9d; font-weight: 700; text-decoration: none; }
+  </style>
+  <script>
+    setTimeout(function () {
+      window.location.href = "/patient/login";
+    }, 3000);
+  </script>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Account Created</h1>
+    <p>Patient account created for <strong>{{ patient_name }}</strong>.</p>
+    <div class="idbox">Generated Patient ID: <strong>{{ patient_id }}</strong></div>
+    <p>Redirecting to login page...</p>
+    <p>If not redirected, <a href="/patient/login">go to login</a>.</p>
+  </main>
+</body>
+</html>
+

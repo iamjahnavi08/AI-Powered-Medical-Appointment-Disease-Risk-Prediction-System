@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.middleware.wsgi import WSGIMiddleware
+from fastapi.responses import HTMLResponse, RedirectResponse
+from flask_app import app as flask_portal_app
 
 from doctor_auth import DoctorAuthManager, DoctorLoginRequest, DoctorSignupRequest
 from patient_auth import (
@@ -53,18 +55,18 @@ def _read_template(name: str) -> str:
 
 
 @app.get("/", response_class=HTMLResponse)
-def root() -> str:
-    return _read_template("login.html")
+def root() -> RedirectResponse:
+    return RedirectResponse(url="/portal/login", status_code=307)
 
 
 @app.get("/login", response_class=HTMLResponse)
-def login_page() -> str:
-    return _read_template("login.html")
+def login_page() -> RedirectResponse:
+    return RedirectResponse(url="/portal/login", status_code=307)
 
 
 @app.get("/home", response_class=HTMLResponse)
-def home_page() -> str:
-    return _read_template("index.html")
+def home_page() -> RedirectResponse:
+    return RedirectResponse(url="/portal/login", status_code=307)
 
 
 @app.get("/patient", response_class=HTMLResponse)
@@ -197,6 +199,71 @@ def patient_features(patient_id: str) -> Dict[str, Any]:
 @app.get("/appointments")
 def list_appointments() -> Dict[str, Any]:
     return {"appointments": APPOINTMENTS}
+
+
+# Portal entry from main.py: all patient/doctor UI flows live in flask_app.py
+app.mount("/portal", WSGIMiddleware(flask_portal_app))
+
+
+# Compatibility routes so previous URLs continue working without /portal prefix.
+@app.api_route("/patient/login", methods=["GET", "POST"])
+def patient_login_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/login", status_code=307)
+
+
+@app.api_route("/patient/signup", methods=["GET", "POST"])
+def patient_signup_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/signup", status_code=307)
+
+
+@app.api_route("/patient/health-details", methods=["GET", "POST"])
+def patient_health_details_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/health-details", status_code=307)
+
+
+@app.get("/patient/health-confirmation")
+def patient_health_confirmation_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/health-confirmation", status_code=307)
+
+
+@app.get("/patient/book-appointment")
+def patient_book_appointment_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/book-appointment", status_code=307)
+
+
+@app.get("/patient/features/{patient_id}")
+def patient_features_portal(patient_id: str) -> RedirectResponse:
+    return RedirectResponse(url=f"/portal/patient/features/{patient_id}", status_code=307)
+
+
+@app.post("/patient/book-appointment-submit")
+def patient_book_appointment_submit_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/book-appointment-submit", status_code=307)
+
+
+@app.api_route("/doctor/login", methods=["GET", "POST"])
+def doctor_login_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/login", status_code=307)
+
+
+@app.api_route("/doctor/signup", methods=["GET", "POST"])
+def doctor_signup_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/signup", status_code=307)
+
+
+@app.get("/doctor/dashboard")
+def doctor_dashboard_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/dashboard", status_code=307)
+
+
+@app.get("/doctor/appointments")
+def doctor_appointments_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/appointments", status_code=307)
+
+
+@app.post("/doctor/predict-risk")
+def doctor_predict_risk_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/predict-risk", status_code=307)
 
 
 if __name__ == "__main__":
