@@ -206,62 +206,62 @@ app.mount("/portal", WSGIMiddleware(flask_portal_app))
 
 
 # Compatibility routes so previous URLs continue working without /portal prefix.
-@app.api_route("/patient/login", methods=["GET", "POST"])
+@app.api_route("/patient/login", methods=["GET", "POST"], include_in_schema=False)
 def patient_login_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/login", status_code=307)
 
 
-@app.api_route("/patient/signup", methods=["GET", "POST"])
+@app.api_route("/patient/signup", methods=["GET", "POST"], include_in_schema=False)
 def patient_signup_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/signup", status_code=307)
 
 
-@app.api_route("/patient/health-details", methods=["GET", "POST"])
+@app.api_route("/patient/health-details", methods=["GET", "POST"], include_in_schema=False)
 def patient_health_details_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/health-details", status_code=307)
 
 
-@app.get("/patient/health-confirmation")
+@app.get("/patient/health-confirmation", include_in_schema=False)
 def patient_health_confirmation_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/health-confirmation", status_code=307)
 
 
-@app.get("/patient/book-appointment")
+@app.get("/patient/book-appointment", include_in_schema=False)
 def patient_book_appointment_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/book-appointment", status_code=307)
 
 
-@app.get("/patient/features/{patient_id}")
+@app.get("/patient/features/{patient_id}", include_in_schema=False)
 def patient_features_portal(patient_id: str) -> RedirectResponse:
     return RedirectResponse(url=f"/portal/patient/features/{patient_id}", status_code=307)
 
 
-@app.post("/patient/book-appointment-submit")
+@app.post("/patient/book-appointment-submit", include_in_schema=False)
 def patient_book_appointment_submit_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/book-appointment-submit", status_code=307)
 
 
-@app.api_route("/doctor/login", methods=["GET", "POST"])
+@app.api_route("/doctor/login", methods=["GET", "POST"], include_in_schema=False)
 def doctor_login_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/login", status_code=307)
 
 
-@app.api_route("/doctor/signup", methods=["GET", "POST"])
+@app.api_route("/doctor/signup", methods=["GET", "POST"], include_in_schema=False)
 def doctor_signup_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/signup", status_code=307)
 
 
-@app.get("/doctor/dashboard")
+@app.get("/doctor/dashboard", include_in_schema=False)
 def doctor_dashboard_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/dashboard", status_code=307)
 
 
-@app.get("/doctor/appointments")
+@app.get("/doctor/appointments", include_in_schema=False)
 def doctor_appointments_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/appointments", status_code=307)
 
 
-@app.post("/doctor/predict-risk")
+@app.post("/doctor/predict-risk", include_in_schema=False)
 def doctor_predict_risk_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/predict-risk", status_code=307)
 
