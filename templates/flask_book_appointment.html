@@ -145,9 +145,6 @@
 
     <button id="loadPatientBtn" type="button">Load Features From Patient ID</button>
 
-    <label for="doctorId">Doctor ID</label>
-    <input id="doctorId" placeholder="e.g. 2" />
-
     <label for="appointmentTime">Appointment Time</label>
     <input id="appointmentTime" type="datetime-local" />
 
@@ -195,11 +192,10 @@
       const modal = document.getElementById("bookingConfirmModal");
       const confirmText = document.getElementById("confirmText");
       const confirmMeta = document.getElementById("confirmMeta");
-      confirmText.textContent = `Patient ${data.patient_id} booked with Doctor ${data.doctor_id}.`;
+      confirmText.textContent = `Patient ${data.patient_id} appointment booked successfully.`;
       confirmMeta.textContent = [
         `Status: ${data.booking_status || "confirmed"}`,
         `Patient ID: ${data.patient_id || "-"}`,
-        `Doctor ID: ${data.doctor_id || "-"}`,
         `Appointment Time: ${data.appointment_time || "-"}`
       ].join("\n");
       modal.classList.add("active");
@@ -242,7 +238,6 @@
     document.getElementById("bookBtn").addEventListener("click", async () => {
       try {
         const patient_id = document.getElementById("patientId").value.trim();
-        const doctor_id = document.getElementById("doctorId").value.trim();
         const appointment_time = document.getElementById("appointmentTime").value;
         let patient_features = null;
         const rawFeatures = document.getElementById("bookFeatures").value.trim();
@@ -257,7 +252,6 @@
         renderOutput("Submitting...", false);
         const data = await postJson("/patient/book-appointment-submit", {
           patient_id,
-          doctor_id,
           appointment_time,
           patient_features
         });

@@ -358,14 +358,12 @@ def patient_features(patient_id: str) -> Any:
 def submit_appointment() -> Any:
     payload = request.get_json(silent=True) or {}
     patient_id = str(payload.get("patient_id", "")).strip()
-    doctor_id = str(payload.get("doctor_id", "")).strip()
+    doctor_id = str(payload.get("doctor_id", "")).strip() or "Unassigned"
     appointment_time = str(payload.get("appointment_time", "")).strip()
     patient_features = payload.get("patient_features")
 
     if not patient_id:
         return jsonify({"detail": "patient_id is required"}), 400
-    if not doctor_id:
-        return jsonify({"detail": "doctor_id is required"}), 400
     if not appointment_time:
         return jsonify({"detail": "appointment_time is required"}), 400
 

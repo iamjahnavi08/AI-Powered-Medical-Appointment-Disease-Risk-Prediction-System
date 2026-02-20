@@ -150,6 +150,7 @@ def predict_risk(payload: RiskPredictionRequest) -> RiskPredictionResponse:
 @app.post("/book-appointment", response_model=AppointmentBookingResponse)
 def book_appointment(payload: AppointmentBookingRequest) -> AppointmentBookingResponse:
     features = payload.patient_features
+    doctor_id = (payload.doctor_id or "").strip() or "Unassigned"
     if features is None:
         try:
             features = risk_engine.get_patient_features(payload.patient_id)
@@ -167,7 +168,7 @@ def book_appointment(payload: AppointmentBookingRequest) -> AppointmentBookingRe
     response = AppointmentBookingResponse(
         booking_status=booking_status,
         patient_id=payload.patient_id,
-        doctor_id=payload.doctor_id,
+        doctor_id=doctor_id,
         appointment_time=payload.appointment_time,
         risk_assessment=risk_assessment,
     )
@@ -175,7 +176,7 @@ def book_appointment(payload: AppointmentBookingRequest) -> AppointmentBookingRe
         {
             "booked_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
             "patient_id": payload.patient_id,
-            "doctor_id": payload.doctor_id,
+            "doctor_id": doctor_id,
             "appointment_time": payload.appointment_time.isoformat(),
             "patient_features": to_jsonable(features),
             "risk_assessment": response.risk_assessment.model_dump(),

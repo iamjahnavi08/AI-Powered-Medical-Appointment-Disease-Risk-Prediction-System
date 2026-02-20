@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "decision_tree_model.pkl"
 LABEL_ENCODER_PATH = BASE_DIR / "label_encoder.pkl"
-FEATURE_DATA_PATH = BASE_DIR / "Healthcare_FeatureEngineered.csv"
+FEATURE_DATA_PATH = BASE_DIR / "new_patient_data.csv"
 
 
 class RiskPredictionRequest(BaseModel):
@@ -28,7 +28,7 @@ class RiskPredictionRequest(BaseModel):
 
 class AppointmentBookingRequest(BaseModel):
     patient_id: str = Field(..., description="Unique patient identifier")
-    doctor_id: str = Field(..., description="Assigned doctor identifier")
+    doctor_id: Optional[str] = Field(None, description="Assigned doctor identifier")
     appointment_time: datetime = Field(..., description="Requested appointment date-time")
     patient_features: Optional[Dict[str, Any]] = Field(
         None,
@@ -46,7 +46,7 @@ class RiskPredictionResponse(BaseModel):
 class AppointmentBookingResponse(BaseModel):
     booking_status: str
     patient_id: str
-    doctor_id: str
+    doctor_id: Optional[str] = None
     appointment_time: datetime
     risk_assessment: RiskPredictionResponse
 
@@ -74,7 +74,22 @@ class RiskEngine:
 
         if label_encoder_path and label_encoder_path.exists():
             self.label_encoder = joblib.load(label_encoder_path)
+        self._feature_data_mtime: Optional[float] = None
         self.patient_feature_map = self._load_patient_feature_map(FEATURE_DATA_PATH)
+        self._feature_data_mtime = self._get_mtime(FEATURE_DATA_PATH)
+
+    @staticmethod
+    def _get_mtime(path: Path) -> Optional[float]:
+        try:
+            return path.stat().st_mtime
+        except OSError:
+            return None
+
+    def _refresh_feature_map_if_needed(self) -> None:
+        current_mtime = self._get_mtime(FEATURE_DATA_PATH)
+        if current_mtime != self._feature_data_mtime:
+            self.patient_feature_map = self._load_patient_feature_map(FEATURE_DATA_PATH)
+            self._feature_data_mtime = current_mtime
 
     @staticmethod
     def _normalize_patient_id(value: Any) -> str:
@@ -98,21 +113,57 @@ class RiskEngine:
         if not expected_cols:
             return {}
 
-        missing_expected = [c for c in expected_cols if c not in df.columns]
-        if missing_expected:
-            return {}
-
         feature_map: Dict[str, Dict[str, Any]] = {}
         for _, row in df.iterrows():
             pid = self._normalize_patient_id(row["Patient_ID"])
-            features = {}
-            for col in expected_cols:
-                val = row[col]
-                features[col] = None if pd.isna(val) else val
+            row_data = row.to_dict()
+            features = {col: self._default_value_for_feature(str(col)) for col in expected_cols}
+
+            def as_float(value: Any, default: float) -> float:
+                if value is None or pd.isna(value):
+                    return default
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    return default
+
+            age = as_float(row_data.get("Age"), 45.0)
+            gender_raw = str(row_data.get("Gender", "male")).strip().lower()
+            gender_map = {"male": 1, "m": 1, "female": 0, "f": 0, "other": -1}
+            gender = gender_map.get(gender_raw, 1)
+            symptoms = str(row_data.get("Symptoms", "")).strip()
+            symptom_count = int(as_float(row_data.get("Symptom_Count", row_data.get("Sympton_Count", 0)), 0.0))
+            glucose = as_float(row_data.get("Glucose"), 95.0)
+            blood_pressure = as_float(row_data.get("BloodPressure"), 120.0)
+            bmi = as_float(row_data.get("BMI"), 24.5)
+
+            derived = {
+                "Age": age,
+                "Gender": gender,
+                "Symptoms": symptoms,
+                "Symptom_Count": symptom_count,
+                "Glucose": glucose,
+                "BloodPressure": blood_pressure,
+                "BMI": bmi,
+                "Age_Group": "Child" if age < 13 else "Teen" if age < 20 else "Adult" if age < 40 else "Middle_Age" if age < 60 else "Senior",
+                "BMI_Category": "Underweight" if bmi < 18.5 else "Normal" if bmi < 25 else "Overweight" if bmi < 30 else "Obese",
+                "BP_Category": "Low" if blood_pressure < 80 else "Normal" if blood_pressure <= 120 else "Elevated" if blood_pressure <= 139 else "High",
+            }
+            for key, value in derived.items():
+                if key in features:
+                    features[key] = value
+
+            if symptoms:
+                symptom_tokens = [self._normalize_symptom_name(s) for s in re.split(r"[,;|]+", symptoms) if s.strip()]
+                for token in symptom_tokens:
+                    sym_col = f"SYM_{token}"
+                    if sym_col in features:
+                        features[sym_col] = 1
             feature_map[pid] = features
         return feature_map
 
     def get_patient_features(self, patient_id: str) -> Dict[str, Any]:
+        self._refresh_feature_map_if_needed()
         pid = self._normalize_patient_id(patient_id)
         if pid not in self.patient_feature_map:
             raise ValueError("Patient_ID not found")

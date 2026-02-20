@@ -298,8 +298,6 @@
         <label for="patientId">Patient ID</label>
         <input id="patientId" placeholder="e.g. 1520" />
         <button id="loadPatientBtn" type="button">Load Features From Patient ID</button>
-        <label for="doctorId">Doctor ID</label>
-        <input id="doctorId" placeholder="D-209" />
         <label for="appointmentTime">Appointment Time</label>
         <input id="appointmentTime" type="datetime-local" />
         <label for="bookFeatures">Patient Features (JSON)</label>
@@ -389,11 +387,10 @@
       const confirmText = document.getElementById("confirmText");
       const confirmMeta = document.getElementById("confirmMeta");
 
-      confirmText.textContent = `Patient ${data.patient_id} booked with Doctor ${data.doctor_id}.`;
+      confirmText.textContent = `Patient ${data.patient_id} appointment booked successfully.`;
       confirmMeta.textContent = [
         `Status: ${data.booking_status || "confirmed"}`,
         `Patient ID: ${data.patient_id || "-"}`,
-        `Doctor ID: ${data.doctor_id || "-"}`,
         `Appointment Time: ${formatAppointmentTime(data.appointment_time)}`
       ].join("\n");
 
@@ -458,7 +455,6 @@
         }
         const payload = {
           patient_id: document.getElementById("patientId").value.trim(),
-          doctor_id: document.getElementById("doctorId").value.trim(),
           appointment_time: document.getElementById("appointmentTime").value,
           patient_features
         };
@@ -467,7 +463,6 @@
         const bookingSummary = {
           booking_status: data.booking_status,
           patient_id: data.patient_id,
-          doctor_id: data.doctor_id,
           appointment_time: data.appointment_time
         };
         renderOutput("bookOutput", bookingSummary, false);

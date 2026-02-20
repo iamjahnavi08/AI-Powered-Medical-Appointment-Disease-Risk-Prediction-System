@@ -1,5 +1,9 @@
-Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Glucose,BloodPressure,BMI
-101,22,male,"fever, cough",2,flu,110.0,120.0,23.5
-102,22,female,"fever ,cough",2,fever,123.0,123.0,12.0
-55,22,female,"chestpain,headache ,fever",3,,211.0,122.0,13.0
-100,23,female,"fever,cold,cough",3,,0.0,120.0,19.0
+"Patient_ID","Age","Gender","Symptoms","Symptom_Count","Disease","Glucose","BloodPressure","BMI"
+"101","22","male","fever, cough","2","flu","110.0","120.0","23.5"
+"102","22","female","fever ,cough","2","fever","123.0","123.0","12.0"
+"55","22","female","chestpain,headache ,fever","3","","211.0","122.0","13.0"
+"100","23","female","fever,cold,cough","3","","0.0","120.0","19.0"
+"42","20","female","fever,cold","2","","202.0","125.0","12.0"
+"14","23","male","fever","1","","231.0","169.0","13.0"
+"15","100","male","fever","100","","123.0","120.0","89.0"
+"13","12","female","fever","1","","231.0","123.0","13.0"
