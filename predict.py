@@ -52,6 +52,12 @@ class AppointmentBookingResponse(BaseModel):
 
 
 class RiskEngine:
+    LOW_RISK_SYMPTOMS = {
+        "cold",
+        "cough",
+        "mild_constipation",
+        "intermittent_abdominal_discomfort",
+    }
     HIGH_RISK_SYMPTOMS = {"chest_pain", "diarrhea", "diarrhoea", "insomnia", "dizziness"}
     MEDIUM_RISK_SYMPTOMS = {
         "blurred_vision",
@@ -330,11 +336,8 @@ class RiskEngine:
 
         expected_cols = getattr(self.model, "feature_names_in_", None)
         if expected_cols is not None:
-            # Keep prediction robust when input JSON is partial.
-            missing = [col for col in expected_cols if col not in row.columns]
-            for col in missing:
-                row[col] = self._default_value_for_feature(str(col))
-            row = row[list(expected_cols)]
+            # Align to training schema; absent fields remain NaN.
+            row = row.reindex(columns=list(expected_cols))
 
         model_class, model_high_prob = self._model_based_risk(row)
         rule_class = self._rule_based_risk_class(normalized_features)
