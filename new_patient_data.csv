@@ -9,3 +9,4 @@ Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Glucose,BloodPressure,BMI
 13,12,female,fever,1,,231.0,123.0,13.0
 5,12,female,"fever , cold, cough",3,,123.0,120.0,23.0
 2,21,female,"fever ,cold",2,,220.0,120.0,23.0
+6,23,male,"fever,cold",2,,123.0,120.0,21.0

@@ -133,7 +133,7 @@
 
       <button id="loadPatientBtn" type="button">Load Features From Patient ID</button>
 
-      <label for="bookFeatures">Patient Features (JSON)</label>
+      <label for="bookFeatures">Patient Features</label>
       <textarea id="bookFeatures" placeholder="Features will appear here after loading by Patient ID"></textarea>
 
       <button id="bookBtn" type="button">Book Appointment</button>
@@ -154,6 +154,7 @@
 
   <script>
     let bookingRedirectTimer = null;
+    let loadedPatientFeatures = null;
 
     async function postJson(url, payload) {
       const res = await fetch(url, {
@@ -173,6 +174,28 @@
       const el = document.getElementById("bookOutput");
       el.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
       el.className = isError ? "output error" : "output";
+    }
+
+    function formatGender(value) {
+      const normalized = String(value ?? "").trim().toLowerCase();
+      if (value === 1 || normalized === "1" || normalized === "male" || normalized === "m") return "male";
+      if (value === 0 || normalized === "0" || normalized === "female" || normalized === "f") return "female";
+      return "other";
+    }
+
+    function formatPatientFeatures(features) {
+      const symptomCount = features.Symptom_Count ?? features.Sympton_Count ?? "";
+      const bloodPressure = features.BloodPressure ?? "";
+      const bmi = features.BMI ?? "";
+      return [
+        `age: ${features.Age ?? ""}`,
+        `gender: ${formatGender(features.Gender)}`,
+        `symptoms: ${features.Symptoms ?? ""}`,
+        `symptoms_count: ${symptomCount}`,
+        `glucose: ${features.Glucose ?? ""}`,
+        `blood pressure: ${bloodPressure}`,
+        `bmi: ${bmi}`
+      ].join("\n");
     }
 
     function showBookingPopup() {
@@ -206,10 +229,12 @@
       const res = await fetch(`/patient/features/${encodeURIComponent(patientId)}`);
       const data = await res.json();
       if (!res.ok) {
+        loadedPatientFeatures = null;
         document.getElementById("bookFeatures").value = "Patient ID data not found";
         throw new Error("Patient ID data not found");
       }
-      document.getElementById("bookFeatures").value = JSON.stringify(data.patient_features, null, 2);
+      loadedPatientFeatures = data.patient_features || null;
+      document.getElementById("bookFeatures").value = formatPatientFeatures(loadedPatientFeatures || {});
       renderOutput(data, false);
     }
 
@@ -231,15 +256,7 @@
         if (!appointmentDate || !appointmentTimeOnly) throw new Error("Please select appointment date and time.");
         const appointment_time = `${appointmentDate}T${appointmentTimeOnly}`;
 
-        let patient_features = null;
-        const rawFeatures = document.getElementById("bookFeatures").value.trim();
-        if (rawFeatures) {
-          try {
-            patient_features = JSON.parse(rawFeatures);
-          } catch (_) {
-            throw new Error("Invalid JSON in Patient Features.");
-          }
-        }
+        const patient_features = loadedPatientFeatures;
 
         renderOutput("Submitting...", false);
         const data = await postJson("/patient/book-appointment-submit", {
