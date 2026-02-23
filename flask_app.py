@@ -218,6 +218,8 @@ def _build_features_from_new_patient_row(row: Dict[str, Any]) -> Dict[str, Any]:
     glucose = float(row.get("Glucose", 95))
     blood_pressure = float(row.get("BloodPressure", 120))
     bmi = float(row.get("BMI", 24.5))
+    smoking_habit = str(row.get("Smoking_Habit", "")).strip().lower()
+    alcohol_habit = str(row.get("Alcohol_Habit", "")).strip().lower()
 
     features.update(
         {
@@ -228,6 +230,8 @@ def _build_features_from_new_patient_row(row: Dict[str, Any]) -> Dict[str, Any]:
             "Glucose": glucose,
             "BloodPressure": blood_pressure,
             "BMI": bmi,
+            "Smoking_Habit": smoking_habit,
+            "Alcohol_Habit": alcohol_habit,
             "Age_Group": _age_group(age),
             "BMI_Category": _bmi_category(bmi),
             "BP_Category": _bp_category(blood_pressure),
@@ -330,6 +334,8 @@ def health_details() -> Any:
         "glucose": "",
         "blood_pressure": "",
         "bmi": "",
+        "smoking_habit": "",
+        "alcohol_habit": "",
     }
 
     if request.method == "POST":
@@ -342,6 +348,8 @@ def health_details() -> Any:
                 "glucose": request.form.get("glucose", "").strip(),
                 "blood_pressure": request.form.get("blood_pressure", "").strip(),
                 "bmi": request.form.get("bmi", "").strip(),
+                "smoking_habit": request.form.get("smoking_habit", "").strip().lower(),
+                "alcohol_habit": request.form.get("alcohol_habit", "").strip().lower(),
             }
         )
 
@@ -349,6 +357,10 @@ def health_details() -> Any:
             errors.append("Patient ID is missing. Please signup again.")
         if form_data["gender"] not in {"male", "female", "other"}:
             errors.append("Gender must be one of: male, female, other.")
+        if form_data["smoking_habit"] not in {"yes", "no"}:
+            errors.append("Smoking Habit must be yes or no.")
+        if form_data["alcohol_habit"] not in {"yes", "no"}:
+            errors.append("Alcohol Habit must be yes or no.")
         if not form_data["symptoms"]:
             errors.append("Symptoms are required.")
 
@@ -373,6 +385,8 @@ def health_details() -> Any:
                 "Glucose": glucose,
                 "BloodPressure": blood_pressure,
                 "BMI": bmi,
+                "Smoking_Habit": form_data["smoking_habit"],
+                "Alcohol_Habit": form_data["alcohol_habit"],
             }
             try:
                 append_to_new_patient_csv(row)
@@ -457,6 +471,7 @@ def submit_appointment() -> Any:
     payload = request.get_json(silent=True) or {}
     patient_id = str(payload.get("patient_id", "")).strip()
     doctor_id = str(payload.get("doctor_id", "")).strip()
+    appointment_type = str(payload.get("appointment_type", "")).strip()
     appointment_time = str(payload.get("appointment_time", "")).strip()
     patient_features = payload.get("patient_features")
 
@@ -464,6 +479,8 @@ def submit_appointment() -> Any:
         return jsonify({"detail": "patient_id is required"}), 400
     if not doctor_id:
         return jsonify({"detail": "doctor_id is required"}), 400
+    if not appointment_type:
+        return jsonify({"detail": "appointment_type is required"}), 400
     if not appointment_time:
         return jsonify({"detail": "appointment_time is required"}), 400
 
@@ -489,6 +506,7 @@ def submit_appointment() -> Any:
         "booking_status": "confirmed",
         "patient_id": patient_id,
         "doctor_id": doctor_id,
+        "appointment_type": appointment_type,
         "appointment_time": parsed_time.isoformat(),
     }
     APPOINTMENTS.append(
@@ -496,6 +514,7 @@ def submit_appointment() -> Any:
             "booked_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
             "patient_id": patient_id,
             "doctor_id": doctor_id,
+            "appointment_type": appointment_type,
             "appointment_time": parsed_time.isoformat(),
             "patient_features": to_jsonable(patient_features),
             "risk_assessment": risk_assessment.model_dump(),

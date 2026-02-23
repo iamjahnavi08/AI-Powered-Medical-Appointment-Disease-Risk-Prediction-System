@@ -73,6 +73,24 @@
           <label for="bmi">BMI</label>
           <input id="bmi" name="bmi" type="number" step="0.01" min="0" value="{{ form_data.bmi }}" required />
         </div>
+
+        <div>
+          <label for="smoking_habit">Do you have any smoking habit?</label>
+          <select id="smoking_habit" name="smoking_habit" required>
+            <option value="">Select option</option>
+            <option value="yes" {% if form_data.smoking_habit == "yes" %}selected{% endif %}>Yes</option>
+            <option value="no" {% if form_data.smoking_habit == "no" %}selected{% endif %}>No</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="alcohol_habit">Do you have any alcohol habit?</label>
+          <select id="alcohol_habit" name="alcohol_habit" required>
+            <option value="">Select option</option>
+            <option value="yes" {% if form_data.alcohol_habit == "yes" %}selected{% endif %}>Yes</option>
+            <option value="no" {% if form_data.alcohol_habit == "no" %}selected{% endif %}>No</option>
+          </select>
+        </div>
       </div>
 
       <button type="submit">Submit Health Details</button>
