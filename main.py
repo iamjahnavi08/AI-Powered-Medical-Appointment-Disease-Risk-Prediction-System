@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from flask_app import app as flask_portal_app
 
 from doctor_auth import DoctorAuthManager, DoctorLoginRequest, DoctorSignupRequest
@@ -30,12 +31,16 @@ from predict import (
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
+STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI(
     title="Disease Risk Prediction Engine",
     version="1.0.0",
     description="Live disease risk estimation integrated with appointment booking.",
 )
+
+# Serve shared frontend assets (login background, images, etc.)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 try:
     risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
@@ -270,4 +275,3 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-

@@ -20,17 +20,34 @@
     body {
       margin: 0;
       min-height: 100vh;
+      position: relative;
       display: grid;
       place-items: center;
-      background: var(--bg);
+      background-image: url("/static/login-bg.svg");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #eef3f7;
       font-family: Arial, sans-serif;
       color: var(--ink);
       padding: 18px;
     }
 
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .card {
       width: min(920px, 100%);
       min-height: 560px;
+      position: relative;
+      z-index: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
       border-radius: 4px;
@@ -169,3 +186,4 @@
   </main>
 </body>
 </html>
+
