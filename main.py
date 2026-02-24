@@ -246,6 +246,11 @@ def patient_book_appointment_submit_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/book-appointment-submit", status_code=307)
 
 
+@app.post("/patient/predict-risk", include_in_schema=False)
+def patient_predict_risk_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/predict-risk", status_code=307)
+
+
 @app.api_route("/doctor/login", methods=["GET", "POST"], include_in_schema=False)
 def doctor_login_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/login", status_code=307)

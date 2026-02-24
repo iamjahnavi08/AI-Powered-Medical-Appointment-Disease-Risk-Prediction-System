@@ -58,7 +58,16 @@ class RiskEngine:
         "mild_constipation",
         "intermittent_abdominal_discomfort",
     }
-    HIGH_RISK_SYMPTOMS = {"chest_pain", "diarrhea", "diarrhoea", "insomnia", "dizziness"}
+    # High-priority symptoms that should force a High Risk rule outcome.
+    # Include common text variants after normalization (e.g. "chest pain" -> "chest_pain").
+    SYMPTOMS = {
+        "chestpain",
+        "chest_pain",
+        "diarrhea",
+        "diarrhoea",
+        "insomnia",
+        "dizziness",
+    }
     MEDIUM_RISK_SYMPTOMS = {
         "blurred_vision",
         "swelling",
@@ -153,7 +162,7 @@ class RiskEngine:
                 "BMI": bmi,
                 "Age_Group": "Child" if age < 13 else "Teen" if age < 20 else "Adult" if age < 40 else "Middle_Age" if age < 60 else "Senior",
                 "BMI_Category": "Underweight" if bmi < 18.5 else "Normal" if bmi < 25 else "Overweight" if bmi < 30 else "Obese",
-                "BP_Category": "Low" if blood_pressure < 80 else "Normal" if blood_pressure <= 120 else "Elevated" if blood_pressure <= 139 else "High",
+                "BP_Category": "Low" if blood_pressure < 80 else "Normal" if blood_pressure <= 121 else "Elevated" if blood_pressure <= 139 else "High",
             }
             for key, value in derived.items():
                 if key in features:
@@ -262,8 +271,10 @@ class RiskEngine:
         )
         glucose = to_number(features.get("Glucose"), "Glucose")
         blood_pressure = to_number(features.get("BloodPressure"), "BloodPressure")
+        reported_symptoms = self._extract_reported_symptoms(features)
+        has_high_risk_symptom = any(sym in reported_symptoms for sym in self.SYMPTOMS)
 
-        if (age > 50 and symptom_count > 0) or glucose > 150 or blood_pressure > 120:
+        if has_high_risk_symptom or (age > 50 and symptom_count > 0) or glucose > 150 or blood_pressure > 120:
             return "High Risk"
         return "Low Risk"
 

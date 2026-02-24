@@ -240,6 +240,7 @@
   <script>
     let cachedAppointments = [];
     let selectedAppointmentKey = null;
+    let selectedPatientFeatures = null;
 
     async function postJson(url, payload) {
       const res = await fetch(url, {
@@ -261,9 +262,14 @@
         throw new Error("No appointment selected.");
       }
       try {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        selectedPatientFeatures = parsed;
+        return parsed;
       } catch (_) {
-        throw new Error("Invalid JSON in patient features.");
+        if (selectedPatientFeatures) {
+          return selectedPatientFeatures;
+        }
+        throw new Error("Select an appointment row first.");
       }
     }
 
@@ -283,6 +289,37 @@
       return value == null ? "" : String(value);
     }
 
+    function formatGender(value) {
+      const normalized = String(value ?? "").trim().toLowerCase();
+      if (value === 1 || normalized === "1" || normalized === "male" || normalized === "m") return "male";
+      if (value === 0 || normalized === "0" || normalized === "female" || normalized === "f") return "female";
+      return "other";
+    }
+
+    function formatPatientFeatures(features) {
+      const data = features || {};
+      const symptomCount = data.Symptom_Count ?? data.Sympton_Count ?? "";
+      const bloodPressure = data.BloodPressure ?? "";
+      const bmi = data.BMI ?? "";
+      const bmiCategory = data.BMI_Category ?? "";
+      const bpCategory = data.BP_Category ?? "";
+      const smokingHabit = data.Smoking_Habit ?? "";
+      const alcoholHabit = data.Alcohol_Habit ?? "";
+      return [
+        `age: ${data.Age ?? ""}`,
+        `gender: ${formatGender(data.Gender)}`,
+        `symptoms: ${data.Symptoms ?? ""}`,
+        `symptoms_count: ${symptomCount}`,
+        `glucose: ${data.Glucose ?? ""}`,
+        `blood pressure: ${bloodPressure}`,
+        `bp category: ${bpCategory}`,
+        `bmi: ${bmi}`,
+        `bmi category: ${bmiCategory}`,
+        `smoking habit: ${smokingHabit}`,
+        `alcohol habit: ${alcoholHabit}`
+      ].join("\n");
+    }
+
     function appointmentKey(item) {
       return `${toSafeText(item.booked_at)}|${toSafeText(item.patient_id)}|${toSafeText(item.doctor_id)}`;
     }
@@ -294,7 +331,8 @@
       const item = cachedAppointments[index];
       selectedAppointmentKey = appointmentKey(item);
       const features = item.patient_features || {};
-      document.getElementById("riskFeatures").value = JSON.stringify(features, null, 2);
+      selectedPatientFeatures = features;
+      document.getElementById("riskFeatures").value = formatPatientFeatures(features);
       renderOutput(`Loaded Patient_ID ${toSafeText(item.patient_id)} for prediction.`, false);
 
       const rows = document.querySelectorAll("#rows tr[data-index]");
@@ -314,6 +352,7 @@
       if (!data.appointments || data.appointments.length === 0) {
         cachedAppointments = [];
         selectedAppointmentKey = null;
+        selectedPatientFeatures = null;
         document.getElementById("riskFeatures").value = "";
         renderOutput("No appointment selected yet.", false);
         rows.innerHTML = '<tr><td colspan="6">No appointments yet.</td></tr>';
@@ -328,7 +367,7 @@
           <td>${toSafeText(item.doctor_id)}</td>
           <td>${toSafeText(item.appointment_time)}</td>
           <td>${riskPill(item.risk_assessment && item.risk_assessment.predicted_class)}</td>
-          <td><pre>${toSafeText(JSON.stringify(item.patient_features, null, 2))}</pre></td>
+          <td><pre>${toSafeText(formatPatientFeatures(item.patient_features || {}))}</pre></td>
         </tr>
       `).join("");
 

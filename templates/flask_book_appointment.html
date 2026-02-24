@@ -39,7 +39,8 @@
     }
     .left-title { margin: 0; font-size: 2rem; color: #12305b; font-weight: 800; letter-spacing: 0.02em; }
     .left-sub { margin: 0; color: #345178; font-size: 1rem; font-weight: 700; }
-    .left-image-wrap { margin-top: 8px; flex: 1; display: flex; }
+    .left-image-wrap { margin-top: 8px; display: block; }
+    .left-image-wrap img { height: 210px; object-fit: cover; }
     .left-panel img {
       width: 100%;
       height: 100%;
@@ -53,14 +54,87 @@
       margin-top: 2px;
       display: block;
     }
-    .left-extra-image {
-      width: 100%;
-      height: 210px;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 0;
+    .patient-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(136, 156, 194, 0.45);
+      background: rgba(238, 244, 252, 0.88);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+    .patient-card h3 {
+      margin: 0 0 8px;
+      color: #12305b;
+      font-size: 1.08rem;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .patient-card-id {
+      margin: 0 0 10px;
+      color: #2e456a;
+      font-size: 0.96rem;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 600;
+    }
+    .patient-card label {
+      margin-top: 0;
+    }
+    .snapshot-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(136, 156, 194, 0.45);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(237, 245, 255, 0.9));
+      box-shadow: 0 10px 18px rgba(16, 52, 96, 0.08);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .snapshot-title {
+      margin: 0 0 10px;
+      color: #12305b;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .snapshot-item {
+      border: 1px solid rgba(166, 186, 219, 0.55);
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 8px;
+    }
+    .snapshot-key {
       display: block;
-      background: #fbe0ec;
+      font-size: 0.78rem;
+      color: #4a6289;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .snapshot-val {
+      display: block;
+      font-weight: 700;
+      color: #12305b;
+      font-size: 0.98rem;
+    }
+    .care-track {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(141, 168, 207, 0.7);
+      background: rgba(244, 249, 255, 0.85);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .care-track h4 {
+      margin: 0 0 8px;
+      color: #12305b;
+      font-size: 0.98rem;
+    }
+    .care-track ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #33517b;
+      font-size: 0.92rem;
+      line-height: 1.5;
     }
     .left-note {
       margin: 10px 0 10px;
@@ -85,11 +159,170 @@
       border: 0;
       border-radius: 0;
     }
-    h1 { margin: 0 0 8px; font-family: "Palatino Linotype", "Book Antiqua", serif; font-size: 1.45rem; color: #12244a; }
+    .risk-dashboard {
+      margin: 0 0 14px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(136, 156, 194, 0.45);
+      background: rgba(246, 250, 255, 0.92);
+    }
+    .risk-head {
+      margin: 0 0 10px;
+      font-family: "Palatino Linotype", "Book Antiqua", serif;
+      font-size: 1.35rem;
+      color: #12244a;
+    }
+    .risk-sub {
+      margin: 0 0 10px;
+      color: #3f5375;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .risk-overall {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #8cd6af;
+      background: #eefcf4;
+      color: #14532d;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 700;
+    }
+    .risk-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .risk-item {
+      border: 1px solid rgba(168, 186, 216, 0.55);
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 10px 12px;
+    }
+    .risk-icon {
+      width: 34px;
+      height: 34px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .risk-icon.cardio { color: #ef4444; }
+    .risk-icon.diabetes { color: #3b82f6; }
+    .risk-icon.hypertension { color: #f97316; }
+    .risk-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 700;
+      color: #1e3358;
+    }
+    .risk-badge {
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 0.78rem;
+      color: #fff;
+      background: #15803d;
+    }
+    .risk-value {
+      color: #0f172a;
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .risk-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #deede4;
+      overflow: hidden;
+    }
+    .risk-fill {
+      height: 100%;
+      width: 0%;
+      background: #15803d;
+      transition: width 260ms ease;
+    }
+    .recommend-box {
+      border: 1px solid rgba(168, 186, 216, 0.55);
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 10px 12px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .recommend-box h3 {
+      margin: 0 0 6px;
+      color: #1c3560;
+      font-size: 1.05rem;
+    }
+    .recommend-box ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      color: #334c72;
+    }
+    .recommend-box li { margin: 4px 0; }
+    .notice-box {
+      margin-top: 10px;
+      border: 1px solid rgba(168, 186, 216, 0.55);
+      border-radius: 12px;
+      background: #f9fbff;
+      padding: 10px 12px;
+      color: #334c72;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .book-meta {
+      margin: 0 0 14px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(130, 164, 210, 0.45);
+      background:
+        radial-gradient(circle at 86% 14%, rgba(54, 131, 236, 0.12), transparent 34%),
+        linear-gradient(135deg, #fbfdff, #f2f8ff 55%, #edf5ff);
+      box-shadow: 0 12px 24px rgba(19, 55, 101, 0.1);
+    }
+    .book-meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: linear-gradient(110deg, #0f8d85, #1d66b6);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .book-meta-tag svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+    .book-meta-title {
+      margin: 0;
+      font-family: "Palatino Linotype", "Book Antiqua", serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #112c56;
+      letter-spacing: 0.01em;
+    }
+    .book-meta-sub {
+      margin: 8px 0 0;
+      color: #3c5277;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.02rem;
+      line-height: 1.45;
+    }
     label { display: block; margin: 12px 0 8px; font-size: 0.95rem; font-weight: 700; }
     input, select, textarea, button { width: 100%; border-radius: 14px; font-family: inherit; border: 1px solid #c7d1e7; box-sizing: border-box; }
     input, select, textarea { padding: 12px 14px; background: #e9eef7; color: #0f1b33; font-size: 0.95rem; }
     textarea { min-height: 220px; resize: vertical; background: #f3f6fb; }
+    .patient-card textarea {
+      min-height: 240px;
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     button { margin-top: 10px; border: 0; padding: 12px 14px; font-size: 1rem; font-weight: 700; color: #fff; background: linear-gradient(110deg, #0f7f78, #1e6bb9); cursor: pointer; }
     .output {
@@ -134,12 +367,58 @@
   <main class="page">
     <div class="dashboard-shell">
       <aside class="left-panel">
+        <a class="toplink" href="/login">Back</a>
         <h2 class="left-title">Exafluence Hospital</h2>
         <p class="left-sub">Trusted Care, Every Appointment</p>
+        <div class="left-extra-wrap patient-card">
+          <h3>Patient Details Card</h3>
+          <p class="patient-card-id">Patient ID: <strong>{{ patient_id }}</strong></p>
+          <label for="bookFeatures">Patient Features</label>
+          <textarea id="bookFeatures" placeholder="Patient features will be loaded automatically"></textarea>
+        </div>
+
+        <div class="snapshot-card">
+          <p class="snapshot-title">Live Health Snapshot</p>
+          <div class="snapshot-grid">
+            <div class="snapshot-item">
+              <span class="snapshot-key">Age</span>
+              <span class="snapshot-val" id="snapAge">--</span>
+            </div>
+            <div class="snapshot-item">
+              <span class="snapshot-key">Gender</span>
+              <span class="snapshot-val" id="snapGender">--</span>
+            </div>
+            <div class="snapshot-item">
+              <span class="snapshot-key">Glucose</span>
+              <span class="snapshot-val" id="snapGlucose">--</span>
+            </div>
+            <div class="snapshot-item">
+              <span class="snapshot-key">Blood Pressure</span>
+              <span class="snapshot-val" id="snapBp">--</span>
+            </div>
+            <div class="snapshot-item">
+              <span class="snapshot-key">BMI</span>
+              <span class="snapshot-val" id="snapBmi">--</span>
+            </div>
+            <div class="snapshot-item">
+              <span class="snapshot-key">Symptom Count</span>
+              <span class="snapshot-val" id="snapSymCount">--</span>
+            </div>
+          </div>
+          <div class="care-track">
+            <h4>Appointment Flow</h4>
+            <ul>
+              <li>Review and edit your health details.</li>
+              <li>Select doctor, appointment type, date and time.</li>
+              <li>Submit booking and receive instant confirmation.</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="left-image-wrap">
   <img
-    src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ecf5ff'/%3E%3Cstop offset='100%25' stop-color='%23d7e8ff'/%3E%3C/linearGradient%3E%3ClinearGradient id='card' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23eef4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23bg)'/%3E%3Ccircle cx='1020' cy='120' r='120' fill='%23b7d5ff' opacity='0.45'/%3E%3Ccircle cx='150' cy='620' r='170' fill='%23b7d5ff' opacity='0.35'/%3E%3Crect x='120' y='80' width='960' height='540' rx='28' fill='url(%23card)' stroke='%23c4d7f6' stroke-width='4'/%3E%3Ctext x='170' y='145' font-size='38' font-family='Consolas,monospace' fill='%2312366d' font-weight='700'%3EAI Health Risk Dashboard%3C/text%3E%3Crect x='170' y='180' width='420' height='280' rx='18' fill='%23f6f9ff' stroke='%23cadbf7'/%3E%3Ctext x='195' y='225' font-size='26' font-family='Consolas,monospace' fill='%23163b73' font-weight='700'%3EVitals%3C/text%3E%3Ctext x='195' y='265' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EGlucose: 118%3C/text%3E%3Ctext x='195' y='300' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EBP: 122/80%3C/text%3E%3Ctext x='195' y='335' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EBMI: 24.1%3C/text%3E%3Ctext x='195' y='370' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3ESymptoms: 2%3C/text%3E%3Crect x='640' y='180' width='390' height='190' rx='18' fill='%23f6f9ff' stroke='%23cadbf7'/%3E%3Ctext x='665' y='225' font-size='26' font-family='Consolas,monospace' fill='%23163b73' font-weight='700'%3ERisk Trend%3C/text%3E%3Cpolyline points='675,335 730,300 790,315 860,260 930,285 995,225' fill='none' stroke='%231e6bb9' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='995' cy='225' r='9' fill='%230f7f78'/%3E%3Crect x='640' y='400' width='390' height='120' rx='16' fill='%231e6bb9'/%3E%3Ctext x='665' y='450' font-size='24' font-family='Consolas,monospace' fill='white' font-weight='700'%3EAppointment Ready%3C/text%3E%3Ctext x='665' y='485' font-size='20' font-family='Consolas,monospace' fill='%23d8edff'%3EDoctor slot available%3C/text%3E%3C/svg%3E"
-    alt="AI healthcare dashboard illustration"
+    src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 520'%3E%3Cdefs%3E%3ClinearGradient id='wall' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e9f1fb'/%3E%3Cstop offset='100%25' stop-color='%23dfe8f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='380' fill='url(%23wall)'/%3E%3Crect y='380' width='1200' height='140' fill='%23d9b58a'/%3E%3Crect y='394' width='1200' height='8' fill='%23c69e72'/%3E%3Crect x='150' y='120' width='500' height='310' rx='10' fill='%23ffffff' stroke='%23cfd7e8' stroke-width='4'/%3E%3Cg stroke='%23d7dceb' stroke-width='3'%3E%3Cline x1='150' y1='175' x2='650' y2='175'/%3E%3Cline x1='150' y1='228' x2='650' y2='228'/%3E%3Cline x1='150' y1='281' x2='650' y2='281'/%3E%3Cline x1='150' y1='334' x2='650' y2='334'/%3E%3Cline x1='150' y1='387' x2='650' y2='387'/%3E%3Cline x1='220' y1='120' x2='220' y2='430'/%3E%3Cline x1='290' y1='120' x2='290' y2='430'/%3E%3Cline x1='360' y1='120' x2='360' y2='430'/%3E%3Cline x1='430' y1='120' x2='430' y2='430'/%3E%3Cline x1='500' y1='120' x2='500' y2='430'/%3E%3Cline x1='570' y1='120' x2='570' y2='430'/%3E%3C/g%3E%3Crect x='175' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Crect x='610' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Ccircle cx='860' cy='340' r='120' fill='%230f1526' stroke='%232e374f' stroke-width='10'/%3E%3Ccircle cx='860' cy='340' r='98' fill='%23eef2fb'/%3E%3Cg stroke='%23181f33' stroke-width='4'%3E%3Cline x1='860' y1='242' x2='860' y2='260'/%3E%3Cline x1='860' y1='420' x2='860' y2='438'/%3E%3Cline x1='762' y1='340' x2='780' y2='340'/%3E%3Cline x1='940' y1='340' x2='958' y2='340'/%3E%3C/g%3E%3Cg stroke='%23111826' stroke-linecap='round'%3E%3Cline x1='860' y1='340' x2='860' y2='285' stroke-width='7'/%3E%3Cline x1='860' y1='340' x2='904' y2='340' stroke-width='6'/%3E%3Cline x1='860' y1='340' x2='827' y2='360' stroke-width='4'/%3E%3C/g%3E%3Ccircle cx='860' cy='340' r='8' fill='%23111826'/%3E%3Cpath d='M780 236q80-58 160 0' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M780 236q-32-18-24-52q8-25 32-18q16 6 19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M940 236q32-18 24-52q-8-25-32-18q-16 6-19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Crect x='835' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3Crect x='870' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3C/svg%3E"
+    alt="Clock and calendar"
   />
 </div>
         <p class="left-note">
@@ -148,21 +427,89 @@
           Choose your date and time, then confirm your booking for timely medical care
           and personalized attention.
         </p>
-        <div class="left-extra-wrap">
-          <img
-            class="left-extra-image"
-            src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 520'%3E%3Cdefs%3E%3ClinearGradient id='wall' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e9f1fb'/%3E%3Cstop offset='100%25' stop-color='%23dfe8f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='380' fill='url(%23wall)'/%3E%3Crect y='380' width='1200' height='140' fill='%23d9b58a'/%3E%3Crect y='394' width='1200' height='8' fill='%23c69e72'/%3E%3Crect x='150' y='120' width='500' height='310' rx='10' fill='%23ffffff' stroke='%23cfd7e8' stroke-width='4'/%3E%3Cg stroke='%23d7dceb' stroke-width='3'%3E%3Cline x1='150' y1='175' x2='650' y2='175'/%3E%3Cline x1='150' y1='228' x2='650' y2='228'/%3E%3Cline x1='150' y1='281' x2='650' y2='281'/%3E%3Cline x1='150' y1='334' x2='650' y2='334'/%3E%3Cline x1='150' y1='387' x2='650' y2='387'/%3E%3Cline x1='220' y1='120' x2='220' y2='430'/%3E%3Cline x1='290' y1='120' x2='290' y2='430'/%3E%3Cline x1='360' y1='120' x2='360' y2='430'/%3E%3Cline x1='430' y1='120' x2='430' y2='430'/%3E%3Cline x1='500' y1='120' x2='500' y2='430'/%3E%3Cline x1='570' y1='120' x2='570' y2='430'/%3E%3C/g%3E%3Crect x='175' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Crect x='610' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Ccircle cx='860' cy='340' r='120' fill='%230f1526' stroke='%232e374f' stroke-width='10'/%3E%3Ccircle cx='860' cy='340' r='98' fill='%23eef2fb'/%3E%3Cg stroke='%23181f33' stroke-width='4'%3E%3Cline x1='860' y1='242' x2='860' y2='260'/%3E%3Cline x1='860' y1='420' x2='860' y2='438'/%3E%3Cline x1='762' y1='340' x2='780' y2='340'/%3E%3Cline x1='940' y1='340' x2='958' y2='340'/%3E%3C/g%3E%3Cg stroke='%23111826' stroke-linecap='round'%3E%3Cline x1='860' y1='340' x2='860' y2='285' stroke-width='7'/%3E%3Cline x1='860' y1='340' x2='904' y2='340' stroke-width='6'/%3E%3Cline x1='860' y1='340' x2='827' y2='360' stroke-width='4'/%3E%3C/g%3E%3Ccircle cx='860' cy='340' r='8' fill='%23111826'/%3E%3Cpath d='M780 236q80-58 160 0' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M780 236q-32-18-24-52q8-25 32-18q16 6 19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M940 236q32-18 24-52q-8-25-32-18q-16 6-19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Crect x='835' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3Crect x='870' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3C/svg%3E"
-            alt="Clock and calendar"
-          />
-        </div>
+        
       </aside>
 
       <section class="wrap">
-        <a class="toplink" href="/login">Back</a>
-        <h1>Book Appointment</h1>
+        <div class="risk-dashboard">
+          <h2 class="risk-head">Your Risk Assessment Results</h2>
+          <p class="risk-sub">Based on your health metrics</p>
+          <div class="risk-overall" id="overallRisk">Overall Risk Level: Assessing...</div>
 
-      <label for="patientId">Patient ID</label>
-      <input id="patientId" value="{{ patient_id }}" />
+          <div class="risk-grid">
+            <div class="risk-item">
+              <svg class="risk-icon cardio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20.8 5.6a5.4 5.4 0 0 0-7.6 0l-1.2 1.2-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 22l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6z"/>
+              </svg>
+              <div class="risk-topline">
+                <span>Cardiovascular Disease</span>
+                <span class="risk-badge" id="cardioBadge">LOW</span>
+              </div>
+              <div class="risk-value"><span id="cardioValue">0.0%</span> risk</div>
+              <div class="risk-bar"><div class="risk-fill" id="cardioFill"></div></div>
+            </div>
+            <div class="risk-item">
+              <svg class="risk-icon diabetes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3c1.4 3.4 5.8 5.4 5.8 10a5.8 5.8 0 0 1-11.6 0C6.2 8.4 10.6 6.4 12 3z"/>
+              </svg>
+              <div class="risk-topline">
+                <span>Diabetes</span>
+                <span class="risk-badge" id="diabetesBadge">LOW</span>
+              </div>
+              <div class="risk-value"><span id="diabetesValue">0.0%</span> risk</div>
+              <div class="risk-bar"><div class="risk-fill" id="diabetesFill"></div></div>
+            </div>
+            <div class="risk-item">
+              <svg class="risk-icon hypertension" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.5 12h4l2-5 3 10 2.5-7h7"/>
+              </svg>
+              <div class="risk-topline">
+                <span>Hypertension</span>
+                <span class="risk-badge" id="hypertensionBadge">LOW</span>
+              </div>
+              <div class="risk-value"><span id="hypertensionValue">0.0%</span> risk</div>
+              <div class="risk-bar"><div class="risk-fill" id="hypertensionFill"></div></div>
+            </div>
+          </div>
+
+          <div class="recommend-box" id="recommendBox">
+            <h3>Personalized Recommendations</h3>
+            <ul id="recommendList">
+              <li>Risk recommendations will appear after loading your details.</li>
+            </ul>
+          </div>
+          <div class="notice-box">
+            <strong>Important Notice</strong><br>
+            This risk assessment is informational and does not replace medical diagnosis.
+          </div>
+        </div>
+
+        <div class="book-meta">
+          <span class="book-meta-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Priority Slot
+          </span>
+          <p class="book-meta-title">Book New Appointment</p>
+          <p class="book-meta-sub">Fill in your details to schedule an appointment with a healthcare professional.</p>
+        </div>
+
+      <input id="patientId" type="hidden" value="{{ patient_id }}" />
+
+      <div class="grid">
+        <div>
+          <label for="patientName">Patient Name *</label>
+          <input id="patientName" type="text" placeholder="Enter your full name" />
+        </div>
+        <div>
+          <label for="contactInfo">Contact Information *</label>
+          <input id="contactInfo" type="text" placeholder="Phone or email" />
+        </div>
+      </div>
 
       <label for="doctorId">Select Doctor</label>
       <select id="doctorId" required>
@@ -193,13 +540,7 @@
         </div>
       </div>
 
-      <button id="loadPatientBtn" type="button">Load Features From Patient ID</button>
-
-      <label for="bookFeatures">Patient Features</label>
-      <textarea id="bookFeatures" placeholder="Features will appear here after loading by Patient ID"></textarea>
-
         <button id="bookBtn" type="button">Book Appointment</button>
-        <div class="output" id="bookOutput">Waiting for input...</div>
       </section>
     </div>
   </main>
@@ -218,6 +559,8 @@
   <script>
     let bookingRedirectTimer = null;
     let loadedPatientFeatures = null;
+    let riskPanelTimer = null;
+    let riskPanelRequestId = 0;
 
     async function postJson(url, payload) {
       const res = await fetch(url, {
@@ -235,6 +578,9 @@
 
     function renderOutput(value, isError, isHtml = false) {
       const el = document.getElementById("bookOutput");
+      if (!el) {
+        return;
+      }
       if (isHtml) {
         el.innerHTML = String(value);
       } else {
@@ -261,8 +607,18 @@
 
     function formatPatientFeatures(features) {
       const symptomCount = features.Symptom_Count ?? features.Sympton_Count ?? "";
-      const bloodPressure = features.BloodPressure ?? "";
+      const bpParts = parseBloodPressureValue(features.BloodPressure);
+      const bpSystolic = bpParts.systolic;
+      const bpDiastolic = resolveDiastolic(bpSystolic, bpParts.diastolic);
+      const bloodPressure =
+        bpSystolic == null
+          ? ""
+          : bpDiastolic == null
+            ? `${bpSystolic}`
+            : `${bpSystolic}/${bpDiastolic}`;
+      const bpCategory = features.BP_Category ?? "";
       const bmi = features.BMI ?? "";
+      const bmiCategory = features.BMI_Category ?? "";
       const smokingHabit = features.Smoking_Habit ?? "";
       const alcoholHabit = features.Alcohol_Habit ?? "";
       return [
@@ -272,7 +628,9 @@
         `symptoms_count: ${symptomCount}`,
         `glucose: ${features.Glucose ?? ""}`,
         `blood pressure: ${bloodPressure}`,
+        `bp category: ${bpCategory}`,
         `bmi: ${bmi}`,
+        `bmi category: ${bmiCategory}`,
         `smoking habit: ${smokingHabit}`,
         `alcohol habit: ${alcoholHabit}`
       ].join("\n");
@@ -323,6 +681,368 @@
       window.location.href = "/";
     }
 
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function toNumber(value, fallback = 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function parseEditableFeatures() {
+      const base = loadedPatientFeatures ? { ...loadedPatientFeatures } : {};
+      if (!hasValue(base.Smoking_Habit)) base.Smoking_Habit = "no";
+      if (!hasValue(base.Alcohol_Habit)) base.Alcohol_Habit = "no";
+      const text = document.getElementById("bookFeatures").value || "";
+      const lines = text.split("\n");
+      lines.forEach((line) => {
+        const idx = line.indexOf(":");
+        if (idx === -1) return;
+        const key = line.slice(0, idx).trim().toLowerCase();
+        const value = line.slice(idx + 1).trim();
+        if (key === "age") base.Age = value === "" ? null : toNumber(value, null);
+        if (key === "gender") base.Gender = value === "" ? null : value;
+        if (key === "symptoms") base.Symptoms = value === "" ? null : value;
+        if (key === "symptoms_count") base.Symptom_Count = value === "" ? null : toNumber(value, null);
+        if (key === "glucose") base.Glucose = value === "" ? null : toNumber(value, null);
+        if (key === "blood pressure") {
+          if (value === "") {
+            base.BloodPressure = null;
+            base.BP_Diastolic = null;
+          } else {
+            const parsed = parseBloodPressureValue(value);
+            base.BloodPressure = parsed.systolic;
+            base.BP_Diastolic = parsed.diastolic;
+          }
+        }
+        if (key === "bp category") base.BP_Category = value === "" ? null : value;
+        if (key === "bmi") base.BMI = value === "" ? null : toNumber(value, null);
+        if (key === "bmi category") base.BMI_Category = value === "" ? null : value;
+        if (key === "smoking habit") base.Smoking_Habit = value === "" ? null : value.toLowerCase();
+        if (key === "alcohol habit") base.Alcohol_Habit = value === "" ? null : value.toLowerCase();
+      });
+      return base;
+    }
+
+    function parseBloodPressureValue(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return { systolic: null, diastolic: null };
+
+      if (raw.includes("/")) {
+        const parts = raw.split("/");
+        const systolic = toNumber(parts[0], null);
+        const diastolic = toNumber(parts[1], null);
+        return { systolic, diastolic };
+      }
+
+      return { systolic: toNumber(raw, null), diastolic: null };
+    }
+
+    function resolveDiastolic(systolic, diastolic) {
+      if (diastolic != null) return diastolic;
+      if (systolic == null) return null;
+      if (systolic <= 120) return 80;
+      if (systolic <= 139) return 85;
+      return 95;
+    }
+
+    function symptomTokens(value) {
+      return String(value ?? "")
+        .split(",")
+        .map((v) => v.trim().toLowerCase())
+        .filter(Boolean);
+    }
+
+    function hasValue(value) {
+      if (value === null || value === undefined) return false;
+      const text = String(value).trim();
+      return text !== "";
+    }
+
+    function normalizeFeaturePayload(features) {
+      const payload = {};
+      Object.entries(features || {}).forEach(([key, value]) => {
+        if (value === null || value === undefined) return;
+        if (typeof value === "string" && value.trim() === "") return;
+        payload[key] = value;
+      });
+      return payload;
+    }
+
+    function updateLeftSnapshot(features) {
+      const f = features || {};
+      const symptomCount = f.Symptom_Count ?? f.Sympton_Count ?? "--";
+      const bpParts = parseBloodPressureValue(f.BloodPressure);
+      const bpSystolic = bpParts.systolic;
+      const bpDiastolic = resolveDiastolic(bpSystolic, bpParts.diastolic);
+      const bp =
+        bpSystolic == null
+          ? "--"
+          : bpDiastolic == null
+            ? String(bpSystolic)
+            : `${bpSystolic}/${bpDiastolic}`;
+      const age = f.Age ?? "--";
+      const glucose = f.Glucose ?? "--";
+      const bmi = f.BMI ?? "--";
+      const gender = f.Gender == null ? "--" : formatGender(f.Gender);
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = String(val);
+      };
+      set("snapAge", age);
+      set("snapGender", gender);
+      set("snapGlucose", glucose);
+      set("snapBp", bp);
+      set("snapBmi", bmi);
+      set("snapSymCount", symptomCount);
+    }
+
+    function scoreLevel(percent) {
+      if (percent >= 90) return "VERY HIGH";
+      if (percent >= 60) return "HIGH";
+      if (percent >= 30) return "MEDIUM";
+      return "LOW";
+    }
+
+    function levelColor(level) {
+      if (level === "VERY HIGH") return "#b91c1c";
+      if (level === "HIGH") return "#dc2626";
+      if (level === "MEDIUM") return "#d97706";
+      return "#15803d";
+    }
+
+    function setRiskCard(name, percent) {
+      const valueEl = document.getElementById(`${name}Value`);
+      const badgeEl = document.getElementById(`${name}Badge`);
+      const fillEl = document.getElementById(`${name}Fill`);
+      const level = scoreLevel(percent);
+      const color = levelColor(level);
+      valueEl.textContent = `${percent.toFixed(1)}%`;
+      badgeEl.textContent = level;
+      badgeEl.style.background = color;
+      fillEl.style.width = `${clamp(percent, 0, 100)}%`;
+      fillEl.style.background = color;
+      return level;
+    }
+
+    function renderRecommendations(overallLevel) {
+      const el = document.getElementById("recommendList");
+      if (!el) return;
+      if (overallLevel === "HIGH") {
+        el.innerHTML = [
+          "<li>Consult a doctor soon for a detailed clinical evaluation.</li>",
+          "<li>Follow a low-sodium, balanced diet and reduce sugar intake.</li>",
+          "<li>Track blood pressure and glucose regularly at home.</li>",
+          "<li>Start light daily activity and avoid smoking/alcohol.</li>"
+        ].join("");
+      } else if (overallLevel === "MEDIUM") {
+        el.innerHTML = [
+          "<li>Maintain regular physical activity (at least 150 minutes/week).</li>",
+          "<li>Prefer whole foods, vegetables, and controlled carbohydrate intake.</li>",
+          "<li>Monitor BP and glucose periodically and review trends.</li>",
+          "<li>Keep stress levels manageable through rest and relaxation.</li>"
+        ].join("");
+      } else {
+        el.innerHTML = [
+          "<li>Continue a heart-healthy balanced diet.</li>",
+          "<li>Stay physically active with regular exercise.</li>",
+          "<li>Maintain healthy sleep and hydration routines.</li>",
+          "<li>Attend preventive check-ups as scheduled.</li>"
+        ].join("");
+      }
+    }
+
+    function setOverallBanner(overall) {
+      const overallEl = document.getElementById("overallRisk");
+      const overallColor = levelColor(overall);
+      const bg = overall === "HIGH" ? "#fff1f2" : overall === "MEDIUM" ? "#fff7ed" : "#eefcf4";
+      overallEl.style.borderColor = overallColor;
+      overallEl.style.color = overallColor;
+      overallEl.style.background = bg;
+      overallEl.textContent = `Overall Risk Level: ${overall}`;
+    }
+
+    function updateRiskPanelFromModel(features, modelResult) {
+      const age = toNumber(features.Age, null);
+      const glucose = toNumber(features.Glucose, null);
+      const bpParts = parseBloodPressureValue(features.BloodPressure);
+      let systolic = bpParts.systolic;
+      let diastolic = bpParts.diastolic;
+      if (diastolic == null && hasValue(features.BP_Diastolic)) {
+        diastolic = toNumber(features.BP_Diastolic, null);
+      }
+      diastolic = resolveDiastolic(systolic, diastolic);
+      const bmi = toNumber(features.BMI, null);
+      const symptomCount = toNumber(features.Symptom_Count ?? features.Sympton_Count, 0);
+      const smokingText = String(features.Smoking_Habit ?? "").toLowerCase().trim();
+      const alcoholText = String(features.Alcohol_Habit ?? "").toLowerCase().trim();
+      const smoking = smokingText === "yes" ? 1 : 0;
+      const alcohol = alcoholText === "yes" ? 1 : 0;
+
+      const hasBpInput = systolic != null || diastolic != null;
+      const hasCardioInputs = age != null && hasBpInput && bmi != null && glucose != null;
+      const hasDiabetesInputs = age != null && glucose != null && bmi != null;
+      const hasHypertensionInputs = hasBpInput;
+
+      const baseRisk = clamp(toNumber(modelResult && modelResult.risk_probability, 0) * 100, 0, 100);
+
+      // Hybrid behavior: keep model+rule global result from predict.py,
+      // then distribute per-disease risk with rule-weighted signals.
+      const ruleHighAgeSymptoms = age != null && symptomCount != null && age > 50 && symptomCount > 0;
+      const ruleHighGlucose = glucose != null && glucose > 150;
+      const ruleHighBp = (systolic != null && systolic >= 140) || (diastolic != null && diastolic >= 100);
+      const ruleLowBp = systolic != null && diastolic != null && systolic <= 120 && diastolic <= 80;
+      const ruleLowBpForHypertension = systolic != null && diastolic != null && systolic <= 120 && diastolic <= 85;
+      const ruleMediumBp =
+        !ruleHighBp &&
+        !ruleLowBp &&
+        ((systolic != null && systolic >= 130 && systolic <= 139) || (diastolic != null && diastolic >= 90 && diastolic <= 99));
+
+      let cardio = 0;
+      if (hasCardioInputs) {
+        // Cardiovascular card: stable rule-based scoring that maps entered vitals
+        // to normal-looking chart ranges and avoids false 0% when inputs exist.
+        const symptoms = symptomTokens(features.Symptoms);
+        const hasMajorSymptoms = symptoms.some((s) =>
+          [
+            "chest pain",
+            "chest_pain",
+            "chestpain",
+            "diarrhea",
+            "diarrhoea",
+            "insomnia",
+            "dizziness",
+            "breathlessness",
+            "shortness of breath",
+            "shortness_of_breath",
+          ].includes(s)
+        );
+        const hasChestPain = symptoms.some((s) => ["chest pain", "chest_pain", "chestpain"].includes(s));
+        const hasFewSymptoms = symptomCount >= 2 || symptoms.some((s) =>
+          ["fatigue", "chest discomfort", "chest_discomfort"].includes(s)
+        );
+
+        const cholesterol = toNumber(features.Cholesterol, null);
+        const familyHistoryText = String(features.Family_History ?? features.CVD_Family_History ?? "").toLowerCase().trim();
+        const hasFamilyHistory = ["yes", "true", "1", "y"].includes(familyHistoryText);
+        const hasDiabetes = glucose >= 126 || String(features.Diabetes ?? "").toLowerCase().trim() === "yes";
+
+        const cholesterolNormal = cholesterol == null || cholesterol < 200;
+        const cholesterolSlightlyHigh = cholesterol != null && cholesterol >= 200 && cholesterol < 240;
+        const cholesterolHigh = cholesterol != null && cholesterol >= 240;
+
+        cardio = 12; // baseline low
+        if (age >= 45 && age <= 60) cardio += 10;
+        if (age > 60) cardio += 22;
+        if (ruleMediumBp) cardio += 12;
+        if (ruleHighBp) cardio += 24;
+        if (cholesterolSlightlyHigh) cardio += 8;
+        if (cholesterolHigh) cardio += 16;
+        if (bmi >= 25 && bmi < 30) cardio += 8;
+        if (bmi >= 30) cardio += 15;
+        if (glucose >= 100 && glucose <= 125) cardio += 6;
+        if (hasDiabetes) cardio += 14;
+        if (hasFamilyHistory) cardio += 8;
+        if (hasFewSymptoms) cardio += 6;
+        if (hasMajorSymptoms) cardio += 14;
+        if (smoking === 1) cardio += 10;
+        if (alcohol === 1) cardio += 4;
+
+        // Requested behavior: chest pain + symptom_count >= 1 => High
+        if (hasChestPain && symptomCount >= 1) {
+          cardio = Math.max(cardio, 82);
+        }
+
+        // Keep 120/80 profile in low range when no strong high-risk factors.
+        if (ruleLowBp && age < 45 && bmi < 25 && glucose <= 125 && !hasMajorSymptoms && smoking === 0 && alcohol === 0) {
+          cardio = Math.min(cardio, 20);
+        }
+
+        // Keep charts readable and avoid extreme spikes for moderate inputs.
+        cardio = clamp(cardio, 8, 92);
+      }
+
+      let diabetes = 0;
+      if (hasDiabetesInputs) {
+        // Glucose risk mapping (mg/dL):
+        // <70 High, 70-99 Low, 100-125 Medium, 126-199 High, >=200 Very High
+        if (glucose < 70) diabetes = 75;
+        else if (glucose <= 99) diabetes = 10;
+        else if (glucose <= 125) diabetes = 45;
+        else if (glucose <= 199) diabetes = 75;
+        else diabetes = 95;
+
+        // Optional mild adjustments from model/rules while preserving glucose tiers.
+        if (ruleHighAgeSymptoms) diabetes = Math.max(diabetes, clamp(baseRisk * 0.55, 0, 95));
+        if (bmi > 30) diabetes = Math.min(95, diabetes + 5);
+      }
+
+      let hypertension = 0;
+      if (hasHypertensionInputs) {
+        // BP thresholds requested:
+        // Low: <=120 / <=80, Medium starts at 130/90, High: >=140 / >=100
+        const isCustomLowBp = systolic != null && diastolic != null && systolic <= 120 && diastolic <= 85;
+        if (isCustomLowBp || ruleLowBpForHypertension) hypertension = 10;
+        else if (ruleHighBp) hypertension = 85;
+        else if (ruleMediumBp) hypertension = 50;
+        else hypertension = 10;
+
+        hypertension = clamp(hypertension, 0, 95);
+      }
+
+      setRiskCard("cardio", cardio);
+      setRiskCard("diabetes", diabetes);
+      setRiskCard("hypertension", hypertension);
+
+      let overall = "LOW";
+      const maxCard = Math.max(cardio, diabetes, hypertension);
+      if (maxCard >= 90) overall = "VERY HIGH";
+      else if (maxCard >= 60) overall = "HIGH";
+      else if (maxCard >= 30) overall = "MEDIUM";
+
+      if ((modelResult && modelResult.predicted_class) === "High Risk") {
+        overall = "HIGH";
+        if (baseRisk >= 90) overall = "VERY HIGH";
+      }
+      if (cardio === 0 && diabetes === 0 && hypertension === 0) {
+        overall = "LOW";
+      }
+      setOverallBanner(overall);
+      renderRecommendations(overall);
+    }
+
+    async function updateRiskPanel(features) {
+      if (!features) return;
+      const requestId = ++riskPanelRequestId;
+      const payloadFeatures = normalizeFeaturePayload(features);
+
+      if (Object.keys(payloadFeatures).length === 0) {
+        setRiskCard("cardio", 0);
+        setRiskCard("diabetes", 0);
+        setRiskCard("hypertension", 0);
+        setOverallBanner("LOW");
+        renderRecommendations("LOW");
+        return;
+      }
+
+      try {
+        const modelResult = await postJson("/patient/predict-risk", { patient_features: payloadFeatures });
+        if (requestId !== riskPanelRequestId) return;
+        updateLeftSnapshot(features);
+        updateRiskPanelFromModel(features, modelResult);
+      } catch (_) {
+        if (requestId !== riskPanelRequestId) return;
+        updateLeftSnapshot(features);
+        setRiskCard("cardio", 0);
+        setRiskCard("diabetes", 0);
+        setRiskCard("hypertension", 0);
+        setOverallBanner("LOW");
+        renderRecommendations("LOW");
+      }
+    }
+
     async function loadPatientFeatures() {
       const patientId = document.getElementById("patientId").value.trim();
       if (!patientId) throw new Error("Enter Patient ID first.");
@@ -336,34 +1056,33 @@
       }
       loadedPatientFeatures = data.patient_features || null;
       document.getElementById("bookFeatures").value = formatPatientFeatures(loadedPatientFeatures || {});
+      await updateRiskPanel(loadedPatientFeatures || {});
       renderOutput(formatPatientSummaryHtml(data.patient_id, loadedPatientFeatures || {}), false, true);
     }
-
-    document.getElementById("loadPatientBtn").addEventListener("click", async () => {
-      try {
-        await loadPatientFeatures();
-      } catch (err) {
-        renderOutput(err.message, true);
-      }
-    });
 
     document.getElementById("bookBtn").addEventListener("click", async () => {
       try {
         const patient_id = document.getElementById("patientId").value.trim();
+        const patient_name = document.getElementById("patientName").value.trim();
+        const contact_info = document.getElementById("contactInfo").value.trim();
         const doctor_id = document.getElementById("doctorId").value.trim();
         const appointment_type = document.getElementById("appointmentType").value.trim();
         const appointmentDate = document.getElementById("appointmentDate").value;
         const appointmentTimeOnly = document.getElementById("appointmentTimeOnly").value;
+        if (!patient_name) throw new Error("Please enter patient name.");
+        if (!contact_info) throw new Error("Please enter contact information.");
         if (!doctor_id) throw new Error("Please select doctor.");
         if (!appointment_type) throw new Error("Please choose appointment type.");
         if (!appointmentDate || !appointmentTimeOnly) throw new Error("Please select appointment date and time.");
         const appointment_time = `${appointmentDate}T${appointmentTimeOnly}`;
 
-        const patient_features = loadedPatientFeatures;
+        const patient_features = normalizeFeaturePayload(parseEditableFeatures());
 
         renderOutput("Submitting...", false);
         const data = await postJson("/patient/book-appointment-submit", {
           patient_id,
+          patient_name,
+          contact_info,
           doctor_id,
           appointment_type,
           appointment_time,
@@ -379,6 +1098,17 @@
     document.getElementById("closeConfirmBtn").addEventListener("click", closeBookingPopup);
     document.getElementById("bookingConfirmModal").addEventListener("click", (event) => {
       if (event.target.id === "bookingConfirmModal") closeBookingPopup();
+    });
+
+    document.getElementById("bookFeatures").addEventListener("input", () => {
+      if (riskPanelTimer) clearTimeout(riskPanelTimer);
+      riskPanelTimer = setTimeout(() => {
+        updateRiskPanel(parseEditableFeatures());
+      }, 280);
+    });
+
+    loadPatientFeatures().catch((err) => {
+      renderOutput(err.message, true);
     });
   </script>
 </body>

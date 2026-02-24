@@ -470,6 +470,8 @@ def patient_features(patient_id: str) -> Any:
 def submit_appointment() -> Any:
     payload = request.get_json(silent=True) or {}
     patient_id = str(payload.get("patient_id", "")).strip()
+    patient_name = str(payload.get("patient_name", "")).strip()
+    contact_info = str(payload.get("contact_info", "")).strip()
     doctor_id = str(payload.get("doctor_id", "")).strip()
     appointment_type = str(payload.get("appointment_type", "")).strip()
     appointment_time = str(payload.get("appointment_time", "")).strip()
@@ -477,6 +479,10 @@ def submit_appointment() -> Any:
 
     if not patient_id:
         return jsonify({"detail": "patient_id is required"}), 400
+    if not patient_name:
+        return jsonify({"detail": "patient_name is required"}), 400
+    if not contact_info:
+        return jsonify({"detail": "contact_info is required"}), 400
     if not doctor_id:
         return jsonify({"detail": "doctor_id is required"}), 400
     if not appointment_type:
@@ -505,6 +511,8 @@ def submit_appointment() -> Any:
     result = {
         "booking_status": "confirmed",
         "patient_id": patient_id,
+        "patient_name": patient_name,
+        "contact_info": contact_info,
         "doctor_id": doctor_id,
         "appointment_type": appointment_type,
         "appointment_time": parsed_time.isoformat(),
@@ -513,6 +521,8 @@ def submit_appointment() -> Any:
         {
             "booked_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
             "patient_id": patient_id,
+            "patient_name": patient_name,
+            "contact_info": contact_info,
             "doctor_id": doctor_id,
             "appointment_type": appointment_type,
             "appointment_time": parsed_time.isoformat(),
@@ -595,6 +605,26 @@ def doctor_appointments() -> Any:
     if not doctor_id:
         return jsonify({"detail": "Unauthorized"}), 401
     return jsonify({"appointments": APPOINTMENTS})
+
+
+@app.post("/patient/predict-risk")
+def patient_predict_risk() -> Any:
+    patient_id = session.get("patient_id")
+    if not patient_id:
+        return jsonify({"detail": "Unauthorized"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    patient_features = payload.get("patient_features")
+    if not patient_features:
+        return jsonify({"detail": "patient_features is required"}), 400
+
+    try:
+        result = risk_engine.predict(patient_features)
+        return jsonify(result.model_dump())
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Prediction failed: {exc}"}), 500
 
 
 @app.post("/doctor/predict-risk")

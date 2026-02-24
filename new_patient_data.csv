@@ -15,3 +15,4 @@ Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Glucose,BloodPressure,BMI,S
 9,12,male,"fever ,cold",2,,90.0,120.0,12.0,no,no
 10,25,female,"fever ,dizziness",2,,120.0,120.0,21.0,no,no
 11,23,female,"fever , cold",2,,120.0,120.0,21.0,no,no
+12,23,female,"diarrhea , insomnia",2,,123.0,120.0,23.0,no,no
