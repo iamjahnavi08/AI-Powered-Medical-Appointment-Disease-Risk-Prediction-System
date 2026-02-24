@@ -5,16 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Appointment</title>
   <style>
-    body { margin: 0; font-family: Consolas, "Lucida Console", monospace; background: #e6ebf2; color: #111a2e; }
-    .page { max-width: 1240px; margin: 0 auto; padding: 18px; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 16px; align-items: start; }
+    body {
+      margin: 0;
+      font-family: Consolas, "Lucida Console", monospace;
+      background:
+        radial-gradient(circle at 8% 8%, rgba(63, 124, 229, 0.2), transparent 36%),
+        radial-gradient(circle at 90% 82%, rgba(33, 177, 154, 0.18), transparent 38%),
+        linear-gradient(180deg, #e5ebf4 0%, #dce5f1 100%);
+      color: #111a2e;
+    }
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px 28px;
+    }
+    .dashboard-shell {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 26px;
+      align-items: start;
+      background: linear-gradient(155deg, #f3f7fd 0%, #eaf1fb 100%);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 14px 34px rgba(21, 46, 88, 0.12);
+    }
     .left-panel {
       min-height: 100%;
-      padding: 16px 12px 12px;
-      background: linear-gradient(180deg, #dbe5f6 0%, #cfdcf1 100%);
-      border-radius: 14px;
+      padding: 0 6px 0 0;
+      border-right: 1px solid rgba(34, 64, 110, 0.16);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
     .left-title { margin: 0; font-size: 2rem; color: #12305b; font-weight: 800; letter-spacing: 0.02em; }
     .left-sub { margin: 0; color: #345178; font-size: 1rem; font-weight: 700; }
@@ -37,7 +58,7 @@
       height: 210px;
       object-fit: cover;
       border-radius: 12px;
-      border: 1px solid #c6d3ea;
+      border: 0;
       display: block;
       background: #fbe0ec;
     }
@@ -45,8 +66,8 @@
       margin: 10px 0 10px;
       padding: 16px 18px;
       border-radius: 12px;
-      border: 1px solid #c5d3ea;
-      background: #edf3fe;
+      border: 0;
+      background: rgba(232, 240, 252, 0.8);
       color: #2e456a;
       font-size: 1rem;
       line-height: 1.65;
@@ -58,7 +79,12 @@
       color: #12305b;
       font-size: 1.06rem;
     }
-    .wrap { padding: 10px 16px 20px; background: #f7f9fd; border: 1px solid #c8d0e3; border-radius: 14px; }
+    .wrap {
+      padding: 4px 4px 8px 10px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
     h1 { margin: 0 0 8px; font-family: "Palatino Linotype", "Book Antiqua", serif; font-size: 1.45rem; color: #12244a; }
     label { display: block; margin: 12px 0 8px; font-size: 0.95rem; font-weight: 700; }
     input, select, textarea, button { width: 100%; border-radius: 14px; font-family: inherit; border: 1px solid #c7d1e7; box-sizing: border-box; }
@@ -66,7 +92,17 @@
     textarea { min-height: 220px; resize: vertical; background: #f3f6fb; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     button { margin-top: 10px; border: 0; padding: 12px 14px; font-size: 1rem; font-weight: 700; color: #fff; background: linear-gradient(110deg, #0f7f78, #1e6bb9); cursor: pointer; }
-    .output { margin-top: 12px; padding: 12px; border-radius: 12px; border: 1px solid #c7d1e7; background: #eef3fb; white-space: pre-wrap; font-size: 0.9rem; min-height: 100px; }
+    .output {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(136, 156, 194, 0.45);
+      background: #eef3fb;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+      min-height: 100px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    }
     .error { color: #9f1239; }
     .toplink { display: inline-block; margin-bottom: 8px; color: #0f6ba8; text-decoration: none; font-size: 0.95rem; font-weight: 700; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(10, 20, 40, 0.5); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 1000; }
@@ -77,39 +113,53 @@
     .confirm-title { margin: 0 0 8px; font-family: "Palatino Linotype", "Book Antiqua", serif; font-size: 1.5rem; color: #0f766e; }
     .confirm-text { margin: 0; color: #41516f; }
     .confirm-close { margin-top: 12px; border: 0; border-radius: 10px; padding: 10px 12px; min-width: 130px; color: #fff; font-weight: 700; background: linear-gradient(120deg, #148a82, #2477d0); cursor: pointer; }
-    @media (max-width: 980px) { .page { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) {
+      .dashboard-shell {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .left-panel {
+        border-right: 0;
+        border-bottom: 1px solid rgba(34, 64, 110, 0.16);
+        padding: 0 0 16px;
+      }
+      .wrap {
+        padding: 6px 0 0;
+      }
+    }
     @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <main class="page">
-    <aside class="left-panel">
-      <h2 class="left-title">Exafluence Hospital</h2>
-      <p class="left-sub">Trusted Care, Every Appointment</p>
-      <div class="left-image-wrap">
+    <div class="dashboard-shell">
+      <aside class="left-panel">
+        <h2 class="left-title">Exafluence Hospital</h2>
+        <p class="left-sub">Trusted Care, Every Appointment</p>
+        <div class="left-image-wrap">
   <img
     src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ecf5ff'/%3E%3Cstop offset='100%25' stop-color='%23d7e8ff'/%3E%3C/linearGradient%3E%3ClinearGradient id='card' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23eef4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23bg)'/%3E%3Ccircle cx='1020' cy='120' r='120' fill='%23b7d5ff' opacity='0.45'/%3E%3Ccircle cx='150' cy='620' r='170' fill='%23b7d5ff' opacity='0.35'/%3E%3Crect x='120' y='80' width='960' height='540' rx='28' fill='url(%23card)' stroke='%23c4d7f6' stroke-width='4'/%3E%3Ctext x='170' y='145' font-size='38' font-family='Consolas,monospace' fill='%2312366d' font-weight='700'%3EAI Health Risk Dashboard%3C/text%3E%3Crect x='170' y='180' width='420' height='280' rx='18' fill='%23f6f9ff' stroke='%23cadbf7'/%3E%3Ctext x='195' y='225' font-size='26' font-family='Consolas,monospace' fill='%23163b73' font-weight='700'%3EVitals%3C/text%3E%3Ctext x='195' y='265' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EGlucose: 118%3C/text%3E%3Ctext x='195' y='300' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EBP: 122/80%3C/text%3E%3Ctext x='195' y='335' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3EBMI: 24.1%3C/text%3E%3Ctext x='195' y='370' font-size='22' font-family='Consolas,monospace' fill='%23214c87'%3ESymptoms: 2%3C/text%3E%3Crect x='640' y='180' width='390' height='190' rx='18' fill='%23f6f9ff' stroke='%23cadbf7'/%3E%3Ctext x='665' y='225' font-size='26' font-family='Consolas,monospace' fill='%23163b73' font-weight='700'%3ERisk Trend%3C/text%3E%3Cpolyline points='675,335 730,300 790,315 860,260 930,285 995,225' fill='none' stroke='%231e6bb9' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='995' cy='225' r='9' fill='%230f7f78'/%3E%3Crect x='640' y='400' width='390' height='120' rx='16' fill='%231e6bb9'/%3E%3Ctext x='665' y='450' font-size='24' font-family='Consolas,monospace' fill='white' font-weight='700'%3EAppointment Ready%3C/text%3E%3Ctext x='665' y='485' font-size='20' font-family='Consolas,monospace' fill='%23d8edff'%3EDoctor slot available%3C/text%3E%3C/svg%3E"
     alt="AI healthcare dashboard illustration"
   />
 </div>
-            <p class="left-note">
-        <strong>Plan Your Visit</strong>
-        Schedule your appointment with our care team to address your healthcare needs.
-        Choose your date and time, then confirm your booking for timely medical care
-        and personalized attention.
-      </p>
-      <div class="left-extra-wrap">
-        <img
-          class="left-extra-image"
-          src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 520'%3E%3Cdefs%3E%3ClinearGradient id='wall' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e9f1fb'/%3E%3Cstop offset='100%25' stop-color='%23dfe8f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='380' fill='url(%23wall)'/%3E%3Crect y='380' width='1200' height='140' fill='%23d9b58a'/%3E%3Crect y='394' width='1200' height='8' fill='%23c69e72'/%3E%3Crect x='150' y='120' width='500' height='310' rx='10' fill='%23ffffff' stroke='%23cfd7e8' stroke-width='4'/%3E%3Cg stroke='%23d7dceb' stroke-width='3'%3E%3Cline x1='150' y1='175' x2='650' y2='175'/%3E%3Cline x1='150' y1='228' x2='650' y2='228'/%3E%3Cline x1='150' y1='281' x2='650' y2='281'/%3E%3Cline x1='150' y1='334' x2='650' y2='334'/%3E%3Cline x1='150' y1='387' x2='650' y2='387'/%3E%3Cline x1='220' y1='120' x2='220' y2='430'/%3E%3Cline x1='290' y1='120' x2='290' y2='430'/%3E%3Cline x1='360' y1='120' x2='360' y2='430'/%3E%3Cline x1='430' y1='120' x2='430' y2='430'/%3E%3Cline x1='500' y1='120' x2='500' y2='430'/%3E%3Cline x1='570' y1='120' x2='570' y2='430'/%3E%3C/g%3E%3Crect x='175' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Crect x='610' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Ccircle cx='860' cy='340' r='120' fill='%230f1526' stroke='%232e374f' stroke-width='10'/%3E%3Ccircle cx='860' cy='340' r='98' fill='%23eef2fb'/%3E%3Cg stroke='%23181f33' stroke-width='4'%3E%3Cline x1='860' y1='242' x2='860' y2='260'/%3E%3Cline x1='860' y1='420' x2='860' y2='438'/%3E%3Cline x1='762' y1='340' x2='780' y2='340'/%3E%3Cline x1='940' y1='340' x2='958' y2='340'/%3E%3C/g%3E%3Cg stroke='%23111826' stroke-linecap='round'%3E%3Cline x1='860' y1='340' x2='860' y2='285' stroke-width='7'/%3E%3Cline x1='860' y1='340' x2='904' y2='340' stroke-width='6'/%3E%3Cline x1='860' y1='340' x2='827' y2='360' stroke-width='4'/%3E%3C/g%3E%3Ccircle cx='860' cy='340' r='8' fill='%23111826'/%3E%3Cpath d='M780 236q80-58 160 0' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M780 236q-32-18-24-52q8-25 32-18q16 6 19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M940 236q32-18 24-52q-8-25-32-18q-16 6-19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Crect x='835' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3Crect x='870' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3C/svg%3E"
-          alt="Clock and calendar"
-        />
-      </div>
-    </aside>
+        <p class="left-note">
+          <strong>Plan Your Visit</strong>
+          Schedule your appointment with our care team to address your healthcare needs.
+          Choose your date and time, then confirm your booking for timely medical care
+          and personalized attention.
+        </p>
+        <div class="left-extra-wrap">
+          <img
+            class="left-extra-image"
+            src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 520'%3E%3Cdefs%3E%3ClinearGradient id='wall' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23e9f1fb'/%3E%3Cstop offset='100%25' stop-color='%23dfe8f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='380' fill='url(%23wall)'/%3E%3Crect y='380' width='1200' height='140' fill='%23d9b58a'/%3E%3Crect y='394' width='1200' height='8' fill='%23c69e72'/%3E%3Crect x='150' y='120' width='500' height='310' rx='10' fill='%23ffffff' stroke='%23cfd7e8' stroke-width='4'/%3E%3Cg stroke='%23d7dceb' stroke-width='3'%3E%3Cline x1='150' y1='175' x2='650' y2='175'/%3E%3Cline x1='150' y1='228' x2='650' y2='228'/%3E%3Cline x1='150' y1='281' x2='650' y2='281'/%3E%3Cline x1='150' y1='334' x2='650' y2='334'/%3E%3Cline x1='150' y1='387' x2='650' y2='387'/%3E%3Cline x1='220' y1='120' x2='220' y2='430'/%3E%3Cline x1='290' y1='120' x2='290' y2='430'/%3E%3Cline x1='360' y1='120' x2='360' y2='430'/%3E%3Cline x1='430' y1='120' x2='430' y2='430'/%3E%3Cline x1='500' y1='120' x2='500' y2='430'/%3E%3Cline x1='570' y1='120' x2='570' y2='430'/%3E%3C/g%3E%3Crect x='175' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Crect x='610' y='97' width='14' height='34' rx='7' fill='%23161a24'/%3E%3Ccircle cx='860' cy='340' r='120' fill='%230f1526' stroke='%232e374f' stroke-width='10'/%3E%3Ccircle cx='860' cy='340' r='98' fill='%23eef2fb'/%3E%3Cg stroke='%23181f33' stroke-width='4'%3E%3Cline x1='860' y1='242' x2='860' y2='260'/%3E%3Cline x1='860' y1='420' x2='860' y2='438'/%3E%3Cline x1='762' y1='340' x2='780' y2='340'/%3E%3Cline x1='940' y1='340' x2='958' y2='340'/%3E%3C/g%3E%3Cg stroke='%23111826' stroke-linecap='round'%3E%3Cline x1='860' y1='340' x2='860' y2='285' stroke-width='7'/%3E%3Cline x1='860' y1='340' x2='904' y2='340' stroke-width='6'/%3E%3Cline x1='860' y1='340' x2='827' y2='360' stroke-width='4'/%3E%3C/g%3E%3Ccircle cx='860' cy='340' r='8' fill='%23111826'/%3E%3Cpath d='M780 236q80-58 160 0' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M780 236q-32-18-24-52q8-25 32-18q16 6 19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Cpath d='M940 236q32-18 24-52q-8-25-32-18q-16 6-19 26' fill='none' stroke='%232e374f' stroke-width='9'/%3E%3Crect x='835' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3Crect x='870' y='438' width='15' height='22' rx='4' fill='%232e374f'/%3E%3C/svg%3E"
+            alt="Clock and calendar"
+          />
+        </div>
+      </aside>
 
-    <section class="wrap">
-      <a class="toplink" href="/login">Back</a>
-      <h1>Book Appointment</h1>
+      <section class="wrap">
+        <a class="toplink" href="/login">Back</a>
+        <h1>Book Appointment</h1>
 
       <label for="patientId">Patient ID</label>
       <input id="patientId" value="{{ patient_id }}" />
@@ -148,9 +198,10 @@
       <label for="bookFeatures">Patient Features</label>
       <textarea id="bookFeatures" placeholder="Features will appear here after loading by Patient ID"></textarea>
 
-      <button id="bookBtn" type="button">Book Appointment</button>
-      <div class="output" id="bookOutput">Waiting for input...</div>
-    </section>
+        <button id="bookBtn" type="button">Book Appointment</button>
+        <div class="output" id="bookOutput">Waiting for input...</div>
+      </section>
+    </div>
   </main>
 
   <div class="modal-backdrop" id="bookingConfirmModal" aria-hidden="true">

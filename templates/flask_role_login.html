@@ -23,12 +23,11 @@
       position: relative;
       display: grid;
       place-items: center;
-      background-image: url("/static/login-bg.svg?v=6");
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      background-color: #eef3f7;
+      background:
+        radial-gradient(circle at 8% 10%, rgba(56, 127, 219, 0.16), transparent 35%),
+        radial-gradient(circle at 92% 82%, rgba(33, 170, 147, 0.16), transparent 38%),
+        url("/static/login-bg.svg?v=6") center center / cover no-repeat fixed;
+      background-color: #e8f0f7;
       font-family: Arial, sans-serif;
       color: var(--ink);
       padding: 18px;
@@ -38,7 +37,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.36);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(244, 250, 255, 0.46));
       pointer-events: none;
       z-index: 0;
     }
