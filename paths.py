@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 
 
-BACKEND_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BACKEND_DIR.parent
+APP_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = APP_DIR
 DATASETS_DIR = PROJECT_ROOT / "datasets"
 
 def _path_from_env(env_key: str, default_path: Path) -> Path:
@@ -28,5 +28,5 @@ def ensure_csv_exists(path: Path) -> None:
     if not path.exists():
         raise FileNotFoundError(
             f"Required CSV not found: {path}. "
-            f"Run `python Backend/init_datasets.py` once to create required dataset files."
+            f"Run `python init_datasets.py` once to create required dataset files."
         )

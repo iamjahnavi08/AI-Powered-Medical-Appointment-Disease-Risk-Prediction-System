@@ -1,4 +1,2 @@
 patient_id,name,unique_code,password,health_details_submitted,created_at
-1,tar,9011234567,1234,0,2026-02-25T09:26:11Z
-2,exa,9011234568,1234,1,2026-02-25T09:33:58Z
-3,tes,9011234569,1234,0,2026-02-25T09:43:40Z
+1,self,AADHAAR:963258147012,1234,1,2026-02-25T13:17:20Z
