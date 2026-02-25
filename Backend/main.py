@@ -115,7 +115,7 @@ def doctor_auth_page() -> str:
 @app.post("/doctor-signup")
 def doctor_signup(payload: DoctorSignupRequest) -> Dict[str, str]:
     try:
-        doctor_auth_manager.signup(payload.doctor_id, payload.password)
+        doctor_auth_manager.signup(payload.doctor_id, payload.id_type, payload.id_number, payload.password)
         return {"status": "ok", "message": "Signup successful. Redirecting to Doctor Dashboard."}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -126,7 +126,7 @@ def doctor_signup(payload: DoctorSignupRequest) -> Dict[str, str]:
 @app.post("/doctor-login")
 def doctor_login(payload: DoctorLoginRequest) -> Dict[str, str]:
     try:
-        doctor_auth_manager.login(payload.doctor_id, payload.password)
+        doctor_auth_manager.login(payload.doctor_id, payload.id_type, payload.id_number, payload.password)
         return {"status": "ok", "message": "Login successful. Redirecting to Doctor Dashboard."}
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc

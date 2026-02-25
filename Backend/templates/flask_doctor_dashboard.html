@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap");
+
+    :root {
+      --bg-0: #eef5ff;
+      --bg-1: #dce9f9;
+      --ink: #12233d;
+      --muted: #3f5f88;
+      --line: #ccdaef;
+      --panel: #ffffff;
+      --panel-soft: #f4f8ff;
+      --brand-a: #0f7d80;
+      --brand-b: #1f5eaf;
+      --high-bg: #ffe8ea;
+      --high-fg: #a51e34;
+      --med-bg: #fff3d2;
+      --med-fg: #8d5c00;
+      --low-bg: #dcfce7;
+      --low-fg: #166534;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at -10% -15%, #b8d7ff 0%, rgba(184, 215, 255, 0) 66%),
+        radial-gradient(1000px 520px at 105% 0%, #b4ece5 0%, rgba(180, 236, 229, 0) 66%),
+        linear-gradient(170deg, var(--bg-0) 0%, var(--bg-1) 100%);
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 16px 30px;
+    }
+
+    .frame {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.97) 0%, rgba(242, 248, 255, 0.96) 100%);
+      border: 1px solid rgba(151, 176, 210, 0.45);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 20px 48px rgba(18, 45, 84, 0.12);
+    }
+
+    .topbar {
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(122, 156, 200, 0.34);
+    }
+
+    .title h1 {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      color: #10223f;
+      letter-spacing: 0.02em;
+    }
+
+    .title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .links a {
+      color: #124f7d;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(135, 167, 208, 0.56);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(237, 245, 255, 0.96));
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 6px 16px rgba(14, 41, 80, 0.08);
+    }
+
+    .kpi .k {
+      font-size: 0.78rem;
+      color: #45658e;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    .kpi .v {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0f2b4e;
+      line-height: 1.2;
+    }
+
+    .kpi.high .v { color: var(--high-fg); }
+    .kpi.medium .v { color: var(--med-fg); }
+    .kpi.low .v { color: var(--low-fg); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 6px 16px rgba(14, 41, 80, 0.08);
+    }
+
+    .panel h2 {
+      margin: 2px 0 10px;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: 1.35rem;
+      color: #10284d;
+    }
+
+    .risk-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+    }
+
+    .risk-stat {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 92px 1fr 54px;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #2f4b73;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #e6eefb;
+      overflow: hidden;
+      border: 1px solid #d2dff5;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+    }
+
+    .fill-high { background: #ef4444; }
+    .fill-medium { background: #f59e0b; }
+    .fill-low { background: #22c55e; }
+
+    .pie-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel-soft);
+      border: 1px solid #d2e0f5;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 180px;
+    }
+
+    .pie {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 1px solid #c8d8ef;
+      background: conic-gradient(#22c55e 0deg 360deg);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid #ceddf3;
+      background: #fff;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .trend {
+      margin-top: 4px;
+      border: 1px solid #d0dff5;
+      border-radius: 10px;
+      padding: 8px;
+      background: #f8fbff;
+    }
+
+    .trend svg {
+      width: 100%;
+      height: 120px;
+      display: block;
+    }
+
+    .trend-labels {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      margin-top: 4px;
+      font-size: 0.66rem;
+      color: #4e6b90;
+      text-align: center;
+    }
+
+    .alert-strip {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .alert {
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 5px 9px;
+      border: 1px solid transparent;
+    }
+
+    .alert.high { background: var(--high-bg); color: var(--high-fg); border-color: #f3b9bf; }
+    .alert.medium { background: var(--med-bg); color: var(--med-fg); border-color: #f2da9f; }
+    .alert.info { background: #e8f1ff; color: #194b87; border-color: #b7cff1; }
+
+    .section-title {
+      margin: 4px 0 8px;
+      font-size: 0.9rem;
+      color: #3a5a84;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #d3e0f4;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #e5ecf9;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #edf4ff;
+      color: #24507f;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .table-wrap {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 12px;
+    }
+
+    tr.clickable {
+      cursor: pointer;
+    }
+
+    tr.clickable:hover {
+      background: #f5f9ff;
+    }
+
+    tr.selected {
+      background: #e3f1ff;
+    }
+
+    tr.high-row {
+      background: #fff4f5;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill.high { background: var(--high-bg); color: var(--high-fg); }
+    .pill.medium { background: var(--med-bg); color: var(--med-fg); }
+    .pill.low { background: var(--low-bg); color: var(--low-fg); }
+    .pill.upcoming { background: #e8f1ff; color: #1d4f8b; }
+    .pill.completed { background: #edf2fa; color: #3f577b; }
+
+    .insights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .list-box {
+      border: 1px solid #d4e1f5;
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 10px;
+      min-height: 145px;
+    }
+
+    .list-box h3 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      color: #1e406a;
+    }
+
+    .list-box ul {
+      margin: 0;
+      padding-left: 16px;
+      color: #2f4f76;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .review {
+      border: 1px solid #d4e1f5;
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .review h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: #1c3f69;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      color: #34557e;
+    }
+
+    .review-grid strong {
+      color: #12345e;
+      font-size: 0.84rem;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      font-size: 0.8rem;
+      border: 1px solid #d3e1f6;
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+      min-height: 88px;
+      max-height: 180px;
+      overflow: auto;
+    }
+
+    .actions {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #fff;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: linear-gradient(120deg, var(--brand-a), var(--brand-b));
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(11, 67, 116, 0.2);
+    }
+
+    .output {
+      border: 1px solid #cdddf3;
+      border-radius: 10px;
+      background: #f4f9ff;
+      min-height: 62px;
+      padding: 8px;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      color: #173a64;
+    }
+
+    .output.error { color: #a31f35; }
+
+    @media (max-width: 1100px) {
+      .grid-cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .grid-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .risk-layout,
+      .insights,
+      .review-grid {
+        grid-template-columns: 1fr;
+      }
+      .table-wrap {
+        max-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="frame">
+      <header class="topbar">
+        <div class="title">
+          <h1>Doctor Decision Support Dashboard</h1>
+          <p>Logged in as Doctor ID: <strong>{{ doctor_id }}</strong></p>
+        </div>
+        <nav class="links">
+          <a href="/login">Back to Role Login</a>
+          <a href="/patient/book-appointment">Patient Booking Page</a>
+        </nav>
+      </header>
+
+      <section class="grid-cards">
+        <article class="kpi"><div class="k">Total Patients</div><div class="v" id="kpiPatients">0</div></article>
+        <article class="kpi"><div class="k">Total Appointments</div><div class="v" id="kpiAppointments">0</div></article>
+        <article class="kpi high"><div class="k">High Risk</div><div class="v" id="kpiHigh">0</div></article>
+        <article class="kpi medium"><div class="k">Medium Risk</div><div class="v" id="kpiMedium">0</div></article>
+        <article class="kpi low"><div class="k">Low Risk</div><div class="v" id="kpiLow">0</div></article>
+        <article class="kpi"><div class="k">Today's Appointments</div><div class="v" id="kpiToday">0</div></article>
+      </section>
+
+      <section class="main-grid">
+        <section class="panel">
+          <h2>AI Risk Analytics</h2>
+          <div class="risk-layout">
+            <div>
+              <div class="section-title">Risk Distribution</div>
+              <div class="risk-stat">
+                <div class="bar-line">
+                  <span>High Risk</span>
+                  <div class="bar-track"><div id="barHigh" class="bar-fill fill-high"></div></div>
+                  <strong id="pctHigh">0%</strong>
+                </div>
+                <div class="bar-line">
+                  <span>Medium Risk</span>
+                  <div class="bar-track"><div id="barMedium" class="bar-fill fill-medium"></div></div>
+                  <strong id="pctMedium">0%</strong>
+                </div>
+                <div class="bar-line">
+                  <span>Low Risk</span>
+                  <div class="bar-track"><div id="barLow" class="bar-fill fill-low"></div></div>
+                  <strong id="pctLow">0%</strong>
+                </div>
+              </div>
+
+              <div class="section-title">Recent Risk Prediction Trends</div>
+              <div class="trend">
+                <svg id="trendSvg" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+                <div class="trend-labels" id="trendLabels"></div>
+              </div>
+
+              <div class="alert-strip" id="priorityAlerts"></div>
+            </div>
+
+            <div class="pie-wrap">
+              <div class="pie" id="riskPie"></div>
+              <div class="legend">
+                <span><i class="dot" style="background:#ef4444"></i>High</span>
+                <span><i class="dot" style="background:#f59e0b"></i>Medium</span>
+                <span><i class="dot" style="background:#22c55e"></i>Low</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Patient Summary Insights</h2>
+          <div class="insights">
+            <div class="list-box">
+              <h3>Recently Predicted Patients</h3>
+              <ul id="recentPredictedList"><li>No records yet.</li></ul>
+            </div>
+            <div class="list-box">
+              <h3>High-Risk Priority Queue</h3>
+              <ul id="priorityList"><li>No high-risk patients.</li></ul>
+            </div>
+          </div>
+
+          <div class="review">
+            <h3>Quick Patient Review</h3>
+            <div class="review-grid">
+              <div><strong>Patient ID</strong><br><span id="rvPatient">-</span></div>
+              <div><strong>Doctor ID</strong><br><span id="rvDoctor">-</span></div>
+              <div><strong>Appointment</strong><br><span id="rvTime">-</span></div>
+              <div><strong>Predicted Risk</strong><br><span id="rvRisk">-</span></div>
+            </div>
+            <pre id="reviewFeatures">Select an appointment row to review patient details.</pre>
+            <div class="actions">
+              <button id="predictBtn" type="button">Run Fresh Prediction For Selected Patient</button>
+              <div id="predictOutput" class="output">No appointment selected yet.</div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel" style="margin-top:12px;">
+        <h2>Upcoming Appointments</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Doctor ID</th>
+                <th>Appointment Date & Time</th>
+                <th>Predicted Risk Level</th>
+                <th>Appointment Status</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <tr><td colspan="6">No appointments yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    let cachedAppointments = [];
+    let selectedAppointmentKey = null;
+    let selectedPatientFeatures = null;
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const detail = data && data.detail ? data.detail : "Request failed";
+        throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+      }
+      return data;
+    }
+
+    function safeText(value) {
+      return value == null ? "" : String(value);
+    }
+
+    function normalizeRisk(level) {
+      const text = safeText(level).toLowerCase();
+      if (text.includes("high")) return "High Risk";
+      if (text.includes("medium")) return "Medium Risk";
+      return "Low Risk";
+    }
+
+    function riskClass(level) {
+      const risk = normalizeRisk(level).toLowerCase();
+      if (risk.includes("high")) return "high";
+      if (risk.includes("medium")) return "medium";
+      return "low";
+    }
+
+    function riskPill(level) {
+      const text = normalizeRisk(level);
+      const cls = riskClass(level);
+      return `<span class="pill ${cls}">${text}</span>`;
+    }
+
+    function statusPill(status) {
+      const cls = status === "Completed" ? "completed" : "upcoming";
+      return `<span class="pill ${cls}">${status}</span>`;
+    }
+
+    function parseDate(value) {
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function toIsoDay(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function fmtDateTime(value) {
+      const d = parseDate(value);
+      return d ? d.toLocaleString() : safeText(value);
+    }
+
+    function appointmentStatus(item) {
+      const d = parseDate(item.appointment_time);
+      if (!d) return "Upcoming";
+      return d.getTime() < Date.now() ? "Completed" : "Upcoming";
+    }
+
+    function formatGender(value) {
+      const normalized = safeText(value).trim().toLowerCase();
+      if (value === 1 || normalized === "1" || normalized === "male" || normalized === "m") return "male";
+      if (value === 0 || normalized === "0" || normalized === "female" || normalized === "f") return "female";
+      return "other";
+    }
+
+    function formatPatientFeatures(features) {
+      const f = features || {};
+      const symptomCount = f.Symptom_Count ?? f.Sympton_Count ?? "";
+      const bp = f.BloodPressure ?? "";
+      const bmi = f.BMI ?? "";
+      const smoking = f.Smoking_Habit ?? "";
+      const alcohol = f.Alcohol_Habit ?? "";
+      return [
+        `age: ${f.Age ?? ""}`,
+        `gender: ${formatGender(f.Gender)}`,
+        `symptoms: ${f.Symptoms ?? ""}`,
+        `symptom_count: ${symptomCount}`,
+        `glucose: ${f.Glucose ?? ""}`,
+        `blood pressure: ${bp}`,
+        `bmi: ${bmi}`,
+        `smoking habit: ${smoking}`,
+        `alcohol habit: ${alcohol}`,
+        `family history: ${f.Family_History ?? ""}`,
+        `medical history: ${f.Medical_History ?? ""}`
+      ].join("\n");
+    }
+
+    function appointmentKey(item) {
+      return `${safeText(item.booked_at)}|${safeText(item.patient_id)}|${safeText(item.doctor_id)}|${safeText(item.appointment_time)}`;
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = safeText(value);
+    }
+
+    function updateOverview(appointments) {
+      const patients = new Set();
+      let high = 0;
+      let medium = 0;
+      let low = 0;
+      let todayCount = 0;
+      const todayKey = toIsoDay(new Date());
+
+      appointments.forEach((item) => {
+        patients.add(safeText(item.patient_id));
+        const risk = normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class);
+        if (risk === "High Risk") high += 1;
+        else if (risk === "Medium Risk") medium += 1;
+        else low += 1;
+
+        const at = parseDate(item.appointment_time);
+        if (at && toIsoDay(at) === todayKey) todayCount += 1;
+      });
+
+      setText("kpiPatients", patients.size);
+      setText("kpiAppointments", appointments.length);
+      setText("kpiHigh", high);
+      setText("kpiMedium", medium);
+      setText("kpiLow", low);
+      setText("kpiToday", todayCount);
+
+      return { high, medium, low };
+    }
+
+    function updateRiskCharts(counts, total) {
+      const safeTotal = total > 0 ? total : 1;
+      const pHigh = Math.round((counts.high / safeTotal) * 100);
+      const pMed = Math.round((counts.medium / safeTotal) * 100);
+      const pLow = Math.max(0, 100 - pHigh - pMed);
+
+      document.getElementById("barHigh").style.width = `${pHigh}%`;
+      document.getElementById("barMedium").style.width = `${pMed}%`;
+      document.getElementById("barLow").style.width = `${pLow}%`;
+      setText("pctHigh", `${pHigh}%`);
+      setText("pctMedium", `${pMed}%`);
+      setText("pctLow", `${pLow}%`);
+
+      const d1 = Math.round((counts.high / safeTotal) * 360);
+      const d2 = Math.round((counts.medium / safeTotal) * 360);
+      const pie = document.getElementById("riskPie");
+      pie.style.background = `conic-gradient(#ef4444 0deg ${d1}deg, #f59e0b ${d1}deg ${d1 + d2}deg, #22c55e ${d1 + d2}deg 360deg)`;
+    }
+
+    function updateTrend(appointments) {
+      const days = [];
+      const map = {};
+      for (let i = 6; i >= 0; i -= 1) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const k = toIsoDay(d);
+        days.push(k);
+        map[k] = { high: 0, medium: 0, low: 0 };
+      }
+
+      appointments.forEach((item) => {
+        const sourceDate = parseDate(item.booked_at) || parseDate(item.appointment_time);
+        if (!sourceDate) return;
+        const key = toIsoDay(sourceDate);
+        if (!map[key]) return;
+        const cls = riskClass(item.risk_assessment && item.risk_assessment.predicted_class);
+        map[key][cls] += 1;
+      });
+
+      const highs = days.map((d) => map[d].high);
+      const meds = days.map((d) => map[d].medium);
+      const lows = days.map((d) => map[d].low);
+      const maxY = Math.max(1, ...highs, ...meds, ...lows);
+
+      function linePath(values) {
+        return values.map((v, i) => {
+          const x = (i / 6) * 700;
+          const y = 110 - (v / maxY) * 92;
+          return `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+        }).join(" ");
+      }
+
+      const svg = document.getElementById("trendSvg");
+      svg.innerHTML = [
+        `<path d="${linePath(highs)}" fill="none" stroke="#ef4444" stroke-width="3" />`,
+        `<path d="${linePath(meds)}" fill="none" stroke="#f59e0b" stroke-width="3" />`,
+        `<path d="${linePath(lows)}" fill="none" stroke="#22c55e" stroke-width="3" />`
+      ].join("");
+
+      const labels = document.getElementById("trendLabels");
+      labels.innerHTML = days.map((d) => {
+        const parts = d.split("-");
+        return `<span>${parts[1]}/${parts[2]}</span>`;
+      }).join("");
+    }
+
+    function updateInsights(appointments) {
+      const recent = [...appointments]
+        .sort((a, b) => (parseDate(b.booked_at)?.getTime() || 0) - (parseDate(a.booked_at)?.getTime() || 0))
+        .slice(0, 6);
+
+      const recentList = document.getElementById("recentPredictedList");
+      if (recent.length === 0) {
+        recentList.innerHTML = "<li>No records yet.</li>";
+      } else {
+        recentList.innerHTML = recent.map((item) => {
+          const risk = normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class);
+          return `<li>Patient ${safeText(item.patient_id)} - ${risk} - ${fmtDateTime(item.booked_at)}</li>`;
+        }).join("");
+      }
+
+      const priority = [...appointments]
+        .filter((item) => normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "High Risk")
+        .sort((a, b) => (parseDate(a.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER) - (parseDate(b.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER))
+        .slice(0, 6);
+
+      const priorityList = document.getElementById("priorityList");
+      if (priority.length === 0) {
+        priorityList.innerHTML = "<li>No high-risk patients.</li>";
+      } else {
+        priorityList.innerHTML = priority.map((item) => {
+          return `<li>Patient ${safeText(item.patient_id)} - ${fmtDateTime(item.appointment_time)}</li>`;
+        }).join("");
+      }
+    }
+
+    function updatePriorityAlerts(appointments) {
+      const highUpcoming = appointments.filter((item) => {
+        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "High Risk"
+          && appointmentStatus(item) === "Upcoming";
+      });
+
+      const mediumUpcoming = appointments.filter((item) => {
+        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "Medium Risk"
+          && appointmentStatus(item) === "Upcoming";
+      });
+
+      const within24 = highUpcoming.filter((item) => {
+        const t = parseDate(item.appointment_time);
+        if (!t) return false;
+        const diff = t.getTime() - Date.now();
+        return diff >= 0 && diff <= 24 * 60 * 60 * 1000;
+      });
+
+      const alerts = [];
+      alerts.push(`<span class="alert high">High-risk upcoming: ${highUpcoming.length}</span>`);
+      alerts.push(`<span class="alert medium">Medium-risk upcoming: ${mediumUpcoming.length}</span>`);
+      if (within24.length > 0) {
+        alerts.push(`<span class="alert info">Urgent within 24h: ${within24.length}</span>`);
+      }
+      if (appointments.length === 0) {
+        alerts.length = 0;
+        alerts.push('<span class="alert info">No appointment data available yet.</span>');
+      }
+
+      document.getElementById("priorityAlerts").innerHTML = alerts.join("");
+    }
+
+    function selectAppointment(index) {
+      if (!cachedAppointments[index]) return;
+      const item = cachedAppointments[index];
+      selectedAppointmentKey = appointmentKey(item);
+      selectedPatientFeatures = item.patient_features || {};
+
+      setText("rvPatient", item.patient_id || "-");
+      setText("rvDoctor", item.doctor_id || "-");
+      setText("rvTime", fmtDateTime(item.appointment_time || "-"));
+      setText("rvRisk", normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class));
+      document.getElementById("reviewFeatures").textContent = formatPatientFeatures(selectedPatientFeatures);
+      document.getElementById("predictOutput").textContent = `Selected Patient_ID ${safeText(item.patient_id)}.`;
+      document.getElementById("predictOutput").className = "output";
+
+      document.querySelectorAll("#rows tr[data-index]").forEach((row) => {
+        row.classList.toggle("selected", Number(row.dataset.index) === index);
+      });
+    }
+
+    function renderAppointmentsTable(appointments) {
+      const rows = document.getElementById("rows");
+      if (appointments.length === 0) {
+        rows.innerHTML = '<tr><td colspan="6">No appointments yet.</td></tr>';
+        setText("rvPatient", "-");
+        setText("rvDoctor", "-");
+        setText("rvTime", "-");
+        setText("rvRisk", "-");
+        document.getElementById("reviewFeatures").textContent = "Select an appointment row to review patient details.";
+        document.getElementById("predictOutput").textContent = "No appointment selected yet.";
+        document.getElementById("predictOutput").className = "output";
+        return;
+      }
+
+      const sorted = [...appointments].sort((a, b) => {
+        const ad = parseDate(a.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER;
+        const bd = parseDate(b.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER;
+        return ad - bd;
+      });
+
+      cachedAppointments = sorted;
+
+      rows.innerHTML = sorted.map((item, idx) => {
+        const risk = normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class);
+        const rowClass = risk === "High Risk" ? "clickable high-row" : "clickable";
+        const status = appointmentStatus(item);
+        const priority = risk === "High Risk" ? "Immediate" : (risk === "Medium Risk" ? "Review" : "Routine");
+        const priorityPillClass = riskClass(risk);
+        return `
+          <tr class="${rowClass}" data-index="${idx}">
+            <td>${safeText(item.patient_id)}</td>
+            <td>${safeText(item.doctor_id)}</td>
+            <td>${fmtDateTime(item.appointment_time)}</td>
+            <td>${riskPill(risk)}</td>
+            <td>${statusPill(status)}</td>
+            <td><span class="pill ${priorityPillClass}">${priority}</span></td>
+          </tr>
+        `;
+      }).join("");
+
+      rows.querySelectorAll("tr[data-index]").forEach((row) => {
+        row.addEventListener("click", () => selectAppointment(Number(row.dataset.index)));
+      });
+
+      let selectedIndex = -1;
+      if (selectedAppointmentKey !== null) {
+        selectedIndex = sorted.findIndex((item) => appointmentKey(item) === selectedAppointmentKey);
+      }
+      if (selectedIndex === -1) selectedIndex = 0;
+      selectAppointment(selectedIndex);
+    }
+
+    async function refreshDashboard() {
+      const res = await fetch("/doctor/appointments");
+      const data = await res.json();
+      const appointments = Array.isArray(data.appointments) ? data.appointments : [];
+
+      const counts = updateOverview(appointments);
+      updateRiskCharts(counts, appointments.length);
+      updateTrend(appointments);
+      updateInsights(appointments);
+      updatePriorityAlerts(appointments);
+      renderAppointmentsTable(appointments);
+    }
+
+    document.getElementById("predictBtn").addEventListener("click", async () => {
+      try {
+        if (!selectedPatientFeatures) {
+          throw new Error("Select an appointment row first.");
+        }
+        const output = document.getElementById("predictOutput");
+        output.textContent = "Submitting...";
+        output.className = "output";
+        const data = await postJson("/doctor/predict-risk", { patient_features: selectedPatientFeatures });
+        output.textContent = JSON.stringify(data, null, 2);
+        output.className = "output";
+      } catch (err) {
+        const output = document.getElementById("predictOutput");
+        output.textContent = err.message;
+        output.className = "output error";
+      }
+    });
+
+    refreshDashboard();
+    setInterval(refreshDashboard, 5000);
+  </script>
+</body>
+</html>

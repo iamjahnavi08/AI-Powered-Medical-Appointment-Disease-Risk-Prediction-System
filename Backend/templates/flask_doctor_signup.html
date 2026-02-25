@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exafluence Hospital - Doctor Login</title>
+  <title>Exafluence Hospital - Doctor Signup</title>
   <style>
     :root {
       --bg: #dfe5ef;
@@ -20,9 +20,9 @@
       min-height: 100vh;
       font-family: Arial, sans-serif;
       background:
-        radial-gradient(circle at 8% 6%, rgba(73, 137, 255, 0.28), transparent 36%),
-        radial-gradient(circle at 92% 84%, rgba(24, 173, 156, 0.2), transparent 40%),
-        linear-gradient(145deg, #edf4ff 0%, #dfe9f8 55%, #e8f3ff 100%);
+        radial-gradient(circle at 12% 10%, rgba(138, 110, 255, 0.22), transparent 36%),
+        radial-gradient(circle at 88% 80%, rgba(47, 186, 212, 0.2), transparent 42%),
+        linear-gradient(150deg, #f0f4ff 0%, #e5e9fb 52%, #eef7ff 100%);
       color: var(--ink);
       overflow-x: hidden;
     }
@@ -40,7 +40,7 @@
       right: 0;
       width: min(760px, 70vw);
       height: 190px;
-      background: linear-gradient(120deg, rgba(196, 220, 255, 0.78), rgba(202, 240, 235, 0.72));
+      background: linear-gradient(120deg, rgba(219, 210, 255, 0.78), rgba(198, 244, 250, 0.72));
       border-bottom-left-radius: 90px;
     }
 
@@ -49,7 +49,7 @@
       bottom: -120px;
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle at 35% 35%, rgba(167, 218, 255, 0.82), rgba(174, 233, 223, 0.78));
+      background: radial-gradient(circle at 35% 35%, rgba(215, 204, 255, 0.82), rgba(188, 231, 255, 0.78));
       border-radius: 50%;
     }
 
@@ -98,14 +98,6 @@
       line-height: 1.5;
     }
 
-    .bullets {
-      margin: 0;
-      padding-left: 18px;
-      color: #3d4a68;
-      line-height: 1.7;
-      font-size: 1rem;
-    }
-
     .left-image {
       margin-top: 18px;
       width: 100%;
@@ -129,18 +121,25 @@
     }
 
     .card {
-      width: min(540px, 100%);
+      width: min(640px, 100%);
       background: #fff;
       border: 1px solid var(--line);
       border-radius: 16px;
-      padding: 26px;
+      padding: 24px;
       box-shadow: 0 14px 30px rgba(35, 52, 88, 0.12);
     }
 
     .card h2 {
-      margin: 0 0 16px;
+      margin: 0 0 10px;
       font-size: 2rem;
       color: #10264d;
+      letter-spacing: 0.01em;
+    }
+
+    .intro {
+      margin: 0 0 14px;
+      color: #14284f;
+      font-size: 1.05rem;
     }
 
     label {
@@ -151,7 +150,7 @@
       color: #0f2142;
     }
 
-    input {
+    input, select {
       width: 100%;
       border: 1px solid #b8c5df;
       border-radius: 10px;
@@ -169,18 +168,20 @@
       padding: 12px;
       background: linear-gradient(120deg, #1c7f8e, #2b69c2);
       color: #fff;
-      font-size: 1.12rem;
+      font-size: 1.2rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .create {
+    .link-row {
       margin-top: 14px;
+    }
+
+    .link-row a {
+      color: #1f67a6;
       font-size: 1rem;
       font-weight: 700;
-      color: #1f67a6;
       text-decoration: none;
-      display: inline-block;
     }
 
     .errors {
@@ -198,6 +199,9 @@
         gap: 20px;
         padding-top: 22px;
       }
+
+      .card h2 { font-size: 2.3rem; }
+      label { font-size: 1.05rem; }
     }
   </style>
 </head>
@@ -209,15 +213,10 @@
     <section class="left">
       <span class="hospital">Exafluence Hospital</span>
       <h1>Doctor Portal</h1>
-      <p class="sub">Secure access for clinical operations</p>
+      <p class="sub">Secure access for your clinical workflow</p>
       <p class="desc">
-        Access your appointments, review patient details, and continue your workflow through a focused doctor portal.
+        Create your doctor account to manage appointments and continue secure patient care operations.
       </p>
-      <ul class="bullets">
-        <li>View scheduled patient appointments</li>
-        <li>Access patient health information securely</li>
-        <li>Continue with doctor login</li>
-      </ul>
       <div class="left-image">
         <img
           src="https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200"
@@ -228,7 +227,8 @@
 
     <section class="right">
       <div class="card">
-        <h2>Doctor Login</h2>
+        <h2>Create Doctor Account</h2>
+        <p class="intro">Enter doctor ID and password to create your doctor profile.</p>
 
         {% if errors %}
           <div class="errors">
@@ -242,21 +242,60 @@
           <label for="doctor_id">Doctor Name / ID</label>
           <input id="doctor_id" name="doctor_id" value="{{ form_data.doctor_id }}" required />
 
-          <label for="unique_code">Unique Code (Aadhaar / PAN / etc.)</label>
-          <input id="unique_code" name="unique_code" value="{{ form_data.unique_code }}" required />
+          <label for="id_type">ID Type</label>
+          <select id="id_type" name="id_type" required>
+            <option value="">Select ID Type</option>
+            <option value="aadhaar" {% if form_data.id_type == "aadhaar" %}selected{% endif %}>Aadhaar Card</option>
+            <option value="pan" {% if form_data.id_type == "pan" %}selected{% endif %}>PAN Card</option>
+          </select>
+
+          <label for="id_number">ID Number</label>
+          <input id="id_number" name="id_number" value="{{ form_data.id_number }}" required />
 
           <label for="password">Password</label>
           <input id="password" name="password" type="password" required />
 
-          <button type="submit">Login</button>
+          <label for="confirm_password">Confirm Password</label>
+          <input id="confirm_password" name="confirm_password" type="password" required />
+
+          <button type="submit">Create Account</button>
         </form>
 
-        <a class="create" href="/doctor/signup">Create new doctor account</a>
+        <p class="link-row"><a href="/doctor/login">Already have account? Doctor Login</a></p>
       </div>
     </section>
   </main>
+  <script>
+    function syncIdRules() {
+      const typeEl = document.getElementById("id_type");
+      const idEl = document.getElementById("id_number");
+      const t = String(typeEl.value || "").toLowerCase();
+
+      if (t === "aadhaar") {
+        idEl.placeholder = "Enter 12-digit Aadhaar number";
+        idEl.maxLength = 12;
+        idEl.pattern = "[0-9]{12}";
+        idEl.title = "Aadhaar must be exactly 12 digits";
+      } else if (t === "pan") {
+        idEl.placeholder = "Enter PAN in format AAAAA9999A";
+        idEl.maxLength = 10;
+        idEl.pattern = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}";
+        idEl.title = "PAN must be in format AAAAA9999A";
+      } else {
+        idEl.placeholder = "Select ID Type first";
+        idEl.maxLength = 30;
+        idEl.removeAttribute("pattern");
+        idEl.title = "";
+      }
+    }
+
+    document.getElementById("id_type").addEventListener("change", syncIdRules);
+    syncIdRules();
+  </script>
 </body>
 </html>
+
+
 
 
 

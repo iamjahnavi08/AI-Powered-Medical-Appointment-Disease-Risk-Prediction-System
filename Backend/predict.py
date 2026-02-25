@@ -12,11 +12,12 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
+from paths import NEW_PATIENT_CSV
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "decision_tree_model.pkl"
 LABEL_ENCODER_PATH = BASE_DIR / "label_encoder.pkl"
-FEATURE_DATA_PATH = BASE_DIR / "new_patient_data.csv"
+FEATURE_DATA_PATH = NEW_PATIENT_CSV
 
 
 class RiskPredictionRequest(BaseModel):

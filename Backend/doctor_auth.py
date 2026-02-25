@@ -11,16 +11,18 @@ from typing import Dict
 
 from pydantic import BaseModel, Field, field_validator
 
+from paths import DOCTOR_ACCOUNTS_CSV, ensure_csv_exists
 
-BASE_DIR = Path(__file__).resolve().parent
-DOCTOR_ACCOUNTS_PATH = BASE_DIR / "doctor_accounts.csv"
+DOCTOR_ACCOUNTS_PATH = DOCTOR_ACCOUNTS_CSV
 DOCTOR_ID_PATTERN = re.compile(r"^[A-Za-z0-9@._-]+$")
-UNIQUE_CODE_PATTERN = re.compile(r"^[A-Za-z0-9-]{6,30}$")
+PAN_PATTERN = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$")
+AADHAAR_PATTERN = re.compile(r"^[0-9]{12}$")
 
 
 class DoctorSignupRequest(BaseModel):
     doctor_id: str = Field(..., min_length=1, description="New doctor identifier")
-    unique_code: str = Field(..., min_length=6, description="Doctor unique code")
+    id_type: str = Field(..., min_length=1, description="aadhaar or pan")
+    id_number: str = Field(..., min_length=1, description="ID number")
     password: str = Field(..., min_length=4, description="New doctor password")
 
     @field_validator("doctor_id")
@@ -41,21 +43,30 @@ class DoctorSignupRequest(BaseModel):
             raise ValueError("password must be at least 4 characters")
         return cleaned
 
-    @field_validator("unique_code")
+    @field_validator("id_type")
     @classmethod
-    def validate_unique_code(cls, value: str) -> str:
+    def validate_id_type(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if cleaned not in {"aadhaar", "pan"}:
+            raise ValueError("id_type must be either aadhaar or pan")
+        return cleaned
+
+    @field_validator("id_number")
+    @classmethod
+    def validate_id_number(cls, value: str) -> str:
         cleaned = value.strip().upper()
-        if not UNIQUE_CODE_PATTERN.fullmatch(cleaned):
-            raise ValueError("unique_code must be 6-30 chars (letters, numbers, hyphen)")
+        if not cleaned:
+            raise ValueError("id_number cannot be empty")
         return cleaned
 
 
 class DoctorLoginRequest(BaseModel):
     doctor_id: str = Field(..., min_length=1, description="Existing doctor identifier")
-    unique_code: str = Field(..., min_length=1, description="Doctor unique code")
+    id_type: str = Field(..., min_length=1, description="aadhaar or pan")
+    id_number: str = Field(..., min_length=1, description="ID number")
     password: str = Field(..., min_length=1, description="Doctor password")
 
-    @field_validator("doctor_id", "password", "unique_code")
+    @field_validator("doctor_id", "password", "id_type", "id_number")
     @classmethod
     def validate_non_empty(cls, value: str) -> str:
         cleaned = value.strip()
@@ -67,39 +78,7 @@ class DoctorLoginRequest(BaseModel):
 class DoctorAuthManager:
     def __init__(self, csv_path: Path = DOCTOR_ACCOUNTS_PATH) -> None:
         self.csv_path = csv_path
-        self._ensure_store_exists()
-
-    def _ensure_store_exists(self) -> None:
-        required_fields = ["doctor_id", "unique_code", "salt_hex", "password_hash", "created_at"]
-        if not self.csv_path.exists():
-            with self.csv_path.open("w", newline="", encoding="utf-8") as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=required_fields)
-                writer.writeheader()
-            return
-
-        with self.csv_path.open("r", newline="", encoding="utf-8") as csv_file:
-            reader = csv.DictReader(csv_file)
-            existing_fields = list(reader.fieldnames or [])
-            if set(required_fields).issubset(set(existing_fields)):
-                return
-            rows = list(reader)
-
-        with self.csv_path.open("w", newline="", encoding="utf-8") as csv_file:
-            writer = csv.DictWriter(
-                csv_file,
-                fieldnames=required_fields,
-            )
-            writer.writeheader()
-            for row in rows:
-                writer.writerow(
-                    {
-                        "doctor_id": str(row.get("doctor_id", "")).strip(),
-                        "unique_code": str(row.get("unique_code", "")).strip().upper(),
-                        "salt_hex": str(row.get("salt_hex", "")).strip(),
-                        "password_hash": str(row.get("password_hash", "")).strip(),
-                        "created_at": str(row.get("created_at", "")).strip(),
-                    }
-                )
+        ensure_csv_exists(self.csv_path)
 
     @staticmethod
     def _hash_password(password: str, salt: bytes) -> str:
@@ -107,13 +86,32 @@ class DoctorAuthManager:
         return digest.hex()
 
     @staticmethod
-    def _normalize_unique_code(value: str) -> str:
-        return value.strip().upper()
+    def _normalize_id_type(value: str) -> str:
+        raw = value.strip().lower()
+        if raw not in {"aadhaar", "pan"}:
+            raise ValueError("ID Type must be Aadhaar or PAN.")
+        return raw
+
+    @staticmethod
+    def _normalize_id_number(id_type: str, value: str) -> str:
+        cleaned = value.strip().upper()
+        if id_type == "aadhaar":
+            if not AADHAAR_PATTERN.fullmatch(cleaned):
+                raise ValueError("Aadhaar number must be exactly 12 digits.")
+            return cleaned
+        if not PAN_PATTERN.fullmatch(cleaned):
+            raise ValueError("PAN must be in format: AAAAA9999A.")
+        return cleaned
+
+    @classmethod
+    def _compose_unique_code(cls, id_type: str, id_number: str) -> str:
+        norm_type = cls._normalize_id_type(id_type)
+        norm_number = cls._normalize_id_number(norm_type, id_number)
+        return f"{norm_type.upper()}:{norm_number}"
 
     def _read_accounts(self) -> Dict[str, Dict[str, str]]:
         accounts: Dict[str, Dict[str, str]] = {}
-        if not self.csv_path.exists():
-            return accounts
+        ensure_csv_exists(self.csv_path)
 
         with self.csv_path.open("r", newline="", encoding="utf-8") as csv_file:
             reader = csv.DictReader(csv_file)
@@ -124,15 +122,15 @@ class DoctorAuthManager:
                 accounts[did] = row
         return accounts
 
-    def signup(self, doctor_id: str, unique_code: str, password: str) -> None:
+    def signup(self, doctor_id: str, id_type: str, id_number: str, password: str) -> None:
         did = doctor_id.strip()
-        ucode = self._normalize_unique_code(unique_code)
+        ucode = self._compose_unique_code(id_type, id_number)
         pwd = password.strip()
         accounts = self._read_accounts()
 
         if did in accounts:
             raise ValueError("Doctor ID already exists. Please use login.")
-        if any(self._normalize_unique_code(str(row.get("unique_code", ""))) == ucode for row in accounts.values()):
+        if any(str(row.get("unique_code", "")).strip().upper() == ucode for row in accounts.values()):
             raise ValueError("Unique Code already exists. Use a different Unique Code.")
 
         salt = os.urandom(16)
@@ -154,25 +152,47 @@ class DoctorAuthManager:
                 }
             )
 
-    def login(self, doctor_id: str, unique_code: str, password: str) -> None:
+    def login(self, doctor_id: str, id_type: str, id_number: str, password: str) -> str:
         did = doctor_id.strip()
-        ucode = self._normalize_unique_code(unique_code)
+        has_did = bool(did)
+        has_id_num = bool(id_number.strip())
         pwd = password.strip()
         accounts = self._read_accounts()
 
-        if did not in accounts:
-            raise ValueError("Invalid Doctor ID, unique code, or password.")
+        if not has_did and not has_id_num:
+            raise ValueError("Enter Doctor ID OR ID Number.")
 
-        row = accounts[did]
-        if self._normalize_unique_code(str(row.get("unique_code", ""))) != ucode:
-            raise ValueError("Invalid Doctor ID, unique code, or password.")
-        try:
-            salt = bytes.fromhex(str(row.get("salt_hex", "")))
-        except ValueError as exc:
-            raise ValueError("Stored credential format is invalid.") from exc
+        ucode = ""
+        if has_id_num:
+            ucode = self._compose_unique_code(id_type, id_number)
 
-        expected_hash = str(row.get("password_hash", ""))
-        provided_hash = self._hash_password(pwd, salt)
+        candidate_rows = []
+        if has_did and did in accounts:
+            candidate_rows.append(accounts[did])
 
-        if not hmac.compare_digest(provided_hash, expected_hash):
-            raise ValueError("Invalid Doctor ID, unique code, or password.")
+        if has_id_num:
+            raw_id_num = id_number.strip().upper()
+            for row in accounts.values():
+                stored_ucode = str(row.get("unique_code", "")).strip().upper()
+                if stored_ucode in {ucode, raw_id_num}:
+                    candidate_rows.append(row)
+
+        if not candidate_rows:
+            raise ValueError("Invalid Doctor ID, ID Number, or password.")
+
+        matched_doctor_id = ""
+        for row in candidate_rows:
+            try:
+                salt = bytes.fromhex(str(row.get("salt_hex", "")))
+            except ValueError as exc:
+                raise ValueError("Stored credential format is invalid.") from exc
+
+            expected_hash = str(row.get("password_hash", ""))
+            provided_hash = self._hash_password(pwd, salt)
+            if hmac.compare_digest(provided_hash, expected_hash):
+                matched_doctor_id = str(row.get("doctor_id", "")).strip()
+                break
+
+        if not matched_doctor_id:
+            raise ValueError("Invalid Doctor ID, ID Number, or password.")
+        return matched_doctor_id

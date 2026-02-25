@@ -10,13 +10,11 @@ import pandas as pd
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 from doctor_auth import DoctorAuthManager
+from paths import DOCTOR_ACCOUNTS_CSV, NEW_PATIENT_CSV, PATIENTS_CSV, ensure_csv_exists
 from predict import LABEL_ENCODER_PATH, MODEL_PATH, RiskEngine, to_jsonable
 
 
 BASE_DIR = Path(__file__).resolve().parent
-NEW_PATIENT_CSV = BASE_DIR / "new_patient_data.csv"
-PATIENTS_CSV = BASE_DIR / "patients.csv"
-DOCTOR_ACCOUNTS_CSV = BASE_DIR / "doctor_accounts.csv"
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
@@ -47,12 +45,10 @@ def _to_float(value: str, field_name: str, min_value: float, max_value: float) -
 
 
 def append_to_new_patient_csv(row: Dict[str, Any], csv_path: Path = NEW_PATIENT_CSV) -> None:
+    ensure_csv_exists(csv_path)
     new_row_df = pd.DataFrame([row])
-    if csv_path.exists():
-        existing_df = pd.read_csv(csv_path)
-        updated_df = pd.concat([existing_df, new_row_df], ignore_index=True)
-    else:
-        updated_df = new_row_df
+    existing_df = pd.read_csv(csv_path)
+    updated_df = pd.concat([existing_df, new_row_df], ignore_index=True)
     updated_df.to_csv(csv_path, index=False)
 
 
@@ -146,12 +142,10 @@ def upsert_new_patient_csv_from_features(
     ]
     row = _build_csv_row_from_features(patient_id, patient_features)
 
-    if csv_path.exists():
-        try:
-            df = pd.read_csv(csv_path)
-        except Exception:
-            df = pd.DataFrame(columns=columns)
-    else:
+    ensure_csv_exists(csv_path)
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception:
         df = pd.DataFrame(columns=columns)
 
     for col in columns:
@@ -183,8 +177,7 @@ def upsert_new_patient_csv_from_features(
 
 def _load_patients_df() -> pd.DataFrame:
     columns = ["patient_id", "name", "unique_code", "password", "health_details_submitted", "created_at"]
-    if not PATIENTS_CSV.exists():
-        return pd.DataFrame(columns=columns)
+    ensure_csv_exists(PATIENTS_CSV)
     try:
         df = pd.read_csv(PATIENTS_CSV)
     except Exception:
@@ -224,12 +217,37 @@ def _normalize_unique_code(value: Any) -> str:
     return str(value).strip().upper()
 
 
+def _normalize_id_type(value: Any) -> str:
+    raw = str(value).strip().lower()
+    if raw not in {"aadhaar", "pan"}:
+        raise ValueError("ID Type must be Aadhaar or PAN.")
+    return raw
+
+
+def _normalize_id_number(id_type: str, value: Any) -> str:
+    raw = str(value).strip().upper()
+    if id_type == "aadhaar":
+        if not re.fullmatch(r"[0-9]{12}", raw):
+            raise ValueError("Aadhaar number must be exactly 12 digits.")
+        return raw
+    if not re.fullmatch(r"[A-Z]{5}[0-9]{4}[A-Z]", raw):
+        raise ValueError("PAN must be in format: AAAAA9999A.")
+    return raw
+
+
+def _compose_unique_code(id_type: Any, id_number: Any) -> str:
+    norm_type = _normalize_id_type(id_type)
+    norm_number = _normalize_id_number(norm_type, id_number)
+    return f"{norm_type.upper()}:{norm_number}"
+
+
 def _create_patient_account(name: str, unique_code: str, password: str) -> str:
     df = _load_patients_df()
     if df["name"].astype(str).str.strip().str.lower().eq(name.lower()).any():
         raise ValueError("Patient name already exists. Use a different name.")
     normalized_code = _normalize_unique_code(unique_code)
-    if df["unique_code"].astype(str).str.strip().str.upper().eq(normalized_code).any():
+    existing_codes = df["unique_code"].astype(str).str.strip().str.upper()
+    if (existing_codes == normalized_code).any() or (existing_codes == normalized_code.split(":", 1)[-1]).any():
         raise ValueError("Unique Code already exists. Use a different Unique Code.")
     patient_id = _next_patient_id(df)
     new_row = {
@@ -247,12 +265,25 @@ def _create_patient_account(name: str, unique_code: str, password: str) -> str:
 
 def _authenticate_patient(name: str, unique_code: str, password: str) -> Optional[Dict[str, Any]]:
     df = _load_patients_df()
-    normalized_code = _normalize_unique_code(unique_code)
-    matches = df[
-        (df["name"].astype(str).str.strip().str.lower() == name.lower())
-        & (df["unique_code"].astype(str).str.strip().str.upper() == normalized_code)
-        & (df["password"].astype(str) == password)
-    ]
+    pwd_mask = df["password"].astype(str) == password
+    name = str(name or "").strip()
+    unique_code = str(unique_code or "").strip()
+    has_name = bool(name)
+    has_code = bool(unique_code)
+    if not has_name and not has_code:
+        return None
+
+    identifier_mask = pd.Series([False] * len(df), index=df.index)
+    if has_name:
+        identifier_mask = identifier_mask | (df["name"].astype(str).str.strip().str.lower() == name.lower())
+    if has_code:
+        normalized_code = _normalize_unique_code(unique_code)
+        identifier_mask = identifier_mask | (
+            (df["unique_code"].astype(str).str.strip().str.upper() == normalized_code)
+            | (df["unique_code"].astype(str).str.strip().str.upper() == normalized_code.split(":", 1)[-1])
+        )
+
+    matches = df[identifier_mask & pwd_mask]
     if matches.empty:
         return None
     return matches.iloc[-1].to_dict()
@@ -274,8 +305,7 @@ def _health_details_submitted(value: Any) -> bool:
 
 
 def _load_doctor_ids() -> list[str]:
-    if not DOCTOR_ACCOUNTS_CSV.exists():
-        return []
+    ensure_csv_exists(DOCTOR_ACCOUNTS_CSV)
     try:
         df = pd.read_csv(DOCTOR_ACCOUNTS_CSV)
     except Exception:
@@ -416,8 +446,7 @@ def _build_features_from_new_patient_row(row: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _load_new_patient_features(patient_id: str) -> Optional[Dict[str, Any]]:
-    if not NEW_PATIENT_CSV.exists():
-        return None
+    ensure_csv_exists(NEW_PATIENT_CSV)
     try:
         df = pd.read_csv(NEW_PATIENT_CSV)
     except Exception:
@@ -455,22 +484,25 @@ def role_login() -> Any:
 @app.route("/patient/signup", methods=["GET", "POST"])
 def patient_signup() -> Any:
     errors: list[str] = []
-    form_data = {"name": "", "unique_code": ""}
+    form_data = {"name": "", "id_type": "", "id_number": ""}
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        unique_code = request.form.get("unique_code", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         form_data["name"] = name
-        form_data["unique_code"] = unique_code
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
 
         if not name:
             errors.append("Patient Name is required.")
-        if not unique_code:
-            errors.append("Unique Code is required.")
-        elif len(unique_code) < 6:
-            errors.append("Unique Code must be at least 6 characters.")
+        unique_code = ""
+        try:
+            unique_code = _compose_unique_code(id_type, id_number)
+        except ValueError as exc:
+            errors.append(str(exc))
         if len(password) < 4:
             errors.append("Password must be at least 4 characters.")
         if password != confirm_password:
@@ -605,19 +637,35 @@ def health_confirmation() -> Any:
 @app.route("/patient/login", methods=["GET", "POST"])
 def patient_login() -> Any:
     errors: list[str] = []
-    form_data = {"patient_name": "", "unique_code": ""}
+    form_data = {"patient_name": "", "id_type": "", "id_number": "", "login_using": "patient_name"}
 
     if request.method == "POST":
+        login_using = request.form.get("login_using", "patient_name").strip().lower()
+        if login_using not in {"patient_name", "id_number"}:
+            login_using = "patient_name"
         patient_name = request.form.get("patient_name", "").strip()
-        unique_code = request.form.get("unique_code", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         form_data["patient_name"] = patient_name
-        form_data["unique_code"] = unique_code
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+        form_data["login_using"] = login_using
 
-        if not patient_name:
-            errors.append("Patient Name is required.")
-        if not unique_code:
-            errors.append("Unique Code is required.")
+        has_name = bool(patient_name)
+        has_id = bool(id_number)
+        unique_code = ""
+        if login_using == "patient_name":
+            if not has_name:
+                errors.append("Enter Patient Name.")
+        else:
+            if not has_id:
+                errors.append("Enter ID Number.")
+            else:
+                try:
+                    unique_code = _compose_unique_code(id_type, id_number)
+                except ValueError as exc:
+                    errors.append(str(exc))
         if not password:
             errors.append("Password is required.")
 
@@ -744,22 +792,24 @@ def submit_appointment() -> Any:
 @app.route("/doctor/signup", methods=["GET", "POST"])
 def doctor_signup() -> Any:
     errors: list[str] = []
-    form_data = {"doctor_id": "", "unique_code": ""}
+    form_data = {"doctor_id": "", "id_type": "", "id_number": ""}
 
     if request.method == "POST":
         doctor_id = request.form.get("doctor_id", "").strip()
-        unique_code = request.form.get("unique_code", "").strip().upper()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         form_data["doctor_id"] = doctor_id
-        form_data["unique_code"] = unique_code
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
 
         if not doctor_id:
             errors.append("Doctor ID is required.")
-        if not unique_code:
-            errors.append("Unique Code is required.")
-        elif len(unique_code) < 6:
-            errors.append("Unique Code must be at least 6 characters.")
+        try:
+            _compose_unique_code(id_type, id_number)
+        except ValueError as exc:
+            errors.append(str(exc))
         if len(password) < 4:
             errors.append("Password must be at least 4 characters.")
         if password != confirm_password:
@@ -767,7 +817,7 @@ def doctor_signup() -> Any:
 
         if not errors:
             try:
-                doctor_auth_manager.signup(doctor_id, unique_code, password)
+                doctor_auth_manager.signup(doctor_id, id_type, id_number, password)
                 return redirect(url_for("doctor_login"))
             except ValueError as exc:
                 errors.append(str(exc))
@@ -780,26 +830,46 @@ def doctor_signup() -> Any:
 @app.route("/doctor/login", methods=["GET", "POST"])
 def doctor_login() -> Any:
     errors: list[str] = []
-    form_data = {"doctor_id": "", "unique_code": ""}
+    form_data = {"doctor_id": "", "id_type": "", "id_number": "", "login_using": "doctor_id"}
 
     if request.method == "POST":
+        login_using = request.form.get("login_using", "doctor_id").strip().lower()
+        if login_using not in {"doctor_id", "id_number"}:
+            login_using = "doctor_id"
         doctor_id = request.form.get("doctor_id", "").strip()
-        unique_code = request.form.get("unique_code", "").strip().upper()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         form_data["doctor_id"] = doctor_id
-        form_data["unique_code"] = unique_code
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+        form_data["login_using"] = login_using
 
-        if not doctor_id:
-            errors.append("Doctor ID is required.")
-        if not unique_code:
-            errors.append("Unique Code is required.")
+        has_doctor_id = bool(doctor_id)
+        has_id = bool(id_number)
+        if login_using == "doctor_id":
+            # Ignore stale hidden ID fields when doctor-id mode is selected.
+            id_type = ""
+            id_number = ""
+            form_data["id_type"] = ""
+            form_data["id_number"] = ""
+            if not has_doctor_id:
+                errors.append("Enter Doctor ID.")
+        else:
+            if not has_id:
+                errors.append("Enter ID Number.")
+            else:
+                try:
+                    _compose_unique_code(id_type, id_number)
+                except ValueError as exc:
+                    errors.append(str(exc))
         if not password:
             errors.append("Password is required.")
 
         if not errors:
             try:
-                doctor_auth_manager.login(doctor_id, unique_code, password)
-                session["doctor_id"] = doctor_id
+                resolved_doctor_id = doctor_auth_manager.login(doctor_id, id_type, id_number, password)
+                session["doctor_id"] = resolved_doctor_id
                 return redirect(url_for("doctor_dashboard"))
             except ValueError as exc:
                 errors.append(str(exc))

@@ -10,9 +10,9 @@ from typing import Dict
 
 from pydantic import BaseModel, Field, field_validator
 
+from paths import PATIENT_ACCOUNTS_CSV, ensure_csv_exists
 
-BASE_DIR = Path(__file__).resolve().parent
-PATIENT_ACCOUNTS_PATH = BASE_DIR / "patient_accounts.csv"
+PATIENT_ACCOUNTS_PATH = PATIENT_ACCOUNTS_CSV
 
 
 class PatientSignupRequest(BaseModel):
@@ -52,17 +52,7 @@ class PatientLoginRequest(BaseModel):
 class PatientAuthManager:
     def __init__(self, csv_path: Path = PATIENT_ACCOUNTS_PATH) -> None:
         self.csv_path = csv_path
-        self._ensure_store_exists()
-
-    def _ensure_store_exists(self) -> None:
-        if self.csv_path.exists():
-            return
-        with self.csv_path.open("w", newline="", encoding="utf-8") as csv_file:
-            writer = csv.DictWriter(
-                csv_file,
-                fieldnames=["patient_id", "salt_hex", "password_hash", "created_at"],
-            )
-            writer.writeheader()
+        ensure_csv_exists(self.csv_path)
 
     @staticmethod
     def _hash_password(password: str, salt: bytes) -> str:
@@ -71,8 +61,7 @@ class PatientAuthManager:
 
     def _read_accounts(self) -> Dict[str, Dict[str, str]]:
         accounts: Dict[str, Dict[str, str]] = {}
-        if not self.csv_path.exists():
-            return accounts
+        ensure_csv_exists(self.csv_path)
 
         with self.csv_path.open("r", newline="", encoding="utf-8") as csv_file:
             reader = csv.DictReader(csv_file)

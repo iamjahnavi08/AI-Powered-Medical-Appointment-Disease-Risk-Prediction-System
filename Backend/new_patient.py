@@ -6,8 +6,9 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field, field_validator
 
+from paths import NEW_PATIENT_CSV, ensure_csv_exists
 
-OUTPUT_CSV_PATH = Path(__file__).resolve().parent / "new_patient_data.csv"
+OUTPUT_CSV_PATH = NEW_PATIENT_CSV
 
 
 class NewPatientFeatures(BaseModel):
@@ -72,13 +73,10 @@ def collect_new_patient() -> NewPatientFeatures:
 
 
 def append_patient_to_csv(patient: NewPatientFeatures, csv_path: Path = OUTPUT_CSV_PATH) -> Path:
+    ensure_csv_exists(csv_path)
     row = patient.to_csv_row()
-    write_header = not csv_path.exists()
-
     with csv_path.open("a", newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=list(row.keys()))
-        if write_header:
-            writer.writeheader()
         writer.writerow(row)
 
     return csv_path
