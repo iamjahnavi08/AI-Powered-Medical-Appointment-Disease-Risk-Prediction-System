@@ -110,6 +110,16 @@
       color: #a01933;
       font-weight: 600;
     }
+    .note {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border: 1px solid #bfd8f5;
+      border-radius: 10px;
+      background: #f3f9ff;
+      color: #21486f;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
     @media (max-width: 780px) {
       .wrap { padding: 18px; border-radius: 18px; }
       .grid { grid-template-columns: 1fr; gap: 10px; }
@@ -123,6 +133,7 @@
     <section class="intro">
       <h1>Health Details Form</h1>
       <p>Fill in the patient health details.</p>
+      <p class="note">This system provides risk estimation for decision support only. It does not provide medical diagnosis.</p>
     </section>
 
     {% if errors %}
@@ -173,8 +184,18 @@
         </div>
 
         <div>
+          <label for="height_cm">Height (cm)</label>
+          <input id="height_cm" name="height_cm" type="number" step="0.1" min="0" value="{{ form_data.height_cm }}" required />
+        </div>
+
+        <div>
+          <label for="weight_kg">Weight (kg)</label>
+          <input id="weight_kg" name="weight_kg" type="number" step="0.1" min="0" value="{{ form_data.weight_kg }}" required />
+        </div>
+
+        <div>
           <label for="bmi">BMI</label>
-          <input id="bmi" name="bmi" type="number" step="0.01" min="0" value="{{ form_data.bmi }}" required />
+          <input id="bmi" name="bmi" type="number" step="0.01" min="0" value="{{ form_data.bmi }}" required readonly />
         </div>
 
         <div>
@@ -194,10 +215,51 @@
             <option value="no" {% if form_data.alcohol_habit == "no" %}selected{% endif %}>No</option>
           </select>
         </div>
+
+        <div class="full">
+          <label for="medical_history">Medical History (Past illnesses, ongoing treatment, allergies)</label>
+          <textarea id="medical_history" name="medical_history" placeholder="Example: diabetes, asthma, thyroid medication">{{ form_data.medical_history }}</textarea>
+        </div>
+
+        <div>
+          <label for="family_history">Family history of major chronic disease?</label>
+          <select id="family_history" name="family_history" required>
+            <option value="">Select option</option>
+            <option value="yes" {% if form_data.family_history == "yes" %}selected{% endif %}>Yes</option>
+            <option value="no" {% if form_data.family_history == "no" %}selected{% endif %}>No</option>
+          </select>
+        </div>
       </div>
 
       <button type="submit">Submit Health Details</button>
     </form>
   </main>
+  <script>
+    function toNum(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function calcBmi(heightCm, weightKg) {
+      const hCm = toNum(heightCm);
+      const wKg = toNum(weightKg);
+      if (hCm == null || wKg == null || hCm <= 0 || wKg <= 0) return "";
+      const hM = hCm / 100;
+      const bmi = wKg / (hM * hM);
+      return bmi.toFixed(2);
+    }
+
+    function syncBmi() {
+      const heightEl = document.getElementById("height_cm");
+      const weightEl = document.getElementById("weight_kg");
+      const bmiEl = document.getElementById("bmi");
+      if (!heightEl || !weightEl || !bmiEl) return;
+      bmiEl.value = calcBmi(heightEl.value, weightEl.value);
+    }
+
+    document.getElementById("height_cm").addEventListener("input", syncBmi);
+    document.getElementById("weight_kg").addEventListener("input", syncBmi);
+    syncBmi();
+  </script>
 </body>
 </html>

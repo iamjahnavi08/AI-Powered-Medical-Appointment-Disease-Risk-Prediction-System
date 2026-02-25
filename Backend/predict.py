@@ -41,6 +41,9 @@ class RiskPredictionResponse(BaseModel):
     risk_probability: float
     confidence_breakdown: Dict[str, float]
     risk_level: str
+    contributing_factors: List[str] = Field(default_factory=list)
+    doctor_note: str = ""
+    patient_guidance: str = ""
 
 
 class AppointmentBookingResponse(BaseModel):
@@ -78,6 +81,14 @@ class RiskEngine:
         "muscle_pain",
         "appetite_loss",
         "runny_nose",
+    }
+    HIGH_RISK_KEYWORDS = {
+        "chest_pain",
+        "chestpain",
+        "breathlessness",
+        "shortness_of_breath",
+        "dizziness",
+        "blurred_vision",
     }
 
     def __init__(self, model_path: Path, label_encoder_path: Optional[Path] = None) -> None:
@@ -205,6 +216,24 @@ class RiskEngine:
                 if g_clean in gender_map:
                     normalized["Gender"] = gender_map[g_clean]
 
+        # If Symptoms text is present, treat it as source of truth and rebuild SYM_* flags.
+        # This prevents stale symptom indicator columns from forcing incorrect high-risk outputs.
+        if "Symptoms" in normalized:
+            raw_symptoms = normalized.get("Symptoms")
+            symptom_tokens: list[str] = []
+            if isinstance(raw_symptoms, str):
+                symptom_tokens = [
+                    self._normalize_symptom_name(s)
+                    for s in re.split(r"[,;|]+", raw_symptoms)
+                    if s.strip()
+                ]
+
+            for key in list(normalized.keys()):
+                if str(key).startswith("SYM_"):
+                    normalized[key] = 0
+            for token in symptom_tokens:
+                normalized[f"SYM_{token}"] = 1
+
         preprocessor = getattr(self.model, "named_steps", {}).get("preprocessor")
         if preprocessor is not None:
             for name, _, cols in getattr(preprocessor, "transformers", []):
@@ -272,10 +301,13 @@ class RiskEngine:
         glucose = to_number(features.get("Glucose"), "Glucose")
         blood_pressure = to_number(features.get("BloodPressure"), "BloodPressure")
         reported_symptoms = self._extract_reported_symptoms(features)
-        has_high_risk_symptom = any(sym in reported_symptoms for sym in self.SYMPTOMS)
+        has_high_risk_symptom = any(sym in reported_symptoms for sym in self.SYMPTOMS | self.HIGH_RISK_KEYWORDS)
+        has_medium_symptom = any(sym in reported_symptoms for sym in self.MEDIUM_RISK_SYMPTOMS)
 
-        if has_high_risk_symptom or (age > 50 and symptom_count > 0) or glucose > 150 or blood_pressure > 120:
+        if has_high_risk_symptom or glucose >= 180 or blood_pressure >= 140 or (age >= 60 and symptom_count >= 3):
             return "High Risk"
+        if has_medium_symptom or glucose >= 126 or blood_pressure >= 130 or symptom_count >= 3 or age >= 50:
+            return "Medium Risk"
         return "Low Risk"
 
     @staticmethod
@@ -304,7 +336,7 @@ class RiskEngine:
         return 0
 
     def _model_based_risk(self, row: pd.DataFrame) -> tuple[str, float]:
-        # Model-first scoring; maps model output into a binary High/Low risk view.
+        # Model-first scoring; maps model output into a low/medium/high view.
         prediction = self.model.predict(row)[0]
 
         decoded_label = str(prediction)
@@ -315,7 +347,12 @@ class RiskEngine:
                 decoded_label = str(prediction)
 
         decoded_lower = decoded_label.strip().lower()
-        model_class = "High Risk" if "high" in decoded_lower else "Low Risk"
+        if "high" in decoded_lower:
+            model_class = "High Risk"
+        elif "medium" in decoded_lower:
+            model_class = "Medium Risk"
+        else:
+            model_class = "Low Risk"
 
         high_prob = 1.0 if model_class == "High Risk" else 0.0
         if hasattr(self.model, "predict_proba"):
@@ -329,14 +366,107 @@ class RiskEngine:
                     class_names = [str(c).lower() for c in model_classes]
 
                 high_idx = next((i for i, c in enumerate(class_names) if "high" in c), None)
+                medium_idx = next((i for i, c in enumerate(class_names) if "medium" in c), None)
                 if high_idx is not None and 0 <= high_idx < len(probs):
                     high_prob = float(probs[high_idx])
+                    if model_class == "Medium Risk" and medium_idx is not None and 0 <= medium_idx < len(probs):
+                        high_prob = max(high_prob, float(probs[medium_idx]) * 0.65)
                 else:
-                    high_prob = 1.0 if model_class == "High Risk" else 0.0
+                    if model_class == "High Risk":
+                        high_prob = 0.92
+                    elif model_class == "Medium Risk":
+                        high_prob = 0.62
+                    else:
+                        high_prob = 0.2
             except Exception:
-                high_prob = 1.0 if model_class == "High Risk" else 0.0
+                if model_class == "High Risk":
+                    high_prob = 0.92
+                elif model_class == "Medium Risk":
+                    high_prob = 0.62
+                else:
+                    high_prob = 0.2
 
         return model_class, float(np.clip(high_prob, 0.0, 1.0))
+
+    def _explain_contributing_factors(self, features: Dict[str, Any]) -> List[str]:
+        factors: List[str] = []
+
+        def as_float(value: Any) -> Optional[float]:
+            try:
+                if value is None:
+                    return None
+                if isinstance(value, str) and value.strip() == "":
+                    return None
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        age = as_float(features.get("Age"))
+        glucose = as_float(features.get("Glucose"))
+        bp = as_float(features.get("BloodPressure"))
+        bmi = as_float(features.get("BMI"))
+        symptom_count = as_float(features.get("Symptom_Count", features.get("Sympton_Count")))
+
+        if age is not None and age >= 60:
+            factors.append("Age above 60 increased risk priority.")
+        elif age is not None and age >= 50:
+            factors.append("Age above 50 contributed to moderate risk.")
+
+        if glucose is not None and glucose >= 180:
+            factors.append("Very high glucose level was detected.")
+        elif glucose is not None and glucose >= 126:
+            factors.append("Elevated glucose level contributed to risk.")
+
+        if bp is not None and bp >= 140:
+            factors.append("High systolic blood pressure was observed.")
+        elif bp is not None and bp >= 130:
+            factors.append("Borderline high blood pressure was observed.")
+
+        if bmi is not None and bmi >= 30:
+            factors.append("BMI in obese range increased risk.")
+        elif bmi is not None and bmi >= 25:
+            factors.append("BMI in overweight range contributed to risk.")
+
+        if symptom_count is not None and symptom_count >= 3:
+            factors.append("Multiple symptoms were reported.")
+
+        symptoms = self._extract_reported_symptoms(features)
+        if symptoms:
+            sorted_symptoms = ", ".join(sorted(symptoms)[:4])
+            factors.append(f"Reported symptoms considered: {sorted_symptoms}.")
+
+        smoking = str(features.get("Smoking_Habit", "")).strip().lower()
+        if smoking in {"yes", "true", "1"}:
+            factors.append("Smoking habit increased predicted risk.")
+        alcohol = str(features.get("Alcohol_Habit", "")).strip().lower()
+        if alcohol in {"yes", "true", "1"}:
+            factors.append("Alcohol habit contributed to risk profile.")
+
+        history = str(features.get("Medical_History", "")).strip()
+        if history:
+            factors.append("Medical history was included in risk estimation.")
+        family = str(features.get("Family_History", "")).strip().lower()
+        if family in {"yes", "true", "1"}:
+            factors.append("Positive family history increased baseline risk.")
+
+        return factors[:6]
+
+    @staticmethod
+    def _guidance_for_level(level: str) -> tuple[str, str]:
+        if level == "high":
+            return (
+                "High-priority case. Please review vitals and symptom context before consultation.",
+                "High risk category detected. Seek timely medical consultation. This is not a diagnosis.",
+            )
+        if level == "medium":
+            return (
+                "Moderate-risk case. Monitor trends and verify risk factors during consultation.",
+                "Medium risk category detected. Follow preventive care and consult a doctor as needed.",
+            )
+        return (
+            "Lower-risk case based on available inputs. Continue routine monitoring.",
+            "Low risk category detected. Maintain healthy habits and regular check-ups.",
+        )
 
     def predict(self, features: Dict[str, Any]) -> RiskPredictionResponse:
         if not features:
@@ -356,25 +486,56 @@ class RiskEngine:
         model_class, model_high_prob = self._model_based_risk(row)
         rule_class = self._rule_based_risk_class(normalized_features)
 
-        # Hybrid decision: model-first, with rule-based high-risk override as guardrail.
+        # Hybrid decision: model-first, with rule-based guardrails for healthcare safety.
         if rule_class == "High Risk":
             predicted_class = "High Risk"
             risk_probability = max(model_high_prob, 0.9)
+        elif rule_class == "Medium Risk":
+            if model_class == "High Risk":
+                predicted_class = "High Risk"
+                risk_probability = max(model_high_prob, 0.8)
+            else:
+                predicted_class = "Medium Risk"
+                risk_probability = max(model_high_prob, 0.55)
         else:
             predicted_class = model_class
             risk_probability = model_high_prob
 
-        confidence_breakdown = {
-            "Low Risk": float(np.clip(1.0 - risk_probability, 0.0, 1.0)),
-            "High Risk": float(np.clip(risk_probability, 0.0, 1.0)),
-        }
-        risk_level = "high" if predicted_class == "High Risk" else "low"
+        if predicted_class == "High Risk":
+            confidence_breakdown = {
+                "Low Risk": float(np.clip(1.0 - risk_probability, 0.0, 1.0)) * 0.2,
+                "Medium Risk": float(np.clip(1.0 - risk_probability, 0.0, 1.0)) * 0.8,
+                "High Risk": float(np.clip(risk_probability, 0.0, 1.0)),
+            }
+            risk_level = "high"
+        elif predicted_class == "Medium Risk":
+            medium_weight = float(np.clip(risk_probability, 0.0, 1.0))
+            remaining = float(np.clip(1.0 - medium_weight, 0.0, 1.0))
+            confidence_breakdown = {
+                "Low Risk": remaining * 0.55,
+                "Medium Risk": medium_weight,
+                "High Risk": remaining * 0.45,
+            }
+            risk_level = "medium"
+        else:
+            confidence_breakdown = {
+                "Low Risk": float(np.clip(1.0 - risk_probability, 0.0, 1.0)),
+                "Medium Risk": float(np.clip(risk_probability, 0.0, 1.0)) * 0.3,
+                "High Risk": float(np.clip(risk_probability, 0.0, 1.0)) * 0.7,
+            }
+            risk_level = "low"
+
+        contributing_factors = self._explain_contributing_factors(normalized_features)
+        doctor_note, patient_guidance = self._guidance_for_level(risk_level)
 
         return RiskPredictionResponse(
             predicted_class=str(predicted_class),
             risk_probability=float(risk_probability),
             confidence_breakdown=confidence_breakdown,
             risk_level=risk_level,
+            contributing_factors=contributing_factors,
+            doctor_note=doctor_note,
+            patient_guidance=patient_guidance,
         )
 
 

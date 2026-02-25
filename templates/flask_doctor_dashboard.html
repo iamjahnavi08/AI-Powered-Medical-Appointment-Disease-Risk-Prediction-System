@@ -19,6 +19,8 @@
       --select: #e3f2ff;
       --high-bg: #ffe7e8;
       --high-fg: #9d1f31;
+      --medium-bg: #fff3cd;
+      --medium-fg: #8a5b00;
       --low-bg: #dcfce7;
       --low-fg: #166534;
     }
@@ -139,6 +141,7 @@
     tr.selected { background: var(--select); }
     .pill { padding: 3px 9px; border-radius: 999px; font-weight: 700; font-size: 0.85rem; }
     .high { background: var(--high-bg); color: var(--high-fg); }
+    .medium { background: var(--medium-bg); color: var(--medium-fg); }
     .low { background: var(--low-bg); color: var(--low-fg); }
     pre { margin: 0; white-space: pre-wrap; line-height: 1.45; }
     textarea, button {
@@ -281,7 +284,8 @@
 
     function riskPill(level) {
       const text = (level || "-").toString();
-      const cls = text.toLowerCase().includes("high") ? "high" : "low";
+      const lower = text.toLowerCase();
+      const cls = lower.includes("high") ? "high" : (lower.includes("medium") ? "medium" : "low");
       return `<span class="pill ${cls}">${text}</span>`;
     }
 

@@ -39,6 +39,13 @@
     }
     .left-title { margin: 0; font-size: 2rem; color: #12305b; font-weight: 800; letter-spacing: 0.02em; }
     .left-sub { margin: 0; color: #345178; font-size: 1rem; font-weight: 700; }
+    .left-welcome {
+      margin: 2px 0 0;
+      color: #12305b;
+      font-size: 0.96rem;
+      font-weight: 700;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
     .left-image-wrap { margin-top: 8px; display: block; }
     .left-image-wrap img { height: 210px; object-fit: cover; }
     .left-panel img {
@@ -76,6 +83,79 @@
     }
     .patient-card label {
       margin-top: 0;
+    }
+    .feature-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .feature-card-head label {
+      margin: 0;
+    }
+    .feature-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .feature-btn {
+      width: auto;
+      margin: 0;
+      border: 0;
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+    }
+    .feature-btn.edit {
+      background: linear-gradient(115deg, #1d66b6, #17a2a8);
+    }
+    .feature-btn.done {
+      background: linear-gradient(115deg, #0f7f78, #1e6bb9);
+    }
+    .feature-btn.hidden {
+      display: none;
+    }
+    .feature-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .feature-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .feature-row.full {
+      grid-column: 1 / -1;
+    }
+    .feature-row label {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #35527a;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .feature-row input,
+    .feature-row select,
+    .feature-row textarea {
+      background: #f3f6fb;
+      font-size: 0.9rem;
+      padding: 9px 10px;
+      border-radius: 10px;
+    }
+    .feature-row textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+    .feature-row input[readonly],
+    .feature-row textarea[readonly],
+    .feature-row select:disabled {
+      color: #243a5c;
+      background: #e2e8f3;
+      cursor: default;
     }
     .snapshot-card {
       padding: 14px;
@@ -319,11 +399,31 @@
     input, select, textarea { padding: 12px 14px; background: #e9eef7; color: #0f1b33; font-size: 0.95rem; }
     textarea { min-height: 220px; resize: vertical; background: #f3f6fb; }
     .patient-card textarea {
-      min-height: 240px;
-      font-size: 1.02rem;
-      line-height: 1.5;
+      min-height: 72px;
+      line-height: 1.4;
     }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-with-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .field-with-action input {
+      flex: 1;
+    }
+    .field-action-btn {
+      width: auto;
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 0;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(115deg, #1d66b6, #17a2a8);
+      cursor: pointer;
+      white-space: nowrap;
+    }
     button { margin-top: 10px; border: 0; padding: 12px 14px; font-size: 1rem; font-weight: 700; color: #fff; background: linear-gradient(110deg, #0f7f78, #1e6bb9); cursor: pointer; }
     .output {
       margin-top: 12px;
@@ -360,7 +460,10 @@
         padding: 6px 0 0;
       }
     }
-    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .feature-fields { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -369,12 +472,96 @@
       <aside class="left-panel">
         <a class="toplink" href="/login">Back</a>
         <h2 class="left-title">Exafluence Hospital</h2>
-        <p class="left-sub">Trusted Care, Every Appointment</p>
+        <p class="left-sub">hi: {{ patient_name or "Patient" }} welcome</p>
         <div class="left-extra-wrap patient-card">
           <h3>Patient Details Card</h3>
           <p class="patient-card-id">Patient ID: <strong>{{ patient_id }}</strong></p>
-          <label for="bookFeatures">Patient Features</label>
-          <textarea id="bookFeatures" placeholder="Patient features will be loaded automatically"></textarea>
+          <div class="feature-card-head">
+            <label for="featureAge">Patient Features</label>
+            <div class="feature-actions">
+              <button id="editFeaturesBtn" class="feature-btn edit" type="button">Edit</button>
+              <button id="lockFeaturesBtn" class="feature-btn done hidden" type="button">Done</button>
+            </div>
+          </div>
+          <div class="feature-fields" id="featureFields">
+            <div class="feature-row">
+              <label for="featureAge">Age</label>
+              <input id="featureAge" type="number" step="1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureGender">Gender</label>
+              <select id="featureGender">
+                <option value="">Select</option>
+                <option value="male">male</option>
+                <option value="female">female</option>
+                <option value="other">other</option>
+              </select>
+            </div>
+            <div class="feature-row full">
+              <label for="featureSymptoms">Symptoms</label>
+              <textarea id="featureSymptoms" placeholder="e.g. chest pain, dizziness"></textarea>
+            </div>
+            <div class="feature-row">
+              <label for="featureSymptomCount">Symptoms Count</label>
+              <input id="featureSymptomCount" type="number" step="1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureGlucose">Glucose</label>
+              <input id="featureGlucose" type="number" step="0.1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureHeightCm">Height (cm)</label>
+              <input id="featureHeightCm" type="number" step="0.1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureWeightKg">Weight (kg)</label>
+              <input id="featureWeightKg" type="number" step="0.1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureWeightCategory">Weight Category</label>
+              <input id="featureWeightCategory" type="text" readonly />
+            </div>
+            <div class="feature-row">
+              <label for="featureBmiCalculated">Calculated BMI</label>
+              <input id="featureBmiCalculated" type="text" readonly />
+            </div>
+            <div class="feature-row">
+              <label for="featureBpSystolic">Blood Pressure (Systolic)</label>
+              <input id="featureBpSystolic" type="number" step="1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureBpDiastolic">Blood Pressure (Diastolic)</label>
+              <input id="featureBpDiastolic" type="number" step="1" min="0" />
+            </div>
+            <div class="feature-row">
+              <label for="featureSmokingHabit">Smoking Habit</label>
+              <select id="featureSmokingHabit">
+                <option value="">Select</option>
+                <option value="no">no</option>
+                <option value="yes">yes</option>
+              </select>
+            </div>
+            <div class="feature-row">
+              <label for="featureAlcoholHabit">Alcohol Habit</label>
+              <select id="featureAlcoholHabit">
+                <option value="">Select</option>
+                <option value="no">no</option>
+                <option value="yes">yes</option>
+              </select>
+            </div>
+            <div class="feature-row">
+              <label for="featureFamilyHistory">Family History</label>
+              <select id="featureFamilyHistory">
+                <option value="">Select</option>
+                <option value="no">no</option>
+                <option value="yes">yes</option>
+              </select>
+            </div>
+            <div class="feature-row full">
+              <label for="featureMedicalHistory">Medical History</label>
+              <textarea id="featureMedicalHistory"></textarea>
+            </div>
+          </div>
         </div>
 
         <div class="snapshot-card">
@@ -503,7 +690,16 @@
       <div class="grid">
         <div>
           <label for="patientName">Patient Name *</label>
-          <input id="patientName" type="text" placeholder="Enter your full name" />
+          <div class="field-with-action">
+            <input
+              id="patientName"
+              type="text"
+              value="{{ patient_name or '' }}"
+              placeholder="Enter your full name"
+              {% if patient_name %}readonly{% endif %}
+            />
+            <button id="editPatientNameBtn" class="field-action-btn" type="button">Edit</button>
+          </div>
         </div>
         <div>
           <label for="contactInfo">Contact Information *</label>
@@ -605,35 +801,87 @@
       return "other";
     }
 
-    function formatPatientFeatures(features) {
-      const symptomCount = features.Symptom_Count ?? features.Sympton_Count ?? "";
-      const bpParts = parseBloodPressureValue(features.BloodPressure);
+    function setInputValue(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.value = value == null ? "" : String(value);
+    }
+
+    function calculateBmiMetrics(heightCmValue, weightKgValue) {
+      const heightCm = toNumber(heightCmValue, null);
+      const weightKg = toNumber(weightKgValue, null);
+      if (heightCm == null || weightKg == null || heightCm <= 0 || weightKg <= 0) {
+        return { bmi: null, category: "" };
+      }
+
+      const heightMeters = heightCm / 100;
+      const bmi = weightKg / (heightMeters * heightMeters);
+      let category = "Obese";
+      if (bmi < 18.5) category = "Underweight";
+      else if (bmi < 25) category = "Normal";
+      else if (bmi < 30) category = "Overweight";
+
+      return { bmi: Math.round(bmi * 10) / 10, category };
+    }
+
+    function setFeatureFormValues(features) {
+      const f = features || {};
+      const symptomCount = f.Symptom_Count ?? f.Sympton_Count ?? "";
+      const bpParts = parseBloodPressureValue(f.BloodPressure);
       const bpSystolic = bpParts.systolic;
-      const bpDiastolic = resolveDiastolic(bpSystolic, bpParts.diastolic);
-      const bloodPressure =
-        bpSystolic == null
-          ? ""
-          : bpDiastolic == null
-            ? `${bpSystolic}`
-            : `${bpSystolic}/${bpDiastolic}`;
-      const bpCategory = features.BP_Category ?? "";
-      const bmi = features.BMI ?? "";
-      const bmiCategory = features.BMI_Category ?? "";
-      const smokingHabit = features.Smoking_Habit ?? "";
-      const alcoholHabit = features.Alcohol_Habit ?? "";
-      return [
-        `age: ${features.Age ?? ""}`,
-        `gender: ${formatGender(features.Gender)}`,
-        `symptoms: ${features.Symptoms ?? ""}`,
-        `symptoms_count: ${symptomCount}`,
-        `glucose: ${features.Glucose ?? ""}`,
-        `blood pressure: ${bloodPressure}`,
-        `bp category: ${bpCategory}`,
-        `bmi: ${bmi}`,
-        `bmi category: ${bmiCategory}`,
-        `smoking habit: ${smokingHabit}`,
-        `alcohol habit: ${alcoholHabit}`
-      ].join("\n");
+      const bpDiastolic = f.BP_Diastolic ?? bpParts.diastolic;
+      const heightCm = f.Height_cm ?? f.HeightCM ?? f.Height ?? "";
+      const weightKg = f.Weight_kg ?? f.WeightKg ?? f.Weight ?? "";
+      const bmiMetrics = calculateBmiMetrics(heightCm, weightKg);
+      const normalizedGender = hasValue(f.Gender) ? formatGender(f.Gender) : "";
+      const smokingHabit = hasValue(f.Smoking_Habit) ? String(f.Smoking_Habit).toLowerCase() : "";
+      const alcoholHabit = hasValue(f.Alcohol_Habit) ? String(f.Alcohol_Habit).toLowerCase() : "";
+      const familyHistory = hasValue(f.Family_History) ? String(f.Family_History).toLowerCase() : "";
+      const weightCategory = hasValue(f.Weight_Category)
+        ? f.Weight_Category
+        : hasValue(f.BMI_Category)
+          ? f.BMI_Category
+          : bmiMetrics.category;
+
+      setInputValue("featureAge", f.Age);
+      setInputValue("featureGender", normalizedGender);
+      setInputValue("featureSymptoms", f.Symptoms);
+      setInputValue("featureSymptomCount", symptomCount);
+      setInputValue("featureGlucose", f.Glucose);
+      setInputValue("featureHeightCm", heightCm);
+      setInputValue("featureWeightKg", weightKg);
+      setInputValue("featureWeightCategory", weightCategory);
+      setInputValue("featureBmiCalculated", bmiMetrics.bmi ?? (f.BMI ?? ""));
+      setInputValue("featureBpSystolic", bpSystolic);
+      setInputValue("featureBpDiastolic", bpDiastolic);
+      setInputValue("featureSmokingHabit", smokingHabit);
+      setInputValue("featureAlcoholHabit", alcoholHabit);
+      setInputValue("featureFamilyHistory", familyHistory);
+      setInputValue("featureMedicalHistory", f.Medical_History);
+    }
+
+    function setFeatureEditMode(canEdit) {
+      const fields = document.querySelectorAll("#featureFields input, #featureFields textarea, #featureFields select");
+      fields.forEach((field) => {
+        if (field.tagName === "SELECT") {
+          field.disabled = !canEdit;
+        } else {
+          field.readOnly = !canEdit;
+        }
+      });
+
+      const editBtn = document.getElementById("editFeaturesBtn");
+      const doneBtn = document.getElementById("lockFeaturesBtn");
+      if (editBtn) editBtn.classList.toggle("hidden", canEdit);
+      if (doneBtn) doneBtn.classList.toggle("hidden", !canEdit);
+
+      const weightCategoryInput = document.getElementById("featureWeightCategory");
+      if (weightCategoryInput) {
+        weightCategoryInput.readOnly = true;
+      }
+      const bmiInput = document.getElementById("featureBmiCalculated");
+      if (bmiInput) {
+        bmiInput.readOnly = true;
+      }
     }
 
     function formatPatientSummaryHtml(patientId, features) {
@@ -642,6 +890,8 @@
       const bmi = features.BMI ?? "";
       const smokingHabit = features.Smoking_Habit ?? "";
       const alcoholHabit = features.Alcohol_Habit ?? "";
+      const familyHistory = features.Family_History ?? "";
+      const medicalHistory = features.Medical_History ?? "";
       return [
         "<strong>Patient Details</strong>",
         `patient id: ${escapeHtml(patientId || "-")}`,
@@ -653,7 +903,9 @@
         `blood pressure: ${escapeHtml(bloodPressure)}`,
         `bmi: ${escapeHtml(bmi)}`,
         `smoking habit: ${escapeHtml(smokingHabit)}`,
-        `alcohol habit: ${escapeHtml(alcoholHabit)}`
+        `alcohol habit: ${escapeHtml(alcoholHabit)}`,
+        `family history: ${escapeHtml(familyHistory)}`,
+        `medical history: ${escapeHtml(medicalHistory)}`
       ].join("<br>");
     }
 
@@ -690,39 +942,82 @@
       return Number.isFinite(parsed) ? parsed : fallback;
     }
 
+    function normalizeSymptomToken(value) {
+      return String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s-]+/g, "_")
+        .replace(/[^a-z0-9_]+/g, "");
+    }
+
+    function syncSymptomFlags(features) {
+      const synced = { ...(features || {}) };
+      if (!Object.prototype.hasOwnProperty.call(synced, "Symptoms")) {
+        return synced;
+      }
+
+      Object.keys(synced).forEach((key) => {
+        if (String(key).startsWith("SYM_")) {
+          synced[key] = 0;
+        }
+      });
+
+      const tokens = String(synced.Symptoms ?? "")
+        .split(/[,;|]/)
+        .map((v) => normalizeSymptomToken(v))
+        .filter(Boolean);
+      tokens.forEach((token) => {
+        synced[`SYM_${token}`] = 1;
+      });
+      return synced;
+    }
+
     function parseEditableFeatures() {
       const base = loadedPatientFeatures ? { ...loadedPatientFeatures } : {};
       if (!hasValue(base.Smoking_Habit)) base.Smoking_Habit = "no";
       if (!hasValue(base.Alcohol_Habit)) base.Alcohol_Habit = "no";
-      const text = document.getElementById("bookFeatures").value || "";
-      const lines = text.split("\n");
-      lines.forEach((line) => {
-        const idx = line.indexOf(":");
-        if (idx === -1) return;
-        const key = line.slice(0, idx).trim().toLowerCase();
-        const value = line.slice(idx + 1).trim();
-        if (key === "age") base.Age = value === "" ? null : toNumber(value, null);
-        if (key === "gender") base.Gender = value === "" ? null : value;
-        if (key === "symptoms") base.Symptoms = value === "" ? null : value;
-        if (key === "symptoms_count") base.Symptom_Count = value === "" ? null : toNumber(value, null);
-        if (key === "glucose") base.Glucose = value === "" ? null : toNumber(value, null);
-        if (key === "blood pressure") {
-          if (value === "") {
-            base.BloodPressure = null;
-            base.BP_Diastolic = null;
-          } else {
-            const parsed = parseBloodPressureValue(value);
-            base.BloodPressure = parsed.systolic;
-            base.BP_Diastolic = parsed.diastolic;
-          }
-        }
-        if (key === "bp category") base.BP_Category = value === "" ? null : value;
-        if (key === "bmi") base.BMI = value === "" ? null : toNumber(value, null);
-        if (key === "bmi category") base.BMI_Category = value === "" ? null : value;
-        if (key === "smoking habit") base.Smoking_Habit = value === "" ? null : value.toLowerCase();
-        if (key === "alcohol habit") base.Alcohol_Habit = value === "" ? null : value.toLowerCase();
-      });
-      return base;
+      if (!hasValue(base.Family_History)) base.Family_History = "no";
+      const age = document.getElementById("featureAge").value.trim();
+      const gender = document.getElementById("featureGender").value.trim();
+      const symptoms = document.getElementById("featureSymptoms").value.trim();
+      const symptomCount = document.getElementById("featureSymptomCount").value.trim();
+      const glucose = document.getElementById("featureGlucose").value.trim();
+      const heightCm = document.getElementById("featureHeightCm").value.trim();
+      const weightKg = document.getElementById("featureWeightKg").value.trim();
+      const systolic = document.getElementById("featureBpSystolic").value.trim();
+      const diastolic = document.getElementById("featureBpDiastolic").value.trim();
+      const smokingHabit = document.getElementById("featureSmokingHabit").value.trim();
+      const alcoholHabit = document.getElementById("featureAlcoholHabit").value.trim();
+      const familyHistory = document.getElementById("featureFamilyHistory").value.trim();
+      const medicalHistory = document.getElementById("featureMedicalHistory").value.trim();
+      const hasHeightInput = heightCm !== "";
+      const hasWeightInput = weightKg !== "";
+      const bmiMetrics = calculateBmiMetrics(heightCm, weightKg);
+      const computedCategory = hasHeightInput || hasWeightInput
+        ? bmiMetrics.category
+        : (base.Weight_Category ?? base.BMI_Category ?? "");
+
+      base.Age = age === "" ? null : toNumber(age, null);
+      base.Gender = gender === "" ? null : gender;
+      base.Symptoms = symptoms === "" ? null : symptoms;
+      base.Symptom_Count = symptomCount === "" ? null : toNumber(symptomCount, null);
+      base.Glucose = glucose === "" ? null : toNumber(glucose, null);
+      if (hasHeightInput || hasWeightInput) {
+        base.Height_cm = hasHeightInput ? toNumber(heightCm, null) : null;
+        base.Weight_kg = hasWeightInput ? toNumber(weightKg, null) : null;
+        base.BMI = bmiMetrics.bmi;
+        base.BMI_Category = bmiMetrics.category === "" ? null : bmiMetrics.category;
+        base.Weight_Category = bmiMetrics.category === "" ? null : bmiMetrics.category;
+      }
+      base.BloodPressure = systolic === "" ? null : toNumber(systolic, null);
+      base.BP_Diastolic = diastolic === "" ? null : toNumber(diastolic, null);
+      base.Smoking_Habit = smokingHabit === "" ? null : smokingHabit.toLowerCase();
+      base.Alcohol_Habit = alcoholHabit === "" ? null : alcoholHabit.toLowerCase();
+      base.Family_History = familyHistory === "" ? null : familyHistory.toLowerCase();
+      base.Medical_History = medicalHistory === "" ? null : medicalHistory;
+      setInputValue("featureWeightCategory", computedCategory);
+      setInputValue("featureBmiCalculated", bmiMetrics.bmi ?? (base.BMI ?? ""));
+      return syncSymptomFlags(base);
     }
 
     function parseBloodPressureValue(value) {
@@ -784,7 +1079,11 @@
             : `${bpSystolic}/${bpDiastolic}`;
       const age = f.Age ?? "--";
       const glucose = f.Glucose ?? "--";
-      const bmi = f.BMI ?? "--";
+      const bmiMetrics = calculateBmiMetrics(
+        f.Height_cm ?? f.HeightCM ?? f.Height,
+        f.Weight_kg ?? f.WeightKg ?? f.Weight
+      );
+      const bmi = bmiMetrics.bmi ?? (f.BMI ?? "--");
       const gender = f.Gender == null ? "--" : formatGender(f.Gender);
 
       const set = (id, val) => {
@@ -1002,9 +1301,14 @@
       else if (maxCard >= 60) overall = "HIGH";
       else if (maxCard >= 30) overall = "MEDIUM";
 
-      if ((modelResult && modelResult.predicted_class) === "High Risk") {
+      const modelClassText = String(
+        (modelResult && (modelResult.predicted_class || modelResult.risk_level)) || ""
+      ).toLowerCase();
+      if (modelClassText.includes("high")) {
         overall = "HIGH";
         if (baseRisk >= 90) overall = "VERY HIGH";
+      } else if (modelClassText.includes("medium")) {
+        if (overall === "LOW") overall = "MEDIUM";
       }
       if (cardio === 0 && diabetes === 0 && hypertension === 0) {
         overall = "LOW";
@@ -1051,11 +1355,12 @@
       const data = await res.json();
       if (!res.ok) {
         loadedPatientFeatures = null;
-        document.getElementById("bookFeatures").value = "Patient ID data not found";
+        setFeatureFormValues({});
         throw new Error("Patient ID data not found");
       }
       loadedPatientFeatures = data.patient_features || null;
-      document.getElementById("bookFeatures").value = formatPatientFeatures(loadedPatientFeatures || {});
+      setFeatureFormValues(loadedPatientFeatures || {});
+      setFeatureEditMode(false);
       await updateRiskPanel(loadedPatientFeatures || {});
       renderOutput(formatPatientSummaryHtml(data.patient_id, loadedPatientFeatures || {}), false, true);
     }
@@ -1100,12 +1405,30 @@
       if (event.target.id === "bookingConfirmModal") closeBookingPopup();
     });
 
-    document.getElementById("bookFeatures").addEventListener("input", () => {
+    document.getElementById("editPatientNameBtn").addEventListener("click", () => {
+      const nameInput = document.getElementById("patientName");
+      nameInput.readOnly = false;
+      nameInput.focus();
+      nameInput.select();
+    });
+
+    document.getElementById("featureFields").addEventListener("input", () => {
       if (riskPanelTimer) clearTimeout(riskPanelTimer);
       riskPanelTimer = setTimeout(() => {
         updateRiskPanel(parseEditableFeatures());
       }, 280);
     });
+
+    document.getElementById("editFeaturesBtn").addEventListener("click", () => {
+      setFeatureEditMode(true);
+    });
+
+    document.getElementById("lockFeaturesBtn").addEventListener("click", () => {
+      setFeatureEditMode(false);
+      updateRiskPanel(parseEditableFeatures());
+    });
+
+    setFeatureEditMode(false);
 
     loadPatientFeatures().catch((err) => {
       renderOutput(err.message, true);
