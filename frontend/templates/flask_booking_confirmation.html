@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -169,7 +169,11 @@
       }
       .btn { width: 100%; }
     }
-  </style>
+                          /* Shared app background theme */
+    body {
+      background: linear-gradient(160deg, #FFE3E1 0%, #9CD5FF 100%) !important;
+      background-color: #FFE3E1 !important;
+    }</style>
 </head>
 <body>
   {% set f = patient_features or {} %}
@@ -212,7 +216,7 @@
           {% for ap in upcoming_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">📅</span>
+                <span class="date-icon">ðŸ“…</span>
                 <span>{{ ap.date_label }}</span>
               </div>
               <div>{{ ap.time_label }}</div>
@@ -236,7 +240,7 @@
           {% for ap in past_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">📅</span>
+                <span class="date-icon">ðŸ“…</span>
                 <span>{{ ap.date_label }}</span>
               </div>
               <div>{{ ap.time_label }}</div>
@@ -258,3 +262,9 @@
   </main>
 </body>
 </html>
+
+
+
+
+
+

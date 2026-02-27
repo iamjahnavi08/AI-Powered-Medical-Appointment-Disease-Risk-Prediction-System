@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -24,10 +24,11 @@
       display: grid;
       place-items: center;
       background:
-        radial-gradient(circle at 8% 10%, rgba(56, 127, 219, 0.16), transparent 35%),
-        radial-gradient(circle at 92% 82%, rgba(33, 170, 147, 0.16), transparent 38%),
+        radial-gradient(circle at 12% 12%, rgba(255, 159, 67, 0.26), transparent 38%),
+        radial-gradient(circle at 88% 18%, rgba(46, 125, 216, 0.24), transparent 40%),
+        radial-gradient(circle at 70% 88%, rgba(20, 184, 166, 0.2), transparent 42%),
         url("/static/login-bg.svg?v=6") center center / cover no-repeat fixed;
-      background-color: #e8f0f7;
+      background-color: #f5efe6;
       font-family: Arial, sans-serif;
       color: var(--ink);
       padding: 18px;
@@ -37,7 +38,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(244, 250, 255, 0.46));
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.48), rgba(255, 244, 225, 0.3));
       pointer-events: none;
       z-index: 0;
     }
@@ -170,7 +171,11 @@
       .left { min-height: 260px; }
       .right { padding: 30px 24px; }
     }
-  </style>
+                          /* Shared app background theme */
+    body {
+      background: linear-gradient(160deg, #FFE3E1 0%, #9CD5FF 100%) !important;
+      background-color: #FFE3E1 !important;
+    }</style>
 </head>
 <body>
   <main class="card">
@@ -192,4 +197,10 @@
   </main>
 </body>
 </html>
+
+
+
+
+
+
 
