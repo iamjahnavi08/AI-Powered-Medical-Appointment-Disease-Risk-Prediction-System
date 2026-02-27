@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Appointments</title>
+  <style>
+    :root {
+      --bg: #eaf1fb;
+      --panel: #f6f8fc;
+      --text: #1a2a42;
+      --muted: #6b778c;
+      --line: #d5ddea;
+      --action: #4f84cf;
+      --danger: #f06d5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eff5ff 0%, #e4ecf8 100%);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 1220px;
+      margin: 18px auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 34px 36px 40px;
+      box-shadow: 0 14px 30px rgba(35, 55, 86, 0.08);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1;
+      letter-spacing: 0.3px;
+    }
+    .logout-btn {
+      text-decoration: none;
+      border: none;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 20px;
+      padding: 14px 30px;
+      display: inline-block;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 20px;
+      min-height: 150px;
+    }
+    .profile-wrap {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .avatar {
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at 30% 30%, #eff3fb, #cfd8e9);
+      color: #21324d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .kv, .metrics {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      font-size: 26px;
+    }
+    .metrics {
+      font-size: 20px;
+      gap: 10px;
+    }
+    .label {
+      font-weight: 800;
+      margin-right: 6px;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4vw, 52px);
+    }
+    .appointments {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .appt-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1.2fr 1.9fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      font-size: 20px;
+    }
+    .appt-row:last-child { border-bottom: 0; }
+    .muted { color: var(--muted); }
+    .date-cell { display: flex; align-items: center; gap: 12px; }
+    .date-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid #b6c2d6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #6e7d95;
+      background: #f7f9fd;
+    }
+    .btn {
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--action);
+      padding: 10px 18px;
+      min-width: 118px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .btn-danger { background: #5a89cf; }
+    .btn-view { background: #6a93d1; }
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 18px;
+    }
+    @media (max-width: 980px) {
+      .shell { margin: 0; border-radius: 0; padding: 20px 14px 26px; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .profile-wrap { align-items: flex-start; }
+      .avatar { width: 84px; height: 84px; font-size: 28px; }
+      .kv { font-size: 24px; }
+      .metrics { font-size: 18px; }
+      .appt-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  {% set f = patient_features or {} %}
+  {% set symptom_count = f.get('Symptom_Count', f.get('Sympton_Count', '--')) %}
+  {% set bp_sys = f.get('BloodPressure', '--') %}
+  {% set bp_dia = f.get('BP_Diastolic', '') %}
+  {% set height_cm = f.get('Height_cm', f.get('Height', '--')) %}
+  <main class="shell">
+    <div class="topbar">
+      <h1>Booking Appointments</h1>
+      <a class="logout-btn" href="{{ url_for('patient_logout') }}">Logout</a>
+    </div>
+
+    <section class="summary-grid">
+      <article class="card">
+        <div class="profile-wrap">
+          <div class="avatar">{{ (patient_name or 'P')[:1] }}</div>
+          <ul class="kv">
+            <li><span class="label">Name:</span> {{ patient_name or '--' }}</li>
+            <li><span class="label">Age:</span> {{ f.get('Age', '--') }}</li>
+            <li><span class="label">Gender:</span> {{ f.get('Gender', '--') }}</li>
+          </ul>
+        </div>
+      </article>
+      <article class="card">
+        <ul class="metrics">
+          <li><span class="label">Symptoms:</span> {{ f.get('Symptoms', '--') }}</li>
+          <li><span class="label">Symptom Count:</span> {{ symptom_count }}</li>
+          <li><span class="label">Blood Pressure:</span> {{ bp_sys }}{% if bp_dia and bp_dia != '--' %}/{{ bp_dia }}{% endif %} mmHg</li>
+          <li><span class="label">Glucose:</span> {{ f.get('Glucose', '--') }} mg/dL</li>
+          <li><span class="label">Height:</span> {{ height_cm }} cm</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Upcoming Appointments</h2>
+      {% if upcoming_appointments %}
+        <div class="appointments">
+          {% for ap in upcoming_appointments %}
+            <div class="appt-row">
+              <div class="date-cell">
+                <span class="date-icon">📅</span>
+                <span>{{ ap.date_label }}</span>
+              </div>
+              <div>{{ ap.time_label }}</div>
+              <div>Dr. {{ ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
+              <form method="post" action="{{ url_for('patient_cancel_appointment') }}">
+                <input type="hidden" name="appointment_id" value="{{ ap.appointment_id }}" />
+                <button class="btn btn-danger" type="submit">Cancel</button>
+              </form>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">No upcoming appointments.</div>
+      {% endif %}
+    </section>
+
+    <section style="margin-top: 34px;">
+      <h2>Past Appointments</h2>
+      {% if past_appointments %}
+        <div class="appointments">
+          {% for ap in past_appointments %}
+            <div class="appt-row">
+              <div class="date-cell">
+                <span class="date-icon">📅</span>
+                <span>{{ ap.date_label }}</span>
+              </div>
+              <div>{{ ap.time_label }}</div>
+              <div>Dr. {{ ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
+              <button
+                type="button"
+                class="btn btn-view"
+                onclick="alert('Doctor: Dr. {{ ap.doctor_id }}\nType: {{ ap.appointment_type }}\nDate: {{ ap.date_label }}\nTime: {{ ap.time_label }}');"
+              >
+                View Details
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">No past appointments.</div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

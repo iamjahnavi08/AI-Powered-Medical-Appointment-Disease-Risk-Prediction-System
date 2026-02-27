@@ -1055,6 +1055,11 @@
       return text !== "";
     }
 
+    function isTruthyFeatureValue(value) {
+      const text = String(value ?? "").trim().toLowerCase();
+      return text === "1" || text === "true" || text === "yes" || text === "y";
+    }
+
     function normalizeFeaturePayload(features) {
       const payload = {};
       Object.entries(features || {}).forEach(([key, value]) => {
@@ -1175,6 +1180,23 @@
       diastolic = resolveDiastolic(systolic, diastolic);
       const bmi = toNumber(features.BMI, null);
       const symptomCount = toNumber(features.Symptom_Count ?? features.Sympton_Count, 0);
+      const symptoms = symptomTokens(features.Symptoms);
+      const rawSymptoms = String(features.Symptoms ?? "").toLowerCase();
+      const normalizedSymptomTokens = String(features.Symptoms ?? "")
+        .split(/[,;|]/)
+        .map((v) => normalizeSymptomToken(v))
+        .filter(Boolean);
+      const hasLowBpSymptomText =
+        /\blow[\s_-]*bp\b/.test(rawSymptoms) ||
+        /\bhypotension\b/.test(rawSymptoms) ||
+        normalizedSymptomTokens.some((s) => s === "low_bp" || s === "lowbp" || s === "hypotension");
+      const hasLowBpSymptomFlag =
+        isTruthyFeatureValue(features.SYM_low_bp) ||
+        isTruthyFeatureValue(features.SYM_hypotension);
+      const hasLowBpSymptom =
+        hasLowBpSymptomText ||
+        hasLowBpSymptomFlag ||
+        symptoms.some((s) => ["low bp", "low_bp", "lowbp", "hypotension"].includes(s));
       const smokingText = String(features.Smoking_Habit ?? "").toLowerCase().trim();
       const alcoholText = String(features.Alcohol_Habit ?? "").toLowerCase().trim();
       const smoking = smokingText === "yes" ? 1 : 0;
@@ -1183,7 +1205,7 @@
       const hasBpInput = systolic != null || diastolic != null;
       const hasCardioInputs = age != null && hasBpInput && bmi != null && glucose != null;
       const hasDiabetesInputs = age != null && glucose != null && bmi != null;
-      const hasHypertensionInputs = hasBpInput;
+      const hasHypertensionInputs = hasBpInput || hasLowBpSymptom;
 
       const baseRisk = clamp(toNumber(modelResult && modelResult.risk_probability, 0) * 100, 0, 100);
 
@@ -1199,14 +1221,13 @@
         !ruleLowBp &&
         ((systolic != null && systolic >= 130 && systolic <= 139) || (diastolic != null && diastolic >= 90 && diastolic <= 99));
 
-      let cardio = 0;
-      if (hasCardioInputs) {
-        // Cardiovascular card: stable rule-based scoring that maps entered vitals
-        // to normal-looking chart ranges and avoids false 0% when inputs exist.
-        const symptoms = symptomTokens(features.Symptoms);
-        const hasMajorSymptoms = symptoms.some((s) =>
-          [
-            "chest pain",
+        let cardio = 0;
+        if (hasCardioInputs) {
+          // Cardiovascular card: stable rule-based scoring that maps entered vitals
+          // to normal-looking chart ranges and avoids false 0% when inputs exist.
+          const hasMajorSymptoms = symptoms.some((s) =>
+            [
+              "chest pain",
             "chest_pain",
             "chestpain",
             "diarrhea",
@@ -1249,9 +1270,14 @@
         if (smoking === 1) cardio += 10;
         if (alcohol === 1) cardio += 4;
 
-        // Requested behavior: chest pain + symptom_count >= 1 => High
-        if (hasChestPain && symptomCount >= 1) {
+        // Chest pain should raise risk, but only force HIGH when reinforced by
+        // additional cardiometabolic risk signals.
+        const hasStrongCardioContext =
+          ruleHighBp || glucose >= 126 || age >= 45 || smoking === 1 || hasFamilyHistory || bmi >= 30;
+        if (hasChestPain && symptomCount >= 1 && hasStrongCardioContext) {
           cardio = Math.max(cardio, 82);
+        } else if (hasChestPain) {
+          cardio = Math.max(cardio, 38);
         }
 
         // Keep 120/80 profile in low range when no strong high-risk factors.
@@ -1287,6 +1313,9 @@
         else if (ruleHighBp) hypertension = 85;
         else if (ruleMediumBp) hypertension = 50;
         else hypertension = 10;
+        if (hasLowBpSymptom) {
+          hypertension = Math.max(hypertension, 70);
+        }
 
         hypertension = clamp(hypertension, 0, 95);
       }
@@ -1394,7 +1423,8 @@
           patient_features
         });
         renderOutput(data, false);
-        showBookingPopup();
+        const redirectUrl = String(data && data.redirect_url ? data.redirect_url : "/patient/booking-confirmation");
+        window.location.href = redirectUrl;
       } catch (err) {
         renderOutput(err.message, true);
       }

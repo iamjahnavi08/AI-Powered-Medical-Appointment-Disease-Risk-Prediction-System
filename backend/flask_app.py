@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import pandas as pd
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -28,6 +29,32 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
 doctor_auth_manager = DoctorAuthManager()
 risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
 APPOINTMENTS: list[Dict[str, Any]] = []
+
+
+def _parse_appointment_time(value: Any) -> Optional[datetime]:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def _format_date_label(dt: Optional[datetime]) -> str:
+    if dt is None:
+        return "--"
+    return dt.strftime("%A, %B %d, %Y")
+
+
+def _format_time_label(dt: Optional[datetime]) -> str:
+    if dt is None:
+        return "--"
+    start = dt.strftime("%I:%M %p").lstrip("0")
+    end = (dt.replace(minute=0, second=0, microsecond=0) if dt.minute == 0 else dt).replace(second=0, microsecond=0)
+    end = end.replace(hour=end.hour + 1) if end.hour < 23 else end
+    end_text = end.strftime("%I:%M %p").lstrip("0")
+    return f"{start} - {end_text}"
 
 
 def _to_int(value: str, field_name: str, min_value: int, max_value: int) -> int:
@@ -719,6 +746,97 @@ def book_appointment() -> Any:
     )
 
 
+@app.route("/patient/logout")
+def patient_logout() -> Any:
+    session.pop("patient_id", None)
+    session.pop("patient_name", None)
+    session.pop("health_confirmation", None)
+    session.pop("allow_health_details", None)
+    return redirect(url_for("patient_login"))
+
+
+@app.route("/patient/booking-confirmation")
+def patient_booking_confirmation() -> Any:
+    patient_id = str(session.get("patient_id", "")).strip()
+    if not patient_id:
+        return redirect(url_for("patient_login"))
+
+    patient_name = str(session.get("patient_name", "")).strip() or _get_patient_name_by_id(patient_id)
+    normalized_pid = _normalize_patient_id(patient_id)
+
+    patient_appointments: list[Dict[str, Any]] = []
+    for item in APPOINTMENTS:
+        if _normalize_patient_id(item.get("patient_id")) != normalized_pid:
+            continue
+        dt = _parse_appointment_time(item.get("appointment_time"))
+        patient_appointments.append(
+            {
+                "appointment_id": str(item.get("appointment_id", "")),
+                "doctor_id": str(item.get("doctor_id", "")).strip(),
+                "appointment_type": str(item.get("appointment_type", "")).strip(),
+                "appointment_time": dt,
+                "date_label": _format_date_label(dt),
+                "time_label": _format_time_label(dt),
+            }
+        )
+
+    patient_appointments.sort(key=lambda x: x.get("appointment_time") or datetime.min, reverse=True)
+
+    now = datetime.now()
+    upcoming = [a for a in patient_appointments if a.get("appointment_time") and a["appointment_time"] >= now]
+    past = [a for a in patient_appointments if not a.get("appointment_time") or a["appointment_time"] < now]
+    upcoming.sort(key=lambda x: x.get("appointment_time") or datetime.max)
+
+    patient_features: Dict[str, Any] = {}
+    if patient_appointments:
+        latest_source = next(
+            (
+                ap
+                for ap in reversed(APPOINTMENTS)
+                if _normalize_patient_id(ap.get("patient_id")) == normalized_pid and isinstance(ap.get("patient_features"), dict)
+            ),
+            None,
+        )
+        if latest_source:
+            patient_features = dict(latest_source.get("patient_features") or {})
+    if not patient_features:
+        try:
+            patient_features = get_features_for_patient(patient_id)
+        except ValueError:
+            patient_features = {}
+
+    return render_template(
+        "flask_booking_confirmation.html",
+        patient_id=patient_id,
+        patient_name=patient_name,
+        patient_features=patient_features,
+        upcoming_appointments=upcoming,
+        past_appointments=past,
+    )
+
+
+@app.post("/patient/appointments/cancel")
+def patient_cancel_appointment() -> Any:
+    patient_id = str(session.get("patient_id", "")).strip()
+    if not patient_id:
+        return redirect(url_for("patient_login"))
+
+    appointment_id = str(request.form.get("appointment_id", "")).strip()
+    if not appointment_id:
+        return redirect(url_for("patient_booking_confirmation"))
+
+    normalized_pid = _normalize_patient_id(patient_id)
+    for idx, item in enumerate(APPOINTMENTS):
+        if str(item.get("appointment_id", "")).strip() != appointment_id:
+            continue
+        if _normalize_patient_id(item.get("patient_id")) != normalized_pid:
+            continue
+        APPOINTMENTS.pop(idx)
+        break
+
+    return redirect(url_for("patient_booking_confirmation"))
+
+
 @app.get("/patient/features/<patient_id>")
 def patient_features(patient_id: str) -> Any:
     try:
@@ -777,17 +895,21 @@ def submit_appointment() -> Any:
     except Exception as exc:  # pragma: no cover - guard
         return jsonify({"detail": f"Risk assessment failed: {exc}"}), 500
 
+    appointment_id = uuid4().hex
     result = {
         "booking_status": "confirmed",
+        "appointment_id": appointment_id,
         "patient_id": patient_id,
         "patient_name": patient_name,
         "contact_info": contact_info,
         "doctor_id": doctor_id,
         "appointment_type": appointment_type,
         "appointment_time": parsed_time.isoformat(),
+        "redirect_url": url_for("patient_booking_confirmation"),
     }
     APPOINTMENTS.append(
         {
+            "appointment_id": appointment_id,
             "booked_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
             "patient_id": patient_id,
             "patient_name": patient_name,

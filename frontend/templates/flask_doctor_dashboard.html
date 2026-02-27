@@ -503,45 +503,23 @@
 
       <section class="main-grid">
         <section class="panel">
-          <h2>AI Risk Analytics</h2>
-          <div class="risk-layout">
-            <div>
-              <div class="section-title">Risk Distribution</div>
-              <div class="risk-stat">
-                <div class="bar-line">
-                  <span>High Risk</span>
-                  <div class="bar-track"><div id="barHigh" class="bar-fill fill-high"></div></div>
-                  <strong id="pctHigh">0%</strong>
-                </div>
-                <div class="bar-line">
-                  <span>Medium Risk</span>
-                  <div class="bar-track"><div id="barMedium" class="bar-fill fill-medium"></div></div>
-                  <strong id="pctMedium">0%</strong>
-                </div>
-                <div class="bar-line">
-                  <span>Low Risk</span>
-                  <div class="bar-track"><div id="barLow" class="bar-fill fill-low"></div></div>
-                  <strong id="pctLow">0%</strong>
-                </div>
-              </div>
-
-              <div class="section-title">Recent Risk Prediction Trends</div>
-              <div class="trend">
-                <svg id="trendSvg" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"></svg>
-                <div class="trend-labels" id="trendLabels"></div>
-              </div>
-
-              <div class="alert-strip" id="priorityAlerts"></div>
-            </div>
-
-            <div class="pie-wrap">
-              <div class="pie" id="riskPie"></div>
-              <div class="legend">
-                <span><i class="dot" style="background:#ef4444"></i>High</span>
-                <span><i class="dot" style="background:#f59e0b"></i>Medium</span>
-                <span><i class="dot" style="background:#22c55e"></i>Low</span>
-              </div>
-            </div>
+          <h2>Upcoming Appointments</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Patient Name</th>
+                  <th>Appointment Date & Time</th>
+                  <th>Predicted Risk Level</th>
+                  <th>Appointment Status</th>
+                  <th>Priority</th>
+                </tr>
+              </thead>
+              <tbody id="rows">
+                <tr><td colspan="6">No appointments yet.</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -562,7 +540,7 @@
             <h3>Quick Patient Review</h3>
             <div class="review-grid">
               <div><strong>Patient ID</strong><br><span id="rvPatient">-</span></div>
-              <div><strong>Doctor ID</strong><br><span id="rvDoctor">-</span></div>
+              <div><strong>Patient Name</strong><br><span id="rvDoctor">-</span></div>
               <div><strong>Appointment</strong><br><span id="rvTime">-</span></div>
               <div><strong>Predicted Risk</strong><br><span id="rvRisk">-</span></div>
             </div>
@@ -576,23 +554,45 @@
       </section>
 
       <section class="panel" style="margin-top:12px;">
-        <h2>Upcoming Appointments</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Patient ID</th>
-                <th>Doctor ID</th>
-                <th>Appointment Date & Time</th>
-                <th>Predicted Risk Level</th>
-                <th>Appointment Status</th>
-                <th>Priority</th>
-              </tr>
-            </thead>
-            <tbody id="rows">
-              <tr><td colspan="6">No appointments yet.</td></tr>
-            </tbody>
-          </table>
+        <h2>AI Risk Analytics</h2>
+        <div class="risk-layout">
+          <div>
+            <div class="section-title">Risk Distribution</div>
+            <div class="risk-stat">
+              <div class="bar-line">
+                <span>High Risk</span>
+                <div class="bar-track"><div id="barHigh" class="bar-fill fill-high"></div></div>
+                <strong id="pctHigh">0%</strong>
+              </div>
+              <div class="bar-line">
+                <span>Medium Risk</span>
+                <div class="bar-track"><div id="barMedium" class="bar-fill fill-medium"></div></div>
+                <strong id="pctMedium">0%</strong>
+              </div>
+              <div class="bar-line">
+                <span>Low Risk</span>
+                <div class="bar-track"><div id="barLow" class="bar-fill fill-low"></div></div>
+                <strong id="pctLow">0%</strong>
+              </div>
+            </div>
+
+            <div class="section-title">Recent Risk Prediction Trends</div>
+            <div class="trend">
+              <svg id="trendSvg" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+              <div class="trend-labels" id="trendLabels"></div>
+            </div>
+
+            <div class="alert-strip" id="priorityAlerts"></div>
+          </div>
+
+          <div class="pie-wrap">
+            <div class="pie" id="riskPie"></div>
+            <div class="legend">
+              <span><i class="dot" style="background:#ef4444"></i>High</span>
+              <span><i class="dot" style="background:#f59e0b"></i>Medium</span>
+              <span><i class="dot" style="background:#22c55e"></i>Low</span>
+            </div>
+          </div>
         </div>
       </section>
     </section>
@@ -871,7 +871,7 @@
       selectedPatientFeatures = item.patient_features || {};
 
       setText("rvPatient", item.patient_id || "-");
-      setText("rvDoctor", item.doctor_id || "-");
+      setText("rvDoctor", item.patient_name || "-");
       setText("rvTime", fmtDateTime(item.appointment_time || "-"));
       setText("rvRisk", normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class));
       document.getElementById("reviewFeatures").textContent = formatPatientFeatures(selectedPatientFeatures);
@@ -914,7 +914,7 @@
         return `
           <tr class="${rowClass}" data-index="${idx}">
             <td>${safeText(item.patient_id)}</td>
-            <td>${safeText(item.doctor_id)}</td>
+            <td>${safeText(item.patient_name)}</td>
             <td>${fmtDateTime(item.appointment_time)}</td>
             <td>${riskPill(risk)}</td>
             <td>${statusPill(status)}</td>

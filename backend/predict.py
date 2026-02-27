@@ -72,8 +72,7 @@ class RiskEngine:
         "diarrhoea",
         "insomnia",
         "dizziness",
-        "Low BP",
-        "breathing problem" , 
+        "Low BP", 
     }
     MEDIUM_RISK_SYMPTOMS = {
         "blurred_vision",
@@ -93,6 +92,7 @@ class RiskEngine:
         "shortness_of_breath",
         "dizziness",
         "blurred_vision",
+        "Low BP",
     }
 
     def __init__(self, model_path: Path, label_encoder_path: Optional[Path] = None) -> None:
