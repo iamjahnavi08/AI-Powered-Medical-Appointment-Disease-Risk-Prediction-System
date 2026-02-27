@@ -1,0 +1,952 @@
+from __future__ import annotations
+
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import pandas as pd
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+
+from doctor_auth import DoctorAuthManager
+from paths import DOCTOR_ACCOUNTS_CSV, NEW_PATIENT_CSV, PATIENTS_CSV, ensure_csv_exists
+from predict import LABEL_ENCODER_PATH, MODEL_PATH, RiskEngine, to_jsonable
+
+
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = BASE_DIR.parent / "frontend"
+
+app = Flask(
+    __name__,
+    template_folder=str(FRONTEND_DIR / "templates"),
+    static_folder=str(FRONTEND_DIR / "static"),
+    static_url_path="/static",
+)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
+
+doctor_auth_manager = DoctorAuthManager()
+risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
+APPOINTMENTS: list[Dict[str, Any]] = []
+
+
+def _to_int(value: str, field_name: str, min_value: int, max_value: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field_name} must be a valid integer.") from exc
+    if parsed < min_value or parsed > max_value:
+        raise ValueError(f"{field_name} must be between {min_value} and {max_value}.")
+    return parsed
+
+
+def _to_float(value: str, field_name: str, min_value: float, max_value: float) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field_name} must be a valid number.") from exc
+    if parsed < min_value or parsed > max_value:
+        raise ValueError(f"{field_name} must be between {min_value} and {max_value}.")
+    return parsed
+
+
+def append_to_new_patient_csv(row: Dict[str, Any], csv_path: Path = NEW_PATIENT_CSV) -> None:
+    ensure_csv_exists(csv_path)
+    new_row_df = pd.DataFrame([row])
+    existing_df = pd.read_csv(csv_path)
+    updated_df = pd.concat([existing_df, new_row_df], ignore_index=True)
+    updated_df.to_csv(csv_path, index=False)
+
+
+def _gender_to_csv_value(value: Any) -> str:
+    raw = str(value).strip().lower()
+    if raw in {"1", "male", "m"}:
+        return "male"
+    if raw in {"0", "female", "f"}:
+        return "female"
+    if raw in {"-1", "other"}:
+        return "other"
+    return "male"
+
+
+def _yes_no_to_csv_value(value: Any) -> str:
+    raw = str(value).strip().lower()
+    if raw in {"1", "true", "yes", "y"}:
+        return "yes"
+    if raw in {"0", "false", "no", "n"}:
+        return "no"
+    return "no"
+
+
+def _to_float_or_none(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        if value == "":
+            return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _extract_systolic_bp(value: Any) -> Optional[float]:
+    direct = _to_float_or_none(value)
+    if direct is not None:
+        return direct
+
+    text = str(value).strip()
+    if not text:
+        return None
+    parts = re.split(r"[/\s]+", text)
+    if not parts:
+        return None
+    return _to_float_or_none(parts[0])
+
+
+def _build_csv_row_from_features(patient_id: str, patient_features: Dict[str, Any]) -> Dict[str, Any]:
+    symptom_count = patient_features.get("Symptom_Count", patient_features.get("Sympton_Count"))
+    normalized_pid = _normalize_patient_id(patient_id)
+    try:
+        patient_id_cell: Any = int(normalized_pid)
+    except (TypeError, ValueError):
+        patient_id_cell = normalized_pid
+    row = {
+        "Patient_ID": patient_id_cell,
+        "Age": _to_float_or_none(patient_features.get("Age")),
+        "Gender": _gender_to_csv_value(patient_features.get("Gender")),
+        "Symptoms": str(patient_features.get("Symptoms", "")).strip(),
+        "Symptom_Count": _to_float_or_none(symptom_count),
+        "Glucose": _to_float_or_none(patient_features.get("Glucose")),
+        "BloodPressure": _extract_systolic_bp(patient_features.get("BloodPressure")),
+        "BMI": _to_float_or_none(patient_features.get("BMI")),
+        "Smoking_Habit": _yes_no_to_csv_value(patient_features.get("Smoking_Habit")),
+        "Alcohol_Habit": _yes_no_to_csv_value(patient_features.get("Alcohol_Habit")),
+        "Medical_History": str(patient_features.get("Medical_History", "")).strip(),
+        "Family_History": _yes_no_to_csv_value(patient_features.get("Family_History")),
+    }
+    return row
+
+
+def upsert_new_patient_csv_from_features(
+    patient_id: str, patient_features: Dict[str, Any], csv_path: Path = NEW_PATIENT_CSV
+) -> None:
+    columns = [
+        "Patient_ID",
+        "Age",
+        "Gender",
+        "Symptoms",
+        "Symptom_Count",
+        "Glucose",
+        "BloodPressure",
+        "BMI",
+        "Smoking_Habit",
+        "Alcohol_Habit",
+        "Medical_History",
+        "Family_History",
+    ]
+    row = _build_csv_row_from_features(patient_id, patient_features)
+
+    ensure_csv_exists(csv_path)
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception:
+        df = pd.DataFrame(columns=columns)
+
+    for col in columns:
+        if col not in df.columns:
+            df[col] = pd.NA
+        # Use object dtype to avoid pandas dtype write errors on mixed old/new values.
+        df[col] = df[col].astype("object")
+
+    pid = _normalize_patient_id(patient_id)
+    matches = df.index[df["Patient_ID"].astype(str).map(_normalize_patient_id) == pid].tolist()
+
+    if matches:
+        target_idx = matches[-1]
+        # Preserve any previous values when edited payload is partial.
+        existing = df.loc[target_idx].to_dict()
+        merged = dict(existing)
+        for col in columns:
+            new_val = row.get(col)
+            if new_val is None and col != "Patient_ID":
+                continue
+            merged[col] = new_val
+        for col in columns:
+            df.at[target_idx, col] = merged.get(col)
+    else:
+        df = pd.concat([df, pd.DataFrame([{col: row.get(col) for col in columns}])], ignore_index=True)
+
+    df.to_csv(csv_path, index=False)
+
+
+def _load_patients_df() -> pd.DataFrame:
+    columns = ["patient_id", "name", "unique_code", "password", "health_details_submitted", "created_at"]
+    ensure_csv_exists(PATIENTS_CSV)
+    try:
+        df = pd.read_csv(PATIENTS_CSV)
+    except Exception:
+        return pd.DataFrame(columns=columns)
+    for col in columns:
+        if col not in df.columns:
+            df[col] = ""
+    return df[columns]
+
+
+def _get_patient_name_by_id(patient_id: str) -> str:
+    if not patient_id:
+        return ""
+    df = _load_patients_df()
+    if df.empty:
+        return ""
+    matches = df[df["patient_id"].astype(str).str.strip() == str(patient_id).strip()]
+    if matches.empty:
+        return ""
+    return str(matches.iloc[-1].get("name", "")).strip()
+
+
+def _save_patients_df(df: pd.DataFrame) -> None:
+    df.to_csv(PATIENTS_CSV, index=False)
+
+
+def _next_patient_id(df: pd.DataFrame) -> str:
+    if df.empty:
+        return "1"
+    ids = pd.to_numeric(df["patient_id"], errors="coerce").dropna()
+    if ids.empty:
+        return "1"
+    return str(int(ids.max()) + 1)
+
+
+def _normalize_unique_code(value: Any) -> str:
+    return str(value).strip().upper()
+
+
+def _normalize_id_type(value: Any) -> str:
+    raw = str(value).strip().lower()
+    if raw not in {"aadhaar", "pan"}:
+        raise ValueError("ID Type must be Aadhaar or PAN.")
+    return raw
+
+
+def _normalize_id_number(id_type: str, value: Any) -> str:
+    raw = str(value).strip().upper()
+    if id_type == "aadhaar":
+        if not re.fullmatch(r"[0-9]{12}", raw):
+            raise ValueError("Aadhaar number must be exactly 12 digits.")
+        return raw
+    if not re.fullmatch(r"[A-Z]{5}[0-9]{4}[A-Z]", raw):
+        raise ValueError("PAN must be in format: AAAAA9999A.")
+    return raw
+
+
+def _compose_unique_code(id_type: Any, id_number: Any) -> str:
+    norm_type = _normalize_id_type(id_type)
+    norm_number = _normalize_id_number(norm_type, id_number)
+    return f"{norm_type.upper()}:{norm_number}"
+
+
+def _create_patient_account(name: str, unique_code: str, password: str) -> str:
+    df = _load_patients_df()
+    if df["name"].astype(str).str.strip().str.lower().eq(name.lower()).any():
+        raise ValueError("Patient name already exists. Use a different name.")
+    normalized_code = _normalize_unique_code(unique_code)
+    existing_codes = df["unique_code"].astype(str).str.strip().str.upper()
+    if (existing_codes == normalized_code).any() or (existing_codes == normalized_code.split(":", 1)[-1]).any():
+        raise ValueError("Unique Code already exists. Use a different Unique Code.")
+    patient_id = _next_patient_id(df)
+    new_row = {
+        "patient_id": patient_id,
+        "name": name,
+        "unique_code": normalized_code,
+        "password": password,
+        "health_details_submitted": 0,
+        "created_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    _save_patients_df(df)
+    return patient_id
+
+
+def _authenticate_patient(name: str, unique_code: str, password: str) -> Optional[Dict[str, Any]]:
+    df = _load_patients_df()
+    pwd_mask = df["password"].astype(str) == password
+    name = str(name or "").strip()
+    unique_code = str(unique_code or "").strip()
+    has_name = bool(name)
+    has_code = bool(unique_code)
+    if not has_name and not has_code:
+        return None
+
+    identifier_mask = pd.Series([False] * len(df), index=df.index)
+    if has_name:
+        identifier_mask = identifier_mask | (df["name"].astype(str).str.strip().str.lower() == name.lower())
+    if has_code:
+        normalized_code = _normalize_unique_code(unique_code)
+        identifier_mask = identifier_mask | (
+            (df["unique_code"].astype(str).str.strip().str.upper() == normalized_code)
+            | (df["unique_code"].astype(str).str.strip().str.upper() == normalized_code.split(":", 1)[-1])
+        )
+
+    matches = df[identifier_mask & pwd_mask]
+    if matches.empty:
+        return None
+    return matches.iloc[-1].to_dict()
+
+
+def _mark_health_details_submitted(patient_id: str) -> None:
+    df = _load_patients_df()
+    if df.empty:
+        return
+    mask = df["patient_id"].astype(str).str.strip() == str(patient_id).strip()
+    if mask.any():
+        df.loc[mask, "health_details_submitted"] = 1
+        _save_patients_df(df)
+
+
+def _health_details_submitted(value: Any) -> bool:
+    text = str(value).strip().lower()
+    return text in {"1", "true", "yes"}
+
+
+def _load_doctor_ids() -> list[str]:
+    ensure_csv_exists(DOCTOR_ACCOUNTS_CSV)
+    try:
+        df = pd.read_csv(DOCTOR_ACCOUNTS_CSV)
+    except Exception:
+        return []
+    if "doctor_id" not in df.columns:
+        return []
+    doctor_ids = [str(v).strip() for v in df["doctor_id"].tolist() if str(v).strip()]
+    return sorted(set(doctor_ids))
+
+
+def _normalize_patient_id(value: Any) -> str:
+    text = str(value).strip()
+    try:
+        return str(int(float(text)))
+    except ValueError:
+        return text
+
+
+def _default_feature_value(feature_name: str) -> Any:
+    numeric_defaults = {
+        "Age": 45,
+        "Symptom_Count": 1,
+        "Glucose": 95,
+        "BloodPressure": 120,
+        "BMI": 24.5,
+    }
+    categorical_defaults = {
+        "Gender": 1,
+        "Symptoms": "none",
+        "Age_Group": "Adult",
+        "BMI_Category": "Normal",
+        "BP_Category": "Normal",
+    }
+    if feature_name in numeric_defaults:
+        return numeric_defaults[feature_name]
+    if feature_name in categorical_defaults:
+        return categorical_defaults[feature_name]
+    if feature_name.startswith("SYM_"):
+        return 0
+    return 0
+
+
+def _age_group(age: float) -> str:
+    if age < 13:
+        return "Child"
+    if age < 20:
+        return "Teen"
+    if age < 40:
+        return "Adult"
+    if age < 60:
+        return "Middle_Age"
+    return "Senior"
+
+
+def _bmi_category(bmi: float) -> str:
+    if bmi < 18.5:
+        return "Underweight"
+    if bmi < 25:
+        return "Normal"
+    if bmi < 30:
+        return "Overweight"
+    return "Obese"
+
+
+def _bp_category(bp: float) -> str:
+    if bp < 80:
+        return "Low"
+    if bp <= 120:
+        return "Normal"
+    if bp <= 139:
+        return "Elevated"
+    return "High"
+
+
+def _calculate_bmi(height_cm: float, weight_kg: float) -> float:
+    if height_cm <= 0:
+        raise ValueError("Height (cm) must be greater than 0.")
+    if weight_kg <= 0:
+        raise ValueError("Weight (kg) must be greater than 0.")
+    height_m = height_cm / 100.0
+    return weight_kg / (height_m * height_m)
+
+
+def _build_features_from_new_patient_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    expected_cols = list(getattr(risk_engine.model, "feature_names_in_", []))
+    if expected_cols:
+        features = {col: _default_feature_value(str(col)) for col in expected_cols}
+    else:
+        features = {}
+
+    age = float(row.get("Age", 45))
+    gender_raw = str(row.get("Gender", "male")).strip().lower()
+    gender_map = {"male": 1, "female": 0, "other": -1}
+    gender = gender_map.get(gender_raw, 1)
+    symptoms = str(row.get("Symptoms", "")).strip()
+    symptom_count = int(float(row.get("Symptom_Count", 0)))
+    glucose = float(row.get("Glucose", 95))
+    blood_pressure = float(row.get("BloodPressure", 120))
+    bmi = float(row.get("BMI", 24.5))
+    height_cm = _to_float_or_none(row.get("Height_cm"))
+    weight_kg = _to_float_or_none(row.get("Weight_kg"))
+    if height_cm is not None and weight_kg is not None and height_cm > 0 and weight_kg > 0:
+        bmi = _calculate_bmi(height_cm, weight_kg)
+    smoking_habit = str(row.get("Smoking_Habit", "")).strip().lower()
+    alcohol_habit = str(row.get("Alcohol_Habit", "")).strip().lower()
+    medical_history = str(row.get("Medical_History", "")).strip()
+    family_history = str(row.get("Family_History", "")).strip().lower()
+
+    features.update(
+        {
+            "Age": age,
+            "Gender": gender,
+            "Symptoms": symptoms,
+            "Symptom_Count": symptom_count,
+            "Glucose": glucose,
+            "BloodPressure": blood_pressure,
+            "BMI": bmi,
+            "Height_cm": height_cm,
+            "Weight_kg": weight_kg,
+            "Smoking_Habit": smoking_habit,
+            "Alcohol_Habit": alcohol_habit,
+            "Medical_History": medical_history,
+            "Family_History": family_history,
+            "Age_Group": _age_group(age),
+            "BMI_Category": _bmi_category(bmi),
+            "BP_Category": _bp_category(blood_pressure),
+        }
+    )
+
+    if symptoms:
+        symptom_tokens = [s.strip().lower().replace(" ", "_") for s in symptoms.split(",") if s.strip()]
+        for token in symptom_tokens:
+            sym_col = f"SYM_{token}"
+            if sym_col in features:
+                features[sym_col] = 1
+
+    return features
+
+
+def _load_new_patient_features(patient_id: str) -> Optional[Dict[str, Any]]:
+    ensure_csv_exists(NEW_PATIENT_CSV)
+    try:
+        df = pd.read_csv(NEW_PATIENT_CSV)
+    except Exception:
+        return None
+
+    if "Patient_ID" not in df.columns:
+        return None
+
+    pid = _normalize_patient_id(patient_id)
+    matches = df[df["Patient_ID"].astype(str).map(_normalize_patient_id) == pid]
+    if matches.empty:
+        return None
+
+    latest_row = matches.iloc[-1].to_dict()
+    return _build_features_from_new_patient_row(latest_row)
+
+
+def get_features_for_patient(patient_id: str) -> Dict[str, Any]:
+    new_features = _load_new_patient_features(patient_id)
+    if new_features is not None:
+        return new_features
+    raise ValueError("Patient_ID not found in new_patient_data.csv")
+
+
+@app.route("/")
+def home() -> Any:
+    return redirect(url_for("role_login"))
+
+
+@app.route("/login")
+def role_login() -> Any:
+    return render_template("flask_role_login.html")
+
+
+@app.route("/patient/signup", methods=["GET", "POST"])
+def patient_signup() -> Any:
+    errors: list[str] = []
+    form_data = {"name": "", "id_type": "", "id_number": ""}
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        form_data["name"] = name
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+
+        if not name:
+            errors.append("Patient Name is required.")
+        unique_code = ""
+        try:
+            unique_code = _compose_unique_code(id_type, id_number)
+        except ValueError as exc:
+            errors.append(str(exc))
+        if len(password) < 4:
+            errors.append("Password must be at least 4 characters.")
+        if password != confirm_password:
+            errors.append("Password and Confirm Password must match.")
+
+        if not errors:
+            try:
+                patient_id = _create_patient_account(name, unique_code, password)
+                session["patient_id"] = patient_id
+                session["patient_name"] = name
+                session["allow_health_details"] = True
+                return redirect(url_for("health_details", patient_id=patient_id))
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Signup failed: {exc}")
+
+    return render_template("flask_patient_signup.html", errors=errors, form_data=form_data)
+
+
+@app.route("/patient/health-details", methods=["GET", "POST"])
+def health_details() -> Any:
+    errors: list[str] = []
+    if not session.get("allow_health_details"):
+        patient_id = session.get("patient_id")
+        if patient_id:
+            return redirect(url_for("book_appointment"))
+        return redirect(url_for("patient_signup"))
+
+    patient_id = (
+        session.get("patient_id", "")
+        or request.args.get("patient_id", "").strip()
+        or request.form.get("patient_id", "").strip()
+    )
+    form_data = {
+        "patient_id": patient_id,
+        "age": "",
+        "gender": "",
+        "symptoms": "",
+        "symptom_count": "",
+        "glucose": "",
+        "blood_pressure": "",
+        "height_cm": "",
+        "weight_kg": "",
+        "bmi": "",
+        "smoking_habit": "",
+        "alcohol_habit": "",
+        "medical_history": "",
+        "family_history": "",
+    }
+
+    if request.method == "POST":
+        form_data.update(
+            {
+                "age": request.form.get("age", "").strip(),
+                "gender": request.form.get("gender", "").strip().lower(),
+                "symptoms": request.form.get("symptoms", "").strip(),
+                "symptom_count": request.form.get("symptom_count", "").strip(),
+                "glucose": request.form.get("glucose", "").strip(),
+                "blood_pressure": request.form.get("blood_pressure", "").strip(),
+                "height_cm": request.form.get("height_cm", "").strip(),
+                "weight_kg": request.form.get("weight_kg", "").strip(),
+                "bmi": request.form.get("bmi", "").strip(),
+                "smoking_habit": request.form.get("smoking_habit", "").strip().lower(),
+                "alcohol_habit": request.form.get("alcohol_habit", "").strip().lower(),
+                "medical_history": request.form.get("medical_history", "").strip(),
+                "family_history": request.form.get("family_history", "").strip().lower(),
+            }
+        )
+
+        if not patient_id:
+            errors.append("Patient ID is missing. Please signup again.")
+        if form_data["gender"] not in {"male", "female", "other"}:
+            errors.append("Gender must be one of: male, female, other.")
+        if form_data["smoking_habit"] not in {"yes", "no"}:
+            errors.append("Smoking Habit must be yes or no.")
+        if form_data["alcohol_habit"] not in {"yes", "no"}:
+            errors.append("Alcohol Habit must be yes or no.")
+        if form_data["family_history"] not in {"yes", "no"}:
+            errors.append("Family History must be yes or no.")
+        if not form_data["symptoms"]:
+            errors.append("Symptoms are required.")
+
+        try:
+            age = _to_int(form_data["age"], "Age", 0, 130)
+            symptom_count = _to_int(form_data["symptom_count"], "Symptom_Count", 0, 100)
+            glucose = _to_float(form_data["glucose"], "Glucose", 0, 1000)
+            blood_pressure = _to_float(form_data["blood_pressure"], "BloodPressure", 0, 400)
+            height_cm = _to_float(form_data["height_cm"], "Height (cm)", 1, 300)
+            weight_kg = _to_float(form_data["weight_kg"], "Weight (kg)", 1, 500)
+            bmi = _calculate_bmi(height_cm, weight_kg)
+            form_data["bmi"] = f"{bmi:.2f}"
+        except ValueError as exc:
+            errors.append(str(exc))
+            age = symptom_count = 0
+            glucose = blood_pressure = bmi = 0.0
+            height_cm = weight_kg = 0.0
+
+        if not errors:
+            row = {
+                "Patient_ID": patient_id,
+                "Age": age,
+                "Gender": form_data["gender"],
+                "Symptoms": form_data["symptoms"],
+                "Symptom_Count": symptom_count,
+                "Glucose": glucose,
+                "BloodPressure": blood_pressure,
+                "BMI": bmi,
+                "Height_cm": height_cm,
+                "Weight_kg": weight_kg,
+                "Smoking_Habit": form_data["smoking_habit"],
+                "Alcohol_Habit": form_data["alcohol_habit"],
+                "Medical_History": form_data["medical_history"],
+                "Family_History": form_data["family_history"],
+            }
+            try:
+                append_to_new_patient_csv(row)
+                _mark_health_details_submitted(patient_id)
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Could not save health details: {exc}")
+
+            if not errors:
+                session["health_confirmation"] = row
+                session.pop("patient_id", None)
+                session.pop("patient_name", None)
+                session.pop("allow_health_details", None)
+                return redirect(url_for("health_confirmation"))
+
+    return render_template("flask_health_details.html", errors=errors, form_data=form_data)
+
+
+@app.route("/patient/health-confirmation")
+def health_confirmation() -> Any:
+    row = session.get("health_confirmation")
+    if not row:
+        return redirect(url_for("patient_signup"))
+    return render_template("flask_health_confirmation.html", row=row)
+
+
+@app.route("/patient/login", methods=["GET", "POST"])
+def patient_login() -> Any:
+    errors: list[str] = []
+    form_data = {"patient_name": "", "id_type": "", "id_number": "", "login_using": "patient_name"}
+
+    if request.method == "POST":
+        login_using = request.form.get("login_using", "patient_name").strip().lower()
+        if login_using not in {"patient_name", "id_number"}:
+            login_using = "patient_name"
+        patient_name = request.form.get("patient_name", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
+        password = request.form.get("password", "").strip()
+        form_data["patient_name"] = patient_name
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+        form_data["login_using"] = login_using
+
+        has_name = bool(patient_name)
+        has_id = bool(id_number)
+        unique_code = ""
+        if login_using == "patient_name":
+            if not has_name:
+                errors.append("Enter Patient Name.")
+        else:
+            if not has_id:
+                errors.append("Enter ID Number.")
+            else:
+                try:
+                    unique_code = _compose_unique_code(id_type, id_number)
+                except ValueError as exc:
+                    errors.append(str(exc))
+        if not password:
+            errors.append("Password is required.")
+
+        if not errors:
+            try:
+                patient = _authenticate_patient(patient_name, unique_code, password)
+                if not patient:
+                    raise ValueError("Invalid patient name, unique code, or password.")
+                patient_id = str(patient.get("patient_id", "")).strip()
+                session["patient_id"] = patient_id
+                session["patient_name"] = patient_name
+                session.pop("health_confirmation", None)
+                session.pop("allow_health_details", None)
+                return redirect(url_for("book_appointment"))
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Login failed: {exc}")
+
+    return render_template("flask_patient_login.html", errors=errors, form_data=form_data)
+
+
+@app.route("/patient/book-appointment")
+def book_appointment() -> Any:
+    patient_id = session.get("patient_id")
+    if not patient_id:
+        return redirect(url_for("patient_login"))
+    patient_name = str(session.get("patient_name", "")).strip()
+    if not patient_name:
+        patient_name = _get_patient_name_by_id(str(patient_id).strip())
+    doctor_ids = _load_doctor_ids()
+    return render_template(
+        "flask_book_appointment.html",
+        patient_id=patient_id,
+        doctor_ids=doctor_ids,
+        patient_name=patient_name,
+    )
+
+
+@app.get("/patient/features/<patient_id>")
+def patient_features(patient_id: str) -> Any:
+    try:
+        features = get_features_for_patient(patient_id)
+        return jsonify({"patient_id": patient_id, "patient_features": features})
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 404
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Patient lookup failed: {exc}"}), 500
+
+
+@app.post("/patient/book-appointment-submit")
+def submit_appointment() -> Any:
+    payload = request.get_json(silent=True) or {}
+    patient_id = str(payload.get("patient_id", "")).strip()
+    patient_name = str(payload.get("patient_name", "")).strip()
+    contact_info = str(payload.get("contact_info", "")).strip()
+    doctor_id = str(payload.get("doctor_id", "")).strip()
+    appointment_type = str(payload.get("appointment_type", "")).strip()
+    appointment_time = str(payload.get("appointment_time", "")).strip()
+    patient_features = payload.get("patient_features")
+
+    if not patient_id:
+        return jsonify({"detail": "patient_id is required"}), 400
+    if not patient_name:
+        return jsonify({"detail": "patient_name is required"}), 400
+    if not contact_info:
+        return jsonify({"detail": "contact_info is required"}), 400
+    if not doctor_id:
+        return jsonify({"detail": "doctor_id is required"}), 400
+    if not appointment_type:
+        return jsonify({"detail": "appointment_type is required"}), 400
+    if not appointment_time:
+        return jsonify({"detail": "appointment_time is required"}), 400
+
+    try:
+        parsed_time = datetime.fromisoformat(appointment_time)
+    except ValueError:
+        return jsonify({"detail": "appointment_time must be ISO format"}), 400
+
+    if patient_features is None:
+        try:
+            patient_features = get_features_for_patient(patient_id)
+        except ValueError as exc:
+            return jsonify({"detail": str(exc)}), 400
+
+    try:
+        upsert_new_patient_csv_from_features(patient_id, patient_features)
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Could not update patient CSV: {exc}"}), 500
+
+    try:
+        risk_assessment = risk_engine.predict(patient_features)
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Risk assessment failed: {exc}"}), 500
+
+    result = {
+        "booking_status": "confirmed",
+        "patient_id": patient_id,
+        "patient_name": patient_name,
+        "contact_info": contact_info,
+        "doctor_id": doctor_id,
+        "appointment_type": appointment_type,
+        "appointment_time": parsed_time.isoformat(),
+    }
+    APPOINTMENTS.append(
+        {
+            "booked_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "patient_id": patient_id,
+            "patient_name": patient_name,
+            "contact_info": contact_info,
+            "doctor_id": doctor_id,
+            "appointment_type": appointment_type,
+            "appointment_time": parsed_time.isoformat(),
+            "patient_features": to_jsonable(patient_features),
+            "risk_assessment": risk_assessment.model_dump(),
+        }
+    )
+    return jsonify(result)
+
+
+@app.route("/doctor/signup", methods=["GET", "POST"])
+def doctor_signup() -> Any:
+    errors: list[str] = []
+    form_data = {"doctor_id": "", "id_type": "", "id_number": ""}
+
+    if request.method == "POST":
+        doctor_id = request.form.get("doctor_id", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        form_data["doctor_id"] = doctor_id
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+
+        if not doctor_id:
+            errors.append("Doctor ID is required.")
+        try:
+            _compose_unique_code(id_type, id_number)
+        except ValueError as exc:
+            errors.append(str(exc))
+        if len(password) < 4:
+            errors.append("Password must be at least 4 characters.")
+        if password != confirm_password:
+            errors.append("Password and Confirm Password must match.")
+
+        if not errors:
+            try:
+                doctor_auth_manager.signup(doctor_id, id_type, id_number, password)
+                return redirect(url_for("doctor_login"))
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Signup failed: {exc}")
+
+    return render_template("flask_doctor_signup.html", errors=errors, form_data=form_data)
+
+
+@app.route("/doctor/login", methods=["GET", "POST"])
+def doctor_login() -> Any:
+    errors: list[str] = []
+    form_data = {"doctor_id": "", "id_type": "", "id_number": "", "login_using": "doctor_id"}
+
+    if request.method == "POST":
+        login_using = request.form.get("login_using", "doctor_id").strip().lower()
+        if login_using not in {"doctor_id", "id_number"}:
+            login_using = "doctor_id"
+        doctor_id = request.form.get("doctor_id", "").strip()
+        id_type = request.form.get("id_type", "").strip().lower()
+        id_number = request.form.get("id_number", "").strip().upper()
+        password = request.form.get("password", "").strip()
+        form_data["doctor_id"] = doctor_id
+        form_data["id_type"] = id_type
+        form_data["id_number"] = id_number
+        form_data["login_using"] = login_using
+
+        has_doctor_id = bool(doctor_id)
+        has_id = bool(id_number)
+        if login_using == "doctor_id":
+            # Ignore stale hidden ID fields when doctor-id mode is selected.
+            id_type = ""
+            id_number = ""
+            form_data["id_type"] = ""
+            form_data["id_number"] = ""
+            if not has_doctor_id:
+                errors.append("Enter Doctor ID.")
+        else:
+            if not has_id:
+                errors.append("Enter ID Number.")
+            else:
+                try:
+                    _compose_unique_code(id_type, id_number)
+                except ValueError as exc:
+                    errors.append(str(exc))
+        if not password:
+            errors.append("Password is required.")
+
+        if not errors:
+            try:
+                resolved_doctor_id = doctor_auth_manager.login(doctor_id, id_type, id_number, password)
+                session["doctor_id"] = resolved_doctor_id
+                return redirect(url_for("doctor_dashboard"))
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Login failed: {exc}")
+
+    return render_template("flask_doctor_login.html", errors=errors, form_data=form_data)
+
+
+@app.route("/doctor/dashboard")
+def doctor_dashboard() -> Any:
+    doctor_id = session.get("doctor_id")
+    if not doctor_id:
+        return redirect(url_for("doctor_login"))
+    return render_template("flask_doctor_dashboard.html", doctor_id=doctor_id)
+
+
+@app.get("/doctor/appointments")
+def doctor_appointments() -> Any:
+    doctor_id = session.get("doctor_id")
+    if not doctor_id:
+        return jsonify({"detail": "Unauthorized"}), 401
+    return jsonify({"appointments": APPOINTMENTS})
+
+
+@app.post("/patient/predict-risk")
+def patient_predict_risk() -> Any:
+    patient_id = session.get("patient_id")
+    if not patient_id:
+        return jsonify({"detail": "Unauthorized"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    patient_features = payload.get("patient_features")
+    if not patient_features:
+        return jsonify({"detail": "patient_features is required"}), 400
+
+    try:
+        result = risk_engine.predict(patient_features)
+        return jsonify(result.model_dump())
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Prediction failed: {exc}"}), 500
+
+
+@app.post("/doctor/predict-risk")
+def doctor_predict_risk() -> Any:
+    doctor_id = session.get("doctor_id")
+    if not doctor_id:
+        return jsonify({"detail": "Unauthorized"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    patient_features = payload.get("patient_features")
+    if not patient_features:
+        return jsonify({"detail": "patient_features is required"}), 400
+
+    try:
+        result = risk_engine.predict(patient_features)
+        return jsonify(result.model_dump())
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Prediction failed: {exc}"}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

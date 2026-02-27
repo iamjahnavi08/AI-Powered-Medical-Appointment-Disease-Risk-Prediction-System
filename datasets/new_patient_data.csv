@@ -1,2 +1,0 @@
-Patient_ID,Age,Gender,Symptoms,Symptom_Count,Glucose,BloodPressure,BMI,Height_cm,Weight_kg,Smoking_Habit,Alcohol_Habit,Medical_History,Family_History
-1,21,female,fever,1,96.0,120.0,16.979591836734695,175.0,52.0,no,no,,no
