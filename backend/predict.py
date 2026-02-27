@@ -61,6 +61,7 @@ class RiskEngine:
         "cough",
         "mild_constipation",
         "intermittent_abdominal_discomfort",
+        "fever"
     }
     # High-priority symptoms that should force a High Risk rule outcome.
     # Include common text variants after normalization (e.g. "chest pain" -> "chest_pain").
@@ -71,6 +72,8 @@ class RiskEngine:
         "diarrhoea",
         "insomnia",
         "dizziness",
+        "Low BP",
+        "breathing problem" , 
     }
     MEDIUM_RISK_SYMPTOMS = {
         "blurred_vision",
