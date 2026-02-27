@@ -40,9 +40,9 @@
     }
     h1 {
       margin: 0;
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 1;
-      letter-spacing: 0.3px;
+      font-size: clamp(18px, 2.2vw, 32px);
+      line-height: 1.1;
+      letter-spacing: 0.2px;
     }
     .logout-btn {
       text-decoration: none;
@@ -50,8 +50,9 @@
       background: var(--danger);
       color: #fff;
       border-radius: 14px;
-      font-size: 20px;
-      padding: 14px 30px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
       display: inline-block;
     }
     .summary-grid {
@@ -73,8 +74,8 @@
       align-items: center;
     }
     .avatar {
-      width: 126px;
-      height: 126px;
+      width: 74px;
+      height: 74px;
       border-radius: 50%;
       border: 1px solid var(--line);
       background: radial-gradient(circle at 30% 30%, #eff3fb, #cfd8e9);
@@ -82,7 +83,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
+      font-size: 28px;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -92,11 +93,11 @@
       list-style: none;
       display: grid;
       gap: 8px;
-      font-size: 26px;
+      font-size: 16px;
     }
     .metrics {
-      font-size: 20px;
-      gap: 10px;
+      font-size: 14px;
+      gap: 8px;
     }
     .label {
       font-weight: 800;
@@ -104,7 +105,7 @@
     }
     h2 {
       margin: 0 0 14px;
-      font-size: clamp(28px, 4vw, 52px);
+      font-size: clamp(18px, 2.4vw, 30px);
     }
     .appointments {
       border: 1px solid var(--line);
@@ -119,7 +120,7 @@
       align-items: center;
       padding: 18px 22px;
       border-bottom: 1px solid var(--line);
-      font-size: 20px;
+      font-size: 14px;
     }
     .appt-row:last-child { border-bottom: 0; }
     .muted { color: var(--muted); }
@@ -142,8 +143,9 @@
       color: #fff;
       background: var(--action);
       padding: 10px 18px;
-      min-width: 118px;
-      font-size: 20px;
+      min-width: 88px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
     }
     .btn-danger { background: #5a89cf; }
@@ -154,15 +156,15 @@
       padding: 18px;
       color: var(--muted);
       background: #fff;
-      font-size: 18px;
+      font-size: 14px;
     }
     @media (max-width: 980px) {
       .shell { margin: 0; border-radius: 0; padding: 20px 14px 26px; }
       .summary-grid { grid-template-columns: 1fr; }
       .profile-wrap { align-items: flex-start; }
-      .avatar { width: 84px; height: 84px; font-size: 28px; }
-      .kv { font-size: 24px; }
-      .metrics { font-size: 18px; }
+      .avatar { width: 66px; height: 66px; font-size: 22px; }
+      .kv { font-size: 15px; }
+      .metrics { font-size: 13px; }
       .appt-row {
         grid-template-columns: 1fr;
         gap: 8px;
@@ -177,6 +179,8 @@
 </head>
 <body>
   {% set f = patient_features or {} %}
+  {% set gender_raw = f.get('Gender', '--') %}
+  {% set gender_text = 'male' if gender_raw|string|trim|lower in ['1', 'male', 'm'] else ('female' if gender_raw|string|trim|lower in ['0', 'female', 'f'] else gender_raw) %}
   {% set symptom_count = f.get('Symptom_Count', f.get('Sympton_Count', '--')) %}
   {% set bp_sys = f.get('BloodPressure', '--') %}
   {% set bp_dia = f.get('BP_Diastolic', '') %}
@@ -194,7 +198,7 @@
           <ul class="kv">
             <li><span class="label">Name:</span> {{ patient_name or '--' }}</li>
             <li><span class="label">Age:</span> {{ f.get('Age', '--') }}</li>
-            <li><span class="label">Gender:</span> {{ f.get('Gender', '--') }}</li>
+            <li><span class="label">Gender:</span> {{ gender_text }}</li>
           </ul>
         </div>
       </article>
@@ -216,7 +220,7 @@
           {% for ap in upcoming_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">ðŸ“…</span>
+                <span class="date-icon">📅</span>
                 <span>{{ ap.date_label }}</span>
               </div>
               <div>{{ ap.time_label }}</div>
@@ -240,7 +244,7 @@
           {% for ap in past_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">ðŸ“…</span>
+                <span class="date-icon">📅</span>
                 <span>{{ ap.date_label }}</span>
               </div>
               <div>{{ ap.time_label }}</div>
