@@ -1,123 +1,162 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Health Details Form</title>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap");
+
     :root {
-      --bg-main: #eaf3ff;
-      --bg-soft: #dcecff;
-      --ink: #0f2747;
-      --muted: #31527f;
-      --panel: rgba(255, 255, 255, 0.96);
-      --line: #bfd1ea;
-      --field: #f7faff;
-      --focus: #3f80c9;
-      --brand-a: #0f8a82;
-      --brand-b: #1b61ac;
+      --ink: #0f2a58;
+      --muted: #2f4f80;
+      --panel: rgba(233, 240, 255, 0.76);
+      --line: #a8c4ea;
+      --field: rgba(243, 248, 255, 0.9);
+      --focus: #6ba7f0;
+      --brand-a: #3182c8;
+      --brand-b: #356ddb;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+      font-family: "Manrope", "Segoe UI", Tahoma, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(950px 380px at -10% -15%, #a9d3ff 0%, rgba(169, 211, 255, 0) 70%),
-        radial-gradient(1100px 460px at 110% 10%, #a8efe0 0%, rgba(168, 239, 224, 0) 68%),
-        linear-gradient(160deg, var(--bg-main) 0%, var(--bg-soft) 100%);
       min-height: 100vh;
       padding: 28px 16px;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(125, 170, 255, 0.35) 0%, rgba(125, 170, 255, 0) 40%),
+        radial-gradient(circle at 84% 22%, rgba(132, 211, 255, 0.32) 0%, rgba(132, 211, 255, 0) 42%),
+        radial-gradient(circle at 72% 88%, rgba(232, 151, 255, 0.22) 0%, rgba(232, 151, 255, 0) 35%),
+        linear-gradient(145deg, #1f458f 0%, #3266bb 45%, #2750a3 100%);
+      overflow-x: hidden;
     }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+      background:
+        radial-gradient(circle at 5% 20%, rgba(255, 255, 255, 0.6) 0 4px, transparent 5px),
+        radial-gradient(circle at 10% 78%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
+        radial-gradient(circle at 95% 35%, rgba(255, 255, 255, 0.55) 0 4px, transparent 5px),
+        radial-gradient(circle at 90% 70%, rgba(255, 255, 255, 0.48) 0 3px, transparent 4px);
+      animation: twinkle 12s ease-in-out infinite alternate;
+    }
+
     .wrap {
-      max-width: 900px;
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
       margin: 0 auto;
       background: var(--panel);
-      border: 1px solid rgba(136, 166, 205, 0.45);
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 22px 52px rgba(20, 47, 84, 0.13);
-      backdrop-filter: blur(3px);
+      border: 1px solid rgba(195, 214, 244, 0.65);
+      border-radius: 30px;
+      padding: clamp(20px, 2.6vw, 34px);
+      box-shadow: 0 24px 52px rgba(7, 30, 73, 0.28);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+      animation: rise-in 600ms ease both;
     }
+
     .intro {
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(137, 169, 208, 0.36);
-      margin-bottom: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(170, 195, 235, 0.5);
+      margin-bottom: 16px;
     }
+
     h1 {
       margin: 0;
-      font-size: clamp(2rem, 3.8vw, 3rem);
-      letter-spacing: 0.02em;
-      color: #102645;
+      font-size: clamp(2rem, 3.9vw, 3.8rem);
+      letter-spacing: 0.01em;
+      color: #18356a;
+      line-height: 1.05;
     }
+
     .intro p {
       margin: 10px 0 0;
       color: var(--muted);
-      font-size: 1.05rem;
+      font-size: clamp(1rem, 1.35vw, 1.2rem);
+      font-weight: 600;
     }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+
     label {
       display: block;
-      margin: 10px 0 7px;
+      margin: 8px 0 7px;
       font-weight: 700;
-      color: #193d69;
-      letter-spacing: 0.01em;
-      font-size: 1.04rem;
+      color: #1b386e;
+      font-size: clamp(1.02rem, 1.25vw, 1.12rem);
     }
+
     input, select, textarea {
       width: 100%;
-      padding: 12px 13px;
-      border-radius: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
       border: 1px solid var(--line);
       background: var(--field);
       font: inherit;
       color: var(--ink);
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
     }
+
     input:focus, select:focus, textarea:focus {
       border-color: var(--focus);
-      box-shadow: 0 0 0 3px rgba(63, 128, 201, 0.2);
+      box-shadow: 0 0 0 3px rgba(107, 167, 240, 0.25);
       background: #ffffff;
+      transform: translateY(-1px);
     }
-    textarea { min-height: 140px; resize: vertical; }
+
+    textarea { min-height: 170px; resize: vertical; }
+
     .full { grid-column: 1 / -1; }
+
     button {
       margin-top: 16px;
       width: 100%;
       padding: 13px;
       border: 0;
-      border-radius: 12px;
+      border-radius: 14px;
       color: #fff;
       background: linear-gradient(120deg, var(--brand-a), var(--brand-b));
       font: inherit;
-      font-weight: 700;
-      letter-spacing: 0.01em;
+      font-size: 1.08rem;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 12px 24px rgba(13, 67, 114, 0.24);
-      transition: transform 0.16s ease, box-shadow 0.2s ease;
+      box-shadow: 0 14px 24px rgba(19, 68, 144, 0.3);
+      transition: transform 0.16s ease, box-shadow 0.2s ease, filter 0.2s ease;
     }
+
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 15px 28px rgba(13, 67, 114, 0.3);
+      filter: brightness(1.04);
+      box-shadow: 0 18px 30px rgba(19, 68, 144, 0.36);
     }
+
     .errors {
       margin: 12px 0 14px;
       padding: 12px;
       border: 1px solid #f4b9c0;
       background: #fff1f3;
-      border-radius: 10px;
+      border-radius: 12px;
       color: #a01933;
-      font-weight: 600;
+      font-weight: 700;
     }
+
     .note {
       margin: 12px 0 0;
-      padding: 10px 12px;
+      padding: 12px 14px;
       border: 1px solid #bfd8f5;
-      border-radius: 10px;
-      background: #f3f9ff;
+      border-radius: 14px;
+      background: rgba(244, 250, 255, 0.92);
       color: #21486f;
-      font-size: 0.95rem;
+      font-size: 1rem;
       line-height: 1.5;
     }
     .leave-modal {
@@ -173,18 +212,25 @@
     .leave-modal-btn.stay { background: #1b61ac; }
     .leave-modal-btn.leave { background: #d62222; }
     @media (max-width: 780px) {
-      .wrap { padding: 18px; border-radius: 18px; }
+      .wrap { padding: 18px; border-radius: 20px; }
       .grid { grid-template-columns: 1fr; gap: 10px; }
       label { font-size: 1rem; }
       textarea { min-height: 120px; }
     }
-                          /* Shared app background theme */
-    body {
-      background: linear-gradient(160deg, #FFE3E1 0%, #9CD5FF 100%) !important;
-      background-color: #FFE3E1 !important;
-    }</style>
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes twinkle {
+      from { opacity: 0.65; }
+      to { opacity: 0.9; }
+    }
+  </style>
 </head>
 <body>
+  <div class="scene" aria-hidden="true"></div>
   <main class="wrap">
     <section class="intro">
       <h1>Health Details Form</h1>
@@ -401,6 +447,7 @@
   </script>
 </body>
 </html>
+
 
 
 
