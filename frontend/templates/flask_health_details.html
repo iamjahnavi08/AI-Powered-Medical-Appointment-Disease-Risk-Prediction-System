@@ -46,7 +46,7 @@
         radial-gradient(circle at 10% 78%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
         radial-gradient(circle at 95% 35%, rgba(255, 255, 255, 0.55) 0 4px, transparent 5px),
         radial-gradient(circle at 90% 70%, rgba(255, 255, 255, 0.48) 0 3px, transparent 4px);
-      animation: twinkle 12s ease-in-out infinite alternate;
+      animation: none;
     }
 
     .sparkles {
@@ -59,7 +59,7 @@
         radial-gradient(circle at 72% 16%, rgba(255, 255, 255, 0.8) 0 2px, transparent 4px),
         radial-gradient(circle at 92% 30%, rgba(255, 255, 255, 0.82) 0 2px, transparent 4px),
         radial-gradient(circle at 26% 88%, rgba(255, 255, 255, 0.74) 0 2px, transparent 4px);
-      animation: float-spark 18s linear infinite alternate;
+      animation: none;
     }
 
     .medical-icon {
@@ -70,7 +70,7 @@
       stroke-width: 2;
       fill: none;
       filter: drop-shadow(0 4px 10px rgba(118, 147, 206, 0.2));
-      animation: float-icon 8s ease-in-out infinite;
+      animation: none;
     }
 
     .icon-plus-left { left: 2%; top: 36%; }
@@ -82,33 +82,36 @@
       border-radius: 999px;
       filter: blur(2px);
       opacity: 0.5;
-      animation: orb-float 10s ease-in-out infinite;
+      animation: none;
     }
 
     .orb-a {
       width: 220px;
       height: 220px;
-      top: 14%;
+      top: 10%;
       left: -40px;
       background: radial-gradient(circle at 35% 35%, rgba(155, 196, 255, 0.92), rgba(155, 196, 255, 0));
+      animation-duration: 0s;
     }
 
     .orb-b {
       width: 250px;
       height: 250px;
       right: -70px;
-      top: 20%;
+      top: 16%;
       background: radial-gradient(circle at 55% 35%, rgba(169, 205, 255, 0.86), rgba(169, 205, 255, 0));
-      animation-delay: -2s;
+      animation-delay: 0s;
+      animation-duration: 0s;
     }
 
     .orb-c {
       width: 240px;
       height: 240px;
       right: 8%;
-      bottom: -40px;
+      bottom: -10px;
       background: radial-gradient(circle at 50% 50%, rgba(255, 185, 215, 0.65), rgba(255, 185, 215, 0));
-      animation-delay: -4s;
+      animation-delay: 0s;
+      animation-duration: 0s;
     }
 
     .dna-wave {
@@ -120,7 +123,7 @@
       opacity: 0.6;
       z-index: 1;
       filter: drop-shadow(0 -6px 18px rgba(134, 175, 245, 0.35));
-      animation: wave-rise 9s ease-in-out infinite;
+      animation: none;
       pointer-events: none;
     }
 
@@ -148,6 +151,33 @@
       backdrop-filter: blur(7px);
       -webkit-backdrop-filter: blur(7px);
       animation: rise-in 600ms ease both;
+      overflow: hidden;
+      box-shadow:
+        0 24px 52px rgba(7, 30, 73, 0.28),
+        0 0 0 1px rgba(255, 255, 255, 0.45) inset,
+        0 0 36px rgba(106, 160, 240, 0.28);
+    }
+
+    .wrap::before {
+      content: "";
+      position: absolute;
+      inset: -30% -20% auto -20%;
+      height: 120px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+      transform: rotate(-7deg);
+      animation: none;
+      pointer-events: none;
+    }
+
+    .wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 30px;
+      border: 1px solid rgba(142, 182, 242, 0.68);
+      box-shadow: 0 0 22px rgba(105, 165, 244, 0.32);
+      animation: none;
+      pointer-events: none;
     }
 
     .hospital {
@@ -167,6 +197,7 @@
       padding-bottom: 16px;
       border-bottom: 1px solid rgba(170, 195, 235, 0.5);
       margin-bottom: 16px;
+      animation: rise-in 760ms ease 80ms both;
     }
 
     h1 {
@@ -186,6 +217,23 @@
     }
 
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+
+    .grid > div {
+      animation: rise-in 700ms ease both;
+    }
+
+    .grid > div:nth-child(1) { animation-delay: 120ms; }
+    .grid > div:nth-child(2) { animation-delay: 170ms; }
+    .grid > div:nth-child(3) { animation-delay: 220ms; }
+    .grid > div:nth-child(4) { animation-delay: 270ms; }
+    .grid > div:nth-child(5) { animation-delay: 320ms; }
+    .grid > div:nth-child(6) { animation-delay: 370ms; }
+    .grid > div:nth-child(7) { animation-delay: 420ms; }
+    .grid > div:nth-child(8) { animation-delay: 470ms; }
+    .grid > div:nth-child(9) { animation-delay: 520ms; }
+    .grid > div:nth-child(10) { animation-delay: 570ms; }
+    .grid > div:nth-child(11) { animation-delay: 620ms; }
+    .grid > div:nth-child(12) { animation-delay: 670ms; }
 
     label {
       display: block;
@@ -235,6 +283,7 @@
       transition: transform 0.16s ease, box-shadow 0.2s ease, filter 0.2s ease;
       position: relative;
       overflow: hidden;
+      animation: none;
     }
 
     button::after {
@@ -352,7 +401,7 @@
 
     @keyframes orb-float {
       0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-12px) scale(1.04); }
+      50% { transform: translateY(-20px) scale(1.08); }
     }
 
     @keyframes sheen {
@@ -362,17 +411,57 @@
 
     @keyframes float-icon {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
+      50% { transform: translateY(-13px); }
     }
 
     @keyframes float-spark {
       from { transform: translateY(0); opacity: 0.78; }
-      to { transform: translateY(-14px); opacity: 1; }
+      to { transform: translateY(-24px); opacity: 1; }
     }
 
     @keyframes wave-rise {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(3px); }
+      50% { transform: translateY(8px); }
+    }
+
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes panel-sheen {
+      0%, 72% { left: -45%; }
+      100% { left: 130%; }
+    }
+
+    @keyframes cta-breathe {
+      0%, 100% { box-shadow: 0 14px 24px rgba(19, 68, 144, 0.3); }
+      50% { box-shadow: 0 18px 32px rgba(19, 68, 144, 0.42); }
+    }
+
+    @keyframes border-pulse {
+      0%, 100% { opacity: .55; box-shadow: 0 0 18px rgba(105, 165, 244, 0.24); }
+      50% { opacity: 1; box-shadow: 0 0 30px rgba(105, 165, 244, 0.5); }
+    }
+
+    @keyframes field-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    @keyframes bg-pan {
+      from { background-position: 0% 0%, 100% 10%, 86% 84%, 0% 0%; }
+      to { background-position: 8% 4%, 92% 16%, 80% 88%, 100% 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
