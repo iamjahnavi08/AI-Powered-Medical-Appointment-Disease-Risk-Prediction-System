@@ -51,6 +51,40 @@
       animation: drift-bg 16s ease-in-out infinite alternate;
     }
 
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(1px);
+      opacity: 0.55;
+      animation: orb-float 14s ease-in-out infinite;
+    }
+
+    .orb-a {
+      width: 250px;
+      height: 250px;
+      left: -70px;
+      top: 16%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 162, 180, 0.7), rgba(255, 162, 180, 0.08) 70%);
+    }
+
+    .orb-b {
+      width: 300px;
+      height: 300px;
+      right: -90px;
+      top: 10%;
+      background: radial-gradient(circle at 65% 30%, rgba(118, 178, 255, 0.75), rgba(118, 178, 255, 0.1) 72%);
+      animation-delay: -4.8s;
+    }
+
+    .orb-c {
+      width: 210px;
+      height: 210px;
+      right: 12%;
+      bottom: 5%;
+      background: radial-gradient(circle at 45% 45%, rgba(142, 215, 255, 0.6), rgba(142, 215, 255, 0.06) 74%);
+      animation-delay: -2.2s;
+    }
+
     .sparkles {
       position: absolute;
       inset: 0;
@@ -218,6 +252,7 @@
       font-size: clamp(2.2rem, 3.4vw, 3rem);
       line-height: 1.06;
       color: var(--ink-strong);
+      animation: title-pulse 3.6s ease-in-out infinite;
     }
 
     .hint {
@@ -384,6 +419,16 @@
       50% { transform: translateY(4px); }
     }
 
+    @keyframes orb-float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.06); }
+    }
+
+    @keyframes title-pulse {
+      0%, 100% { transform: translateY(0); text-shadow: 0 0 0 rgba(53, 109, 219, 0); }
+      50% { transform: translateY(-1px); text-shadow: 0 6px 18px rgba(53, 109, 219, 0.18); }
+    }
+
     @media (max-width: 1030px) {
       .shell {
         grid-template-columns: 1fr;
@@ -421,6 +466,9 @@
 </head>
 <body>
   <div class="scene" aria-hidden="true">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="orb orb-c"></div>
     <div class="sparkles"></div>
 
     <svg class="medical-icon icon-plus-left" viewBox="0 0 24 24">
