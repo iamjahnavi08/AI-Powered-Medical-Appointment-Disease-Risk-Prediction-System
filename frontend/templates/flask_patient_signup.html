@@ -168,9 +168,27 @@
       animation: rise-in 650ms ease both;
     }
 
-    .brand-exa { color: #2f6fdb; }
-    .brand-flunce { color: #d94343; }
-    .brand-hospital { color: #111111; }
+    .brand-exa,
+    .brand-flunce,
+    .brand-hospital {
+      display: inline-block;
+      animation: brand-float 3.2s ease-in-out infinite;
+    }
+
+    .brand-exa {
+      color: #2f6fdb;
+      animation-delay: 0s;
+    }
+
+    .brand-flunce {
+      color: #d94343;
+      animation-delay: 0.18s;
+    }
+
+    .brand-hospital {
+      color: #111111;
+      animation-delay: 0.32s;
+    }
 
     .left h1 {
       margin: 0.22rem 0 0;
@@ -225,7 +243,7 @@
       height: 100%;
       aspect-ratio: 16 / 9;
       object-fit: cover;
-      animation: breathe 10s ease-in-out infinite;
+      animation: breathe 6.5s ease-in-out infinite;
     }
 
     .right {
@@ -318,6 +336,7 @@
       background: linear-gradient(105deg, var(--button-a), var(--button-b));
       box-shadow: 0 12px 22px rgba(44, 106, 201, 0.34);
       transition: transform 170ms ease, box-shadow 170ms ease, filter 170ms ease;
+      animation: cta-pulse 2.6s ease-in-out infinite;
     }
 
     button::after {
@@ -427,6 +446,16 @@
     @keyframes title-pulse {
       0%, 100% { transform: translateY(0); text-shadow: 0 0 0 rgba(53, 109, 219, 0); }
       50% { transform: translateY(-1px); text-shadow: 0 6px 18px rgba(53, 109, 219, 0.18); }
+    }
+
+    @keyframes brand-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    @keyframes cta-pulse {
+      0%, 100% { box-shadow: 0 12px 22px rgba(44, 106, 201, 0.34); }
+      50% { box-shadow: 0 16px 30px rgba(44, 106, 201, 0.46); }
     }
 
     @media (max-width: 1030px) {
