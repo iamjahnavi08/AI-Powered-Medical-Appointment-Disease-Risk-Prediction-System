@@ -405,6 +405,45 @@
     </section>
   </main>
   <script>
+    const SIGNUP_COOKIE_DAYS = 30;
+
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const key = `${name}=`;
+      const items = document.cookie.split(";");
+      for (let i = 0; i < items.length; i += 1) {
+        const part = items[i].trim();
+        if (part.startsWith(key)) {
+          return decodeURIComponent(part.slice(key.length));
+        }
+      }
+      return "";
+    }
+
+    function initSignupCookies() {
+      const doctorEl = document.getElementById("doctor_id");
+      const typeEl = document.getElementById("id_type");
+      const numberEl = document.getElementById("id_number");
+
+      const savedDoctor = getCookie("doctor_signup_id");
+      const savedType = getCookie("doctor_signup_id_type");
+      const savedNumber = getCookie("doctor_signup_id_number");
+
+      if (!doctorEl.value && savedDoctor) {
+        doctorEl.value = savedDoctor;
+      }
+      if (savedType && ["aadhaar", "pan"].includes(savedType)) {
+        typeEl.value = savedType;
+      }
+      if (!numberEl.value && savedNumber) {
+        numberEl.value = savedNumber;
+      }
+    }
+
     function syncIdRules() {
       const typeEl = document.getElementById("id_type");
       const idEl = document.getElementById("id_number");
@@ -429,7 +468,17 @@
     }
 
     document.getElementById("id_type").addEventListener("change", syncIdRules);
+    initSignupCookies();
     syncIdRules();
+
+    document.querySelector("form").addEventListener("submit", () => {
+      const doctorId = document.getElementById("doctor_id").value.trim();
+      const idType = document.getElementById("id_type").value.trim();
+      const idNumber = document.getElementById("id_number").value.trim();
+      setCookie("doctor_signup_id", doctorId, SIGNUP_COOKIE_DAYS);
+      setCookie("doctor_signup_id_type", idType, SIGNUP_COOKIE_DAYS);
+      setCookie("doctor_signup_id_number", idNumber, SIGNUP_COOKIE_DAYS);
+    });
   </script>
 </body>
 </html>

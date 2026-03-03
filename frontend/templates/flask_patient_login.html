@@ -536,6 +536,50 @@
   </main>
 
   <script>
+    const LOGIN_COOKIE_DAYS = 30;
+
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const key = `${name}=`;
+      const items = document.cookie.split(";");
+      for (let i = 0; i < items.length; i += 1) {
+        const part = items[i].trim();
+        if (part.startsWith(key)) {
+          return decodeURIComponent(part.slice(key.length));
+        }
+      }
+      return "";
+    }
+
+    function initLoginCookies() {
+      const modeEl = document.getElementById("login_using");
+      const nameEl = document.getElementById("patient_name");
+      const typeEl = document.getElementById("id_type");
+      const numberEl = document.getElementById("id_number");
+
+      const savedMode = getCookie("patient_login_using");
+      const savedName = getCookie("patient_login_name");
+      const savedType = getCookie("patient_login_id_type");
+      const savedNumber = getCookie("patient_login_id_number");
+
+      if (savedMode && ["patient_name", "id_number"].includes(savedMode)) {
+        modeEl.value = savedMode;
+      }
+      if (!nameEl.value && savedName) {
+        nameEl.value = savedName;
+      }
+      if (savedType && ["aadhaar", "pan"].includes(savedType)) {
+        typeEl.value = savedType;
+      }
+      if (!numberEl.value && savedNumber) {
+        numberEl.value = savedNumber;
+      }
+    }
+
     function syncLoginPanels() {
       const mode = document.getElementById("login_using").value;
       const namePanel = document.getElementById("namePanel");
@@ -578,6 +622,7 @@
 
     document.getElementById("login_using").addEventListener("change", syncLoginPanels);
     document.getElementById("id_type").addEventListener("change", syncIdRules);
+    initLoginCookies();
     syncLoginPanels();
     syncIdRules();
 
@@ -611,7 +656,13 @@
       if (!password) {
         event.preventDefault();
         alert("Password is required.");
+        return;
       }
+
+      setCookie("patient_login_using", mode, LOGIN_COOKIE_DAYS);
+      setCookie("patient_login_name", name, LOGIN_COOKIE_DAYS);
+      setCookie("patient_login_id_type", idType, LOGIN_COOKIE_DAYS);
+      setCookie("patient_login_id_number", idNumber, LOGIN_COOKIE_DAYS);
     });
   </script>
 </body>

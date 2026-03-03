@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import uuid4
@@ -26,7 +26,14 @@ app = Flask(
     static_url_path="/static",
 )
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
-app.config["TEMPLATES_AUTO_RELOAD"] = True
+cookie_secure = os.getenv("COOKIE_SECURE", "0").strip().lower() in {"1", "true", "yes"}
+app.config.update(
+    TEMPLATES_AUTO_RELOAD=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=cookie_secure,
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
 app.jinja_env.auto_reload = True
 
 doctor_auth_manager = DoctorAuthManager()

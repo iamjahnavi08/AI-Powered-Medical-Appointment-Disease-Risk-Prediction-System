@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.wsgi import WSGIMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from flask_app import app as flask_portal_app
 
@@ -62,17 +62,17 @@ def _read_template(name: str) -> str:
 
 @app.get("/", response_class=HTMLResponse)
 def root() -> RedirectResponse:
-    return RedirectResponse(url="/portal/login", status_code=307)
+    return RedirectResponse(url="/portal/login", status_code=302)
 
 
 @app.get("/login", response_class=HTMLResponse)
 def login_page() -> RedirectResponse:
-    return RedirectResponse(url="/portal/login", status_code=307)
+    return RedirectResponse(url="/portal/login", status_code=302)
 
 
 @app.get("/home", response_class=HTMLResponse)
 def home_page() -> RedirectResponse:
-    return RedirectResponse(url="/portal/login", status_code=307)
+    return RedirectResponse(url="/portal/login", status_code=302)
 
 
 @app.get("/patient", response_class=HTMLResponse)
@@ -146,8 +146,8 @@ def health() -> Dict[str, str]:
 
 
 @app.get("/favicon.ico", include_in_schema=False)
-def favicon() -> RedirectResponse:
-    return RedirectResponse(url="/static/favicon.svg", status_code=307)
+def favicon() -> FileResponse:
+    return FileResponse(path=str(STATIC_DIR / "favicon.svg"), media_type="image/svg+xml")
 
 
 @app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
@@ -222,34 +222,49 @@ app.mount("/portal", WSGIMiddleware(flask_portal_app))
 
 
 # Compatibility routes so previous URLs continue working without /portal prefix.
-@app.api_route("/patient/login", methods=["GET", "POST"], include_in_schema=False)
-def patient_login_portal() -> RedirectResponse:
+@app.get("/patient/login", include_in_schema=False)
+def patient_login_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/login", status_code=302)
+
+
+@app.post("/patient/login", include_in_schema=False)
+def patient_login_portal_post() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/login", status_code=307)
 
 
-@app.api_route("/patient/signup", methods=["GET", "POST"], include_in_schema=False)
-def patient_signup_portal() -> RedirectResponse:
+@app.get("/patient/signup", include_in_schema=False)
+def patient_signup_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/signup", status_code=302)
+
+
+@app.post("/patient/signup", include_in_schema=False)
+def patient_signup_portal_post() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/signup", status_code=307)
 
 
-@app.api_route("/patient/health-details", methods=["GET", "POST"], include_in_schema=False)
-def patient_health_details_portal() -> RedirectResponse:
+@app.get("/patient/health-details", include_in_schema=False)
+def patient_health_details_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/patient/health-details", status_code=302)
+
+
+@app.post("/patient/health-details", include_in_schema=False)
+def patient_health_details_portal_post() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/health-details", status_code=307)
 
 
 @app.get("/patient/health-confirmation", include_in_schema=False)
 def patient_health_confirmation_portal() -> RedirectResponse:
-    return RedirectResponse(url="/portal/patient/health-confirmation", status_code=307)
+    return RedirectResponse(url="/portal/patient/health-confirmation", status_code=302)
 
 
 @app.get("/patient/book-appointment", include_in_schema=False)
 def patient_book_appointment_portal() -> RedirectResponse:
-    return RedirectResponse(url="/portal/patient/book-appointment", status_code=307)
+    return RedirectResponse(url="/portal/patient/book-appointment", status_code=302)
 
 
 @app.get("/patient/features/{patient_id}", include_in_schema=False)
 def patient_features_portal(patient_id: str) -> RedirectResponse:
-    return RedirectResponse(url=f"/portal/patient/features/{patient_id}", status_code=307)
+    return RedirectResponse(url=f"/portal/patient/features/{patient_id}", status_code=302)
 
 
 @app.post("/patient/book-appointment-submit", include_in_schema=False)
@@ -262,29 +277,39 @@ def patient_predict_risk_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/patient/predict-risk", status_code=307)
 
 
-@app.api_route("/doctor/login", methods=["GET", "POST"], include_in_schema=False)
-def doctor_login_portal() -> RedirectResponse:
+@app.get("/doctor/login", include_in_schema=False)
+def doctor_login_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/login", status_code=302)
+
+
+@app.post("/doctor/login", include_in_schema=False)
+def doctor_login_portal_post() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/login", status_code=307)
 
 
-@app.api_route("/doctor/signup", methods=["GET", "POST"], include_in_schema=False)
-def doctor_signup_portal() -> RedirectResponse:
+@app.get("/doctor/signup", include_in_schema=False)
+def doctor_signup_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/doctor/signup", status_code=302)
+
+
+@app.post("/doctor/signup", include_in_schema=False)
+def doctor_signup_portal_post() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/signup", status_code=307)
 
 
 @app.get("/doctor/dashboard", include_in_schema=False)
 def doctor_dashboard_portal() -> RedirectResponse:
-    return RedirectResponse(url="/portal/doctor/dashboard", status_code=307)
+    return RedirectResponse(url="/portal/doctor/dashboard", status_code=302)
 
 
 @app.get("/doctor/appointments", include_in_schema=False)
 def doctor_appointments_portal() -> RedirectResponse:
-    return RedirectResponse(url="/portal/doctor/appointments", status_code=307)
+    return RedirectResponse(url="/portal/doctor/appointments", status_code=302)
 
 
 @app.get("/doctor/patient-database", include_in_schema=False)
 def doctor_patient_database_portal() -> RedirectResponse:
-    return RedirectResponse(url="/portal/doctor/patient-database", status_code=307)
+    return RedirectResponse(url="/portal/doctor/patient-database", status_code=302)
 
 
 @app.post("/doctor/predict-risk", include_in_schema=False)
