@@ -31,6 +31,10 @@ doctor_auth_manager = DoctorAuthManager()
 risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
 patient_db = PatientDatabase(PATIENT_DB_PATH)
 APPOINTMENTS: list[Dict[str, Any]] = []
+PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
+PASSWORD_POLICY_MESSAGE = (
+    "Password must contain minimum 8 characters, including uppercase, lowercase, number, and special character."
+)
 
 
 def _parse_appointment_time(value: Any) -> Optional[datetime]:
@@ -363,6 +367,8 @@ def _compose_unique_code(id_type: Any, id_number: Any) -> str:
 
 
 def _create_patient_account(name: str, unique_code: str, password: str) -> str:
+    if not PASSWORD_POLICY_PATTERN.fullmatch(str(password).strip()):
+        raise ValueError(PASSWORD_POLICY_MESSAGE)
     df = _load_patients_df()
     if df["name"].astype(str).str.strip().str.lower().eq(name.lower()).any():
         raise ValueError("Patient name already exists. Use a different name.")
@@ -649,8 +655,8 @@ def patient_signup() -> Any:
             unique_code = _compose_unique_code(id_type, id_number)
         except ValueError as exc:
             errors.append(str(exc))
-        if len(password) < 4:
-            errors.append("Password must be at least 4 characters.")
+        if not PASSWORD_POLICY_PATTERN.fullmatch(password):
+            errors.append(PASSWORD_POLICY_MESSAGE)
         if password != confirm_password:
             errors.append("Password and Confirm Password must match.")
 
@@ -1058,8 +1064,8 @@ def doctor_signup() -> Any:
             _compose_unique_code(id_type, id_number)
         except ValueError as exc:
             errors.append(str(exc))
-        if len(password) < 4:
-            errors.append("Password must be at least 4 characters.")
+        if not PASSWORD_POLICY_PATTERN.fullmatch(password):
+            errors.append(PASSWORD_POLICY_MESSAGE)
         if password != confirm_password:
             errors.append("Password and Confirm Password must match.")
 

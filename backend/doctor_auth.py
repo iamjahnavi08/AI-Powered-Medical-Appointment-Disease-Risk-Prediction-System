@@ -17,13 +17,17 @@ DOCTOR_ACCOUNTS_PATH = DOCTOR_ACCOUNTS_CSV
 DOCTOR_ID_PATTERN = re.compile(r"^[A-Za-z0-9@._-]+$")
 PAN_PATTERN = re.compile(r"^[A-Z]{5}[0-9]{4}[A-Z]$")
 AADHAAR_PATTERN = re.compile(r"^[0-9]{12}$")
+PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
+PASSWORD_POLICY_MESSAGE = (
+    "Password must contain minimum 8 characters, including uppercase, lowercase, number, and special character."
+)
 
 
 class DoctorSignupRequest(BaseModel):
     doctor_id: str = Field(..., min_length=1, description="New doctor identifier")
     id_type: str = Field(..., min_length=1, description="aadhaar or pan")
     id_number: str = Field(..., min_length=1, description="ID number")
-    password: str = Field(..., min_length=4, description="New doctor password")
+    password: str = Field(..., min_length=8, description="New doctor password")
 
     @field_validator("doctor_id")
     @classmethod
@@ -39,8 +43,8 @@ class DoctorSignupRequest(BaseModel):
     @classmethod
     def validate_password(cls, value: str) -> str:
         cleaned = value.strip()
-        if len(cleaned) < 4:
-            raise ValueError("password must be at least 4 characters")
+        if not PASSWORD_POLICY_PATTERN.fullmatch(cleaned):
+            raise ValueError(PASSWORD_POLICY_MESSAGE)
         return cleaned
 
     @field_validator("id_type")
@@ -126,6 +130,8 @@ class DoctorAuthManager:
         did = doctor_id.strip()
         ucode = self._compose_unique_code(id_type, id_number)
         pwd = password.strip()
+        if not PASSWORD_POLICY_PATTERN.fullmatch(pwd):
+            raise ValueError(PASSWORD_POLICY_MESSAGE)
         accounts = self._read_accounts()
 
         if did in accounts:

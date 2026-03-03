@@ -4,6 +4,7 @@ import csv
 import hashlib
 import hmac
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict
@@ -13,11 +14,15 @@ from pydantic import BaseModel, Field, field_validator
 from paths import PATIENT_ACCOUNTS_CSV, ensure_csv_exists
 
 PATIENT_ACCOUNTS_PATH = PATIENT_ACCOUNTS_CSV
+PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
+PASSWORD_POLICY_MESSAGE = (
+    "Password must contain minimum 8 characters, including uppercase, lowercase, number, and special character."
+)
 
 
 class PatientSignupRequest(BaseModel):
     patient_id: str = Field(..., min_length=1, description="New patient identifier")
-    password: str = Field(..., min_length=4, description="New patient password")
+    password: str = Field(..., min_length=8, description="New patient password")
 
     @field_validator("patient_id")
     @classmethod
@@ -31,8 +36,8 @@ class PatientSignupRequest(BaseModel):
     @classmethod
     def validate_password(cls, value: str) -> str:
         cleaned = value.strip()
-        if len(cleaned) < 4:
-            raise ValueError("password must be at least 4 characters")
+        if not PASSWORD_POLICY_PATTERN.fullmatch(cleaned):
+            raise ValueError(PASSWORD_POLICY_MESSAGE)
         return cleaned
 
 
@@ -75,6 +80,8 @@ class PatientAuthManager:
     def signup(self, patient_id: str, password: str) -> None:
         pid = patient_id.strip()
         pwd = password.strip()
+        if not PASSWORD_POLICY_PATTERN.fullmatch(pwd):
+            raise ValueError(PASSWORD_POLICY_MESSAGE)
         accounts = self._read_accounts()
 
         if pid in accounts:
