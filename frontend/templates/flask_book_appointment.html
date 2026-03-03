@@ -503,7 +503,7 @@
             </div>
             <div class="feature-row full">
               <label for="featureSymptoms">Symptoms</label>
-              <textarea id="featureSymptoms" placeholder="e.g. chest pain, dizziness"></textarea>
+              <textarea id="featureSymptoms" placeholder="e.g. chest pain"></textarea>
             </div>
             <div class="feature-row">
               <label for="featureSymptomCount">Symptoms Count</label>
@@ -954,6 +954,12 @@
         .replace(/[^a-z0-9_]+/g, "");
     }
 
+    function sanitizeSymptomsText(value) {
+      return String(value ?? "")
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s{2,}/g, " ");
+    }
+
     function syncSymptomFlags(features) {
       const synced = { ...(features || {}) };
       if (!Object.prototype.hasOwnProperty.call(synced, "Symptoms")) {
@@ -983,7 +989,12 @@
       if (!hasValue(base.Family_History)) base.Family_History = "no";
       const age = document.getElementById("featureAge").value.trim();
       const gender = document.getElementById("featureGender").value.trim();
-      const symptoms = document.getElementById("featureSymptoms").value.trim();
+      const symptomsInput = document.getElementById("featureSymptoms");
+      const cleanedSymptoms = sanitizeSymptomsText(symptomsInput.value);
+      if (symptomsInput.value !== cleanedSymptoms) {
+        symptomsInput.value = cleanedSymptoms;
+      }
+      const symptoms = cleanedSymptoms.trim();
       const symptomCount = document.getElementById("featureSymptomCount").value.trim();
       const glucose = document.getElementById("featureGlucose").value.trim();
       const heightCm = document.getElementById("featureHeightCm").value.trim();
@@ -1451,6 +1462,14 @@
       riskPanelTimer = setTimeout(() => {
         updateRiskPanel(parseEditableFeatures());
       }, 280);
+    });
+
+    const symptomsInput = document.getElementById("featureSymptoms");
+    symptomsInput.addEventListener("input", () => {
+      const cleaned = sanitizeSymptomsText(symptomsInput.value);
+      if (symptomsInput.value !== cleaned) {
+        symptomsInput.value = cleaned;
+      }
     });
 
     document.getElementById("editFeaturesBtn").addEventListener("click", () => {

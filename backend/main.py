@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.wsgi import WSGIMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from flask_app import app as flask_portal_app
 
@@ -148,6 +148,11 @@ def health() -> Dict[str, str]:
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon() -> RedirectResponse:
     return RedirectResponse(url="/static/favicon.svg", status_code=307)
+
+
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+def chrome_devtools_probe() -> Response:
+    return Response(status_code=204)
 
 
 @app.post("/predict-risk", response_model=RiskPredictionResponse)

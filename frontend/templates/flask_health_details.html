@@ -601,8 +601,30 @@
     const leaveModal = document.getElementById("leaveModal");
     const stayOnPageBtn = document.getElementById("stayOnPageBtn");
     const leavePageBtn = document.getElementById("leavePageBtn");
+    const symptomsEl = document.getElementById("symptoms");
     let healthFormSubmitted = false;
     let isLeaveModalOpen = false;
+
+    function sanitizeSymptomsText(value) {
+      return String(value ?? "")
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s{2,}/g, " ");
+    }
+
+    function validateSymptoms() {
+      if (!symptomsEl) return true;
+      const cleaned = sanitizeSymptomsText(symptomsEl.value);
+      if (symptomsEl.value !== cleaned) {
+        symptomsEl.value = cleaned;
+      }
+      const finalText = symptomsEl.value.trim();
+      if (!finalText) {
+        symptomsEl.setCustomValidity("Symptoms must contain letters only.");
+        return false;
+      }
+      symptomsEl.setCustomValidity("");
+      return true;
+    }
 
     function toNum(value) {
       const n = Number(value);
@@ -630,8 +652,20 @@
     document.getElementById("weight_kg").addEventListener("input", syncBmi);
     syncBmi();
 
+    if (symptomsEl) {
+      symptomsEl.addEventListener("input", validateSymptoms);
+      symptomsEl.addEventListener("paste", () => setTimeout(validateSymptoms, 0));
+      symptomsEl.addEventListener("drop", () => setTimeout(validateSymptoms, 0));
+      validateSymptoms();
+    }
+
     if (healthForm) {
-      healthForm.addEventListener("submit", () => {
+      healthForm.addEventListener("submit", (event) => {
+        if (!validateSymptoms()) {
+          event.preventDefault();
+          symptomsEl.reportValidity();
+          return;
+        }
         healthFormSubmitted = true;
       });
     }
