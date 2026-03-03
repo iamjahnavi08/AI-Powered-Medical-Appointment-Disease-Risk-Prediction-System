@@ -206,7 +206,6 @@
       flex-wrap: wrap;
       margin-bottom: 14px;
       padding-bottom: 14px;
-      padding-right: 90px;
       border-bottom: 1px solid rgba(122, 156, 200, 0.34);
     }
 
@@ -1112,48 +1111,6 @@
           <a href="/patient/book-appointment">Patient Booking Page</a>
         </nav>
       </header>
-      <section class="doctor-profile" id="doctorProfile">
-        <button
-          id="profileTrigger"
-          class="profile-trigger"
-          type="button"
-          aria-haspopup="true"
-          aria-expanded="false"
-          aria-controls="profileMenu"
-          aria-label="Open doctor profile summary"
-        >
-          <span class="profile-photo" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 12a4.6 4.6 0 1 0-4.6-4.6A4.6 4.6 0 0 0 12 12Zm0 1.7c-4 0-7.4 2.3-8.2 5.5h16.4c-.8-3.2-4.2-5.5-8.2-5.5Z"/></svg>
-          </span>
-          <span class="profile-presence-dot" aria-hidden="true"></span>
-        </button>
-        <div class="profile-menu" id="profileMenu" role="dialog" aria-label="Doctor profile summary">
-          <div class="profile-head">
-            <span class="profile-photo" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M12 12a4.6 4.6 0 1 0-4.6-4.6A4.6 4.6 0 0 0 12 12Zm0 1.7c-4 0-7.4 2.3-8.2 5.5h16.4c-.8-3.2-4.2-5.5-8.2-5.5Z"/></svg>
-            </span>
-            <div class="profile-name-wrap">
-              <h3 class="profile-name" id="profileDoctorName">Dr. Vishnu</h3>
-              <p class="profile-sub">Doctor Profile Summary</p>
-            </div>
-          </div>
-          <div class="profile-body">
-            <div class="profile-stats">
-              <div class="profile-item">
-                <div class="lbl">Experience</div>
-                <div class="val">8+ Years Experience</div>
-              </div>
-              <div class="profile-item">
-                <div class="lbl">Patients</div>
-                <div class="val">1,240 Patients</div>
-              </div>
-            </div>
-            <div class="profile-speciality">Specialization: Cardiologist</div>
-            <div class="profile-status"><span class="dot"></span>Online / Available</div>
-          </div>
-        </div>
-      </section>
-
       <section class="grid-cards">
         <article class="kpi">
           <div class="k">Total Patients</div>
@@ -1391,63 +1348,6 @@
 
     function safeText(value) {
       return value == null ? "" : String(value);
-    }
-
-    function formatDoctorNameFromId(rawId) {
-      const raw = safeText(rawId).trim();
-      const head = raw.split("@")[0] || raw;
-      const normalized = head
-        .replace(/[^a-zA-Z\s]/g, " ")
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join(" ");
-      return normalized ? `Dr. ${normalized}` : "Dr. Vishnu";
-    }
-
-    function initDoctorProfileCard() {
-      const wrap = document.getElementById("doctorProfile");
-      const trigger = document.getElementById("profileTrigger");
-      const menu = document.getElementById("profileMenu");
-      const nameEl = document.getElementById("profileDoctorName");
-      const doctorIdEl = document.querySelector(".title p strong");
-      if (!wrap || !trigger || !menu) return;
-
-      if (nameEl && doctorIdEl) {
-        nameEl.textContent = formatDoctorNameFromId(doctorIdEl.textContent);
-      }
-
-      const closeMenu = () => {
-        wrap.classList.remove("open");
-        trigger.setAttribute("aria-expanded", "false");
-      };
-      const openMenu = () => {
-        wrap.classList.add("open");
-        trigger.setAttribute("aria-expanded", "true");
-      };
-      const toggleMenu = () => {
-        if (wrap.classList.contains("open")) closeMenu();
-        else openMenu();
-      };
-
-      trigger.addEventListener("click", (event) => {
-        event.stopPropagation();
-        toggleMenu();
-      });
-      menu.addEventListener("click", (event) => {
-        event.stopPropagation();
-      });
-      document.addEventListener("click", (event) => {
-        if (!wrap.contains(event.target)) {
-          closeMenu();
-        }
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          closeMenu();
-        }
-      });
     }
 
     function normalizeRisk(level) {
@@ -2012,7 +1912,6 @@
 
     populateDateFilterOptions();
     initCookieBanner();
-    initDoctorProfileCard();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         document.body.classList.add("dashboard-ready");

@@ -26,6 +26,8 @@ app = Flask(
     static_url_path="/static",
 )
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-this-secret-key")
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.jinja_env.auto_reload = True
 
 doctor_auth_manager = DoctorAuthManager()
 risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
