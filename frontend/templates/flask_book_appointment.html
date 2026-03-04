@@ -801,6 +801,7 @@
     let loadedPatientFeatures = null;
     let riskPanelTimer = null;
     let riskPanelRequestId = 0;
+    let appointmentTimeTouched = false;
 
     async function postJson(url, payload) {
       const res = await fetch(url, {
@@ -848,6 +849,56 @@
     function setInputValue(id, value) {
       const el = document.getElementById(id);
       if (el) el.value = value == null ? "" : String(value);
+    }
+
+    function toInputDateValue(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function toInputTimeValue(date) {
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      return `${hh}:${mm}`;
+    }
+
+    function roundUpToNextMinutes(date, minutesStep) {
+      const d = new Date(date.getTime());
+      d.setSeconds(0, 0);
+      const minute = d.getMinutes();
+      const offset = (minutesStep - (minute % minutesStep)) % minutesStep;
+      d.setMinutes(minute + offset);
+      return d;
+    }
+
+    function applyRecommendedSlotToAppointmentInputs(slotText) {
+      const dateInput = document.getElementById("appointmentDate");
+      const timeInput = document.getElementById("appointmentTimeOnly");
+      if (!dateInput || !timeInput) return;
+
+      if (appointmentTimeTouched && dateInput.value && timeInput.value) {
+        return;
+      }
+
+      const slot = String(slotText || "").toLowerCase();
+      const now = new Date();
+      let target = new Date(now.getTime() + 60 * 60 * 1000);
+
+      if (slot.includes("next available")) {
+        target = new Date(now.getTime());
+        target.setDate(target.getDate() + 1);
+        target.setHours(10, 0, 0, 0);
+      } else if (slot.includes("today")) {
+        target = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      } else if (slot.includes("within 1 hour")) {
+        target = new Date(now.getTime() + 60 * 60 * 1000);
+      }
+
+      target = roundUpToNextMinutes(target, 5);
+      dateInput.value = toInputDateValue(target);
+      timeInput.value = toInputTimeValue(target);
     }
 
     function calculateBmiMetrics(heightCmValue, weightKgValue) {
@@ -1236,6 +1287,7 @@
       }
       badgeEl.textContent = priorityText || "Normal Appointment";
       slotEl.textContent = `Recommended Slot: ${slotText || "Next Available Date"}`;
+      applyRecommendedSlotToAppointmentInputs(slotText || "Next Available Date");
     }
 
     function triageFromRiskClass(riskText) {
@@ -1539,6 +1591,21 @@
         updateRiskPanel(parseEditableFeatures());
       }, 280);
     });
+
+    const appointmentDateInput = document.getElementById("appointmentDate");
+    const appointmentTimeInput = document.getElementById("appointmentTimeOnly");
+    const today = toInputDateValue(new Date());
+    if (appointmentDateInput) {
+      appointmentDateInput.min = today;
+      appointmentDateInput.addEventListener("input", () => {
+        appointmentTimeTouched = true;
+      });
+    }
+    if (appointmentTimeInput) {
+      appointmentTimeInput.addEventListener("input", () => {
+        appointmentTimeTouched = true;
+      });
+    }
 
     const symptomsInput = document.getElementById("featureSymptoms");
     symptomsInput.addEventListener("input", () => {
