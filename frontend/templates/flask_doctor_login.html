@@ -32,6 +32,152 @@
       animation: fade-in 700ms ease both;
     }
 
+
+    :root {
+      --sidebar-expanded: 252px;
+      --sidebar-collapsed: 86px;
+    }
+    .app-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--sidebar-expanded);
+      background: linear-gradient(180deg, #f7fcff 0%, #eef8f8 100%);
+      border-right: 1px solid #d7e7e7;
+      box-shadow: 10px 0 26px rgba(44, 109, 109, 0.14);
+      padding: 14px 12px;
+      z-index: 80;
+      transition: width 0.28s ease;
+      overflow: hidden;
+    }
+    .sidebar-top { display: grid; gap: 10px; margin-bottom: 12px; }
+    .sidebar-headline { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+    .menu-title {
+      margin: 0;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      color: #4f6f7a;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .sidebar-toggle {
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      border: 1px solid #cde4e4;
+      background: #ffffff;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      color: #2b7f86;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid #cee6e6;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #dff3f5, #ecf8f8);
+      white-space: nowrap;
+    }
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #bde0e0;
+      background: #f3fbfb;
+      display: grid;
+      place-items: center;
+      color: #2f8f95;
+      flex: 0 0 auto;
+    }
+    .brand-icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .brand-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .brand-title { font-size: 0.86rem; color: #1f878d; font-weight: 800; line-height: 1.1; }
+    .brand-sub { font-size: 0.68rem; color: #67939a; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .sidebar-profile {
+      margin: 10px 0 8px;
+      padding: 10px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #cfe5e5;
+      background: rgba(229, 246, 247, 0.9);
+    }
+    .profile-avatar-mini {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #b8dddd;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: #1e6f78;
+      background: linear-gradient(145deg, #e8f9fb, #d2eef1);
+      flex: 0 0 auto;
+    }
+    .profile-meta-mini { min-width: 0; line-height: 1.2; }
+    .profile-name-mini { color: #1f4d56; font-size: 0.95rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-role-mini { color: #4d7d85; font-size: 0.78rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-menu { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+    .sidebar-link {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #215d66;
+      font-weight: 700;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .sidebar-link:hover { background: #e8f5f6; color: #1d646d; }
+    .sidebar-link.active { background: linear-gradient(120deg, #d6eff2, #cfeaed); color: #1a7880; box-shadow: inset 0 0 0 1px #b9dfe4; }
+    .sidebar-link.active::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 4px; border-radius: 8px; background: linear-gradient(180deg, #63bfc6, #55aeb6); }
+    .sidebar-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #eef9fa;
+      border: 1px solid #c8e6e8;
+      color: #2e9198;
+      flex: 0 0 auto;
+    }
+    .sidebar-icon svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .sidebar-label { overflow: hidden; text-overflow: ellipsis; }
+    .shell {
+      width: min(1320px, calc(100vw - var(--sidebar-expanded) - 28px));
+      margin: 0 12px 0 calc(var(--sidebar-expanded) + 12px);
+      transition: margin-left 0.28s ease, width 0.28s ease;
+    }
+    body.sidebar-collapsed .app-sidebar { width: var(--sidebar-collapsed); }
+    body.sidebar-collapsed .menu-title,
+    body.sidebar-collapsed .brand-text,
+    body.sidebar-collapsed .sidebar-label,
+    body.sidebar-collapsed .profile-meta-mini { opacity: 0; visibility: hidden; width: 0; }
+    body.sidebar-collapsed .sidebar-headline,
+    body.sidebar-collapsed .sidebar-brand,
+    body.sidebar-collapsed .sidebar-link { justify-content: center; }
+    body.sidebar-collapsed .sidebar-profile { justify-content: center; }
+    body.sidebar-collapsed .shell {
+      width: min(1320px, calc(100vw - var(--sidebar-collapsed) - 28px));
+      margin-left: calc(var(--sidebar-collapsed) + 12px);
+    }
+
+
     .scene {
       position: fixed;
       inset: 0;
@@ -88,15 +234,21 @@
     .shell {
       position: relative;
       z-index: 2;
-      width: min(1320px, 95vw);
+      width: min(1320px, calc(100vw - var(--sidebar-expanded) - 28px));
       flex: 1;
-      min-height: calc(100vh - 92px);
-      margin: 0 auto;
+      min-height: calc(100vh - 70px);
+      margin: 0 12px 0 calc(var(--sidebar-expanded) + 12px);
       padding: clamp(1rem, 2.2vw, 1.8rem) clamp(1rem, 2.6vw, 2.2rem) clamp(0.8rem, 1.6vw, 1.2rem);
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
       gap: clamp(1rem, 2vw, 1.7rem);
       align-items: center;
+      transition: margin-left 0.28s ease, width 0.28s ease;
+    }
+
+    body.sidebar-collapsed .shell {
+      width: min(1320px, calc(100vw - var(--sidebar-collapsed) - 28px));
+      margin-left: calc(var(--sidebar-collapsed) + 12px);
     }
 
     .hospital {
@@ -151,7 +303,7 @@
       margin-top: 0.7rem;
       width: 100%;
       max-width: 660px;
-      max-height: 42vh;
+      max-height: 31vh;
       border-radius: 1.22rem;
       border: 1px solid rgba(221, 229, 245, 0.96);
       overflow: hidden;
@@ -168,10 +320,12 @@
       animation: breathe 10s ease-in-out infinite;
     }
 
-    .right { display: flex; justify-content: center; }
+    .right { display: flex; justify-content: center; align-items: start; }
 
     .card {
       width: min(540px, 100%);
+      max-height: calc(100vh - 130px);
+      overflow: auto;
       border-radius: 1.9rem;
       border: 1px solid rgba(218, 230, 248, 0.95);
       background: var(--card-bg);
@@ -329,10 +483,33 @@
     @keyframes wave-rise { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
     @media (max-width: 1030px) {
-      .shell { min-height: auto; grid-template-columns: 1fr; align-items: start; }
-      .left-image { max-width: 100%; max-height: 34vh; }
+      .app-sidebar {
+        width: var(--sidebar-collapsed);
+      }
+      .menu-title,
+      .brand-text,
+      .sidebar-label,
+      .profile-meta-mini {
+        opacity: 0;
+        visibility: hidden;
+        width: 0;
+      }
+      .sidebar-headline,
+      .sidebar-brand,
+      .sidebar-link,
+      .sidebar-profile {
+        justify-content: center;
+      }
+      .shell {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        align-items: start;
+        width: calc(100vw - var(--sidebar-collapsed) - 16px);
+        margin: 0 8px 0 calc(var(--sidebar-collapsed) + 8px);
+      }
+      .left-image { max-width: 100%; max-height: 30vh; }
       .right { justify-content: stretch; }
-      .card { width: 100%; }
+      .card { width: 100%; max-height: none; overflow: visible; }
       .dna-wave { height: 140px; bottom: -22px; }
     }
 
@@ -408,7 +585,45 @@
     }
   </style>
 </head>
-<body>
+<body data-nav-active="Doctor Login">
+  {% set sidebar_name = (form_data.doctor_id if form_data and form_data.doctor_id else "Doctor") %}
+
+  <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
+    <div class="sidebar-top">
+      <div class="sidebar-headline">
+        <p class="menu-title">MENU</p>
+        <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true">&lsaquo;</button>
+      </div>
+      <div class="sidebar-brand">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><path d="M7 7h10v10H7z"/></svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-title">AIHealth Hub</span>
+          <span class="brand-sub">Healthcare System</span>
+        </span>
+      </div>
+      <div class="sidebar-profile" id="sidebarProfile">
+        <span class="profile-avatar-mini">{{ sidebar_name[:2]|upper }}</span>
+        <div class="profile-meta-mini">
+          <div class="profile-name-mini">{{ sidebar_name }}</div>
+          <div class="profile-role-mini">Doctor Portal</div>
+        </div>
+      </div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a class="sidebar-link" data-nav="Dashboard" href="/doctor/dashboard"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
+      <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
+      <li><a class="sidebar-link" data-nav="Doctor Login" href="/doctor/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></span><span class="sidebar-label">Doctor Login</span></a></li>
+      <li><a class="sidebar-link" data-nav="Patient Login" href="/patient/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></span><span class="sidebar-label">Patient Login</span></a></li>
+      <li><a class="sidebar-link" data-nav="Portal Login" href="/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span><span class="sidebar-label">Portal Login</span></a></li>
+      <li><a class="sidebar-link" data-nav="Health Details" href="/patient/health-details"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg></span><span class="sidebar-label">Health Details</span></a></li>
+      <li><a class="sidebar-link" data-nav="AI Risk Prediction" href="/patient/book-appointment#overallRisk"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Prediction</span></a></li>
+      <li><a class="sidebar-link" data-nav="Profile" href="/patient/booking-confirmation"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span><span class="sidebar-label">Profile</span></a></li>
+      <li><a class="sidebar-link" data-nav="Logout" href="{{ url_for('doctor_logout') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
+    </ul>
+  </aside>
+
   <div class="scene" aria-hidden="true">
     <div class="sparkles"></div>
 
@@ -493,6 +708,46 @@
 </main>
 
   <script>
+
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebarLinks = document.querySelectorAll(".sidebar-link");
+
+    function applySidebarState(collapsed) {
+      document.body.classList.toggle("sidebar-collapsed", collapsed);
+      if (sidebarToggle) {
+        sidebarToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        sidebarToggle.innerHTML = collapsed ? "&rsaquo;" : "&lsaquo;";
+      }
+    }
+
+    function initSidebar() {
+      const saved = localStorage.getItem("aihealth_sidebar_collapsed");
+      if (saved === "1") {
+        applySidebarState(true);
+      } else if (saved === "0") {
+        applySidebarState(false);
+      } else {
+        applySidebarState(window.matchMedia("(max-width: 900px)").matches);
+      }
+
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", () => {
+          const collapsed = !document.body.classList.contains("sidebar-collapsed");
+          applySidebarState(collapsed);
+          localStorage.setItem("aihealth_sidebar_collapsed", collapsed ? "1" : "0");
+        });
+      }
+
+      const activeName = document.body.dataset.navActive || "";
+      sidebarLinks.forEach((link) => {
+        if (link.dataset.nav === activeName) {
+          link.classList.add("active");
+        }
+      });
+    }
+
+    initSidebar();
+
     const LOGIN_COOKIE_DAYS = 30;
 
     function setCookie(name, value, days) {

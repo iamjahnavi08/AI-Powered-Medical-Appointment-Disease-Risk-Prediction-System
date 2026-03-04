@@ -553,26 +553,41 @@
     @keyframes drawLine {
       to { stroke-dashoffset: 0; }
     }
+    @keyframes haloDrift {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.55; }
+      50% { transform: translate(8px, -6px) scale(1.06); opacity: 0.78; }
+    }
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(57, 112, 188, 0.18); }
+      50% { box-shadow: 0 0 0 6px rgba(57, 112, 188, 0); }
+    }
+    @keyframes headerSweep {
+      0% { transform: translateX(-120%); }
+      70%, 100% { transform: translateX(140%); }
+    }
 
     .shell {
-      max-width: 1280px;
+      max-width: 1420px;
       margin: 0 auto;
-      padding: 24px 16px 30px calc(16px + var(--sidebar-expanded));
+      padding: 14px 14px 20px calc(14px + var(--sidebar-expanded));
       position: relative;
       z-index: 1;
       transition: padding-left 0.28s ease;
     }
     body.sidebar-collapsed .shell {
-      padding-left: calc(16px + var(--sidebar-collapsed));
+      padding-left: calc(14px + var(--sidebar-collapsed));
     }
 
     .frame {
       position: relative;
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.97) 0%, rgba(242, 248, 255, 0.96) 100%);
-      border: 1px solid rgba(151, 176, 210, 0.45);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 20px 48px rgba(18, 45, 84, 0.12);
+      background:
+        radial-gradient(circle at 92% 12%, rgba(86, 153, 235, 0.13), transparent 35%),
+        radial-gradient(circle at 8% 88%, rgba(41, 182, 157, 0.11), transparent 38%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.98) 0%, rgba(243, 248, 255, 0.96) 100%);
+      border: 1px solid rgba(149, 176, 213, 0.5);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 18px 42px rgba(18, 45, 84, 0.12);
       overflow: hidden;
       animation: rise-in 880ms ease 120ms both, card-float 7.5s ease-in-out 1.2s infinite;
     }
@@ -587,23 +602,39 @@
       animation: sheenSweep 8s ease-in-out infinite;
       pointer-events: none;
     }
+    .frame::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(86, 151, 233, 0.24) 0%, rgba(86, 151, 233, 0) 68%);
+      pointer-events: none;
+      animation: haloDrift 6.5s ease-in-out infinite;
+    }
 
     .topbar {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       justify-content: space-between;
       align-items: flex-end;
       flex-wrap: wrap;
-      margin-bottom: 14px;
-      padding-bottom: 14px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
       border-bottom: 1px solid rgba(122, 156, 200, 0.34);
     }
 
     .title h1 {
       margin: 0;
       font-family: "Space Grotesk", "Segoe UI", sans-serif;
-      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      font-size: clamp(2.1rem, 3.4vw, 3.15rem);
       color: #10223f;
+      background: linear-gradient(100deg, #10223f, #1e5ca8 52%, #0f7d80 92%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       letter-spacing: 0.02em;
       animation: title-glow 3.6s ease-in-out infinite;
     }
@@ -885,23 +916,36 @@
     .grid-cards {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
     }
 
     .kpi {
+      position: relative;
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 12px;
       box-shadow: 0 6px 16px rgba(14, 41, 80, 0.08);
       opacity: 0;
       transform: translateY(12px);
       transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
     }
+    .kpi::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 0;
+      height: 3px;
+      border-radius: 0 0 999px 999px;
+      background: linear-gradient(90deg, rgba(46, 143, 152, 0.92), rgba(53, 109, 169, 0.88));
+      opacity: 0.92;
+    }
     .kpi:hover {
       transform: translateY(-3px);
       border-color: #9cbbe0;
       box-shadow: 0 12px 26px rgba(15, 54, 99, 0.16);
+      animation: borderGlow 1s ease;
     }
 
     .kpi .k {
@@ -980,9 +1024,10 @@
     }
 
     .panel {
+      position: relative;
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 12px;
       box-shadow: 0 6px 16px rgba(14, 41, 80, 0.08);
       opacity: 0;
@@ -998,8 +1043,30 @@
     .panel h2 {
       margin: 2px 0 10px;
       font-family: "Space Grotesk", "Segoe UI", sans-serif;
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       color: #10284d;
+      position: relative;
+      display: inline-block;
+      padding-right: 8px;
+    }
+    .panel h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(52, 110, 181, 0.92), rgba(18, 130, 132, 0.85));
+    }
+    .panel h2::before {
+      content: "";
+      position: absolute;
+      left: -110%;
+      top: 0;
+      width: 52%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.52), transparent);
+      animation: headerSweep 6.2s ease-in-out infinite;
     }
 
     .risk-layout {
@@ -1173,7 +1240,7 @@
       border-collapse: separate;
       border-spacing: 0;
       border: 1px solid #d3e0f4;
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
       background: #fff;
       font-size: 0.86rem;
@@ -1193,6 +1260,9 @@
       position: sticky;
       top: 0;
       z-index: 1;
+    }
+    tbody tr:nth-child(even) {
+      background: #fbfdff;
     }
 
     .table-wrap {
@@ -1359,7 +1429,7 @@
     .list-box {
       border: 1px solid #d4e1f5;
       border-radius: 12px;
-      background: #f8fbff;
+      background: linear-gradient(165deg, #f9fcff 0%, #f1f7ff 100%);
       padding: 10px;
       min-height: 145px;
     }
@@ -1381,7 +1451,7 @@
     .review {
       border: 1px solid #d4e1f5;
       border-radius: 12px;
-      background: #f8fbff;
+      background: linear-gradient(165deg, #fafdff 0%, #f2f8ff 100%);
       padding: 10px;
       margin-top: 10px;
     }
@@ -2042,20 +2112,27 @@
       return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}`;
     }
 
+    const DATE_FILTER_WINDOW_DAYS = 45;
+
+    function startOfDay(dateObj) {
+      const d = new Date(dateObj);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
     function populateDateFilterOptions() {
       const select = document.getElementById("dateFilter");
       if (!select) return;
 
-      const now = new Date();
+      const now = startOfDay(new Date());
       activeMonthKey = monthKey(now);
       const previousValue = select.value || "all";
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       select.innerHTML = '<option value="all">All Dates</option>';
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        const dt = new Date(year, month, day);
+      // Rolling list: remove past dates automatically and keep adding upcoming dates.
+      for (let offset = 0; offset < DATE_FILTER_WINDOW_DAYS; offset += 1) {
+        const dt = new Date(now);
+        dt.setDate(now.getDate() + offset);
         const option = document.createElement("option");
         option.value = toIsoDay(dt);
         option.textContent = toDdMmYyyy(dt);
