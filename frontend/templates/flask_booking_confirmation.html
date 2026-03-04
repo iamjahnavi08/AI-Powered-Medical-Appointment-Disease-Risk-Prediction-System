@@ -54,6 +54,62 @@
       font-weight: 600;
       padding: 8px 16px;
       display: inline-block;
+      cursor: pointer;
+    }
+    .logout-modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.42);
+      z-index: 2000;
+      padding: 16px;
+    }
+    .logout-modal-overlay.show {
+      display: flex;
+    }
+    .logout-modal {
+      width: min(420px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
+      padding: 22px 20px;
+      text-align: center;
+    }
+    .logout-modal h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+    .logout-modal p {
+      margin: 0 0 18px;
+      color: #334155;
+      font-size: 15px;
+    }
+    .logout-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .logout-confirm-btn,
+    .logout-cancel-btn {
+      border: 0;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 14px;
+      min-width: 120px;
+      cursor: pointer;
+    }
+    .logout-confirm-btn {
+      background: var(--danger);
+      color: #fff;
+    }
+    .logout-cancel-btn {
+      background: #e2e8f0;
+      color: #1e293b;
     }
     .summary-grid {
       display: grid;
@@ -207,7 +263,7 @@
   <main class="shell">
     <div class="topbar">
       <h1>Booking Appointments</h1>
-      <a class="logout-btn" href="{{ url_for('patient_logout') }}">Logout</a>
+      <a class="logout-btn confirm-logout-trigger" href="{{ url_for('patient_logout') }}">Logout</a>
     </div>
 
     <section class="summary-grid">
@@ -291,6 +347,56 @@
       {% endif %}
     </section>
   </main>
+  <div class="logout-modal-overlay" id="logoutModal" aria-hidden="true">
+    <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+      <h3 id="logoutModalTitle">Confirm Logout</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="logout-modal-actions">
+        <button type="button" class="logout-confirm-btn" id="logoutConfirmBtn">Yes, Logout</button>
+        <button type="button" class="logout-cancel-btn" id="logoutCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const trigger = document.querySelector(".confirm-logout-trigger");
+      const modal = document.getElementById("logoutModal");
+      const confirmBtn = document.getElementById("logoutConfirmBtn");
+      const cancelBtn = document.getElementById("logoutCancelBtn");
+      if (!trigger || !modal || !confirmBtn || !cancelBtn) return;
+
+      let logoutUrl = trigger.getAttribute("href") || "";
+
+      function openModal() {
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        logoutUrl = trigger.getAttribute("href") || logoutUrl;
+        openModal();
+      });
+
+      confirmBtn.addEventListener("click", () => {
+        if (logoutUrl) window.location.href = logoutUrl;
+      });
+      cancelBtn.addEventListener("click", closeModal);
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modal.classList.contains("show")) {
+          closeModal();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
 

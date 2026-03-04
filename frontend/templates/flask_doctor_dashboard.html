@@ -245,6 +245,72 @@
       border-color: #8eb2df;
       box-shadow: 0 8px 18px rgba(26, 67, 112, 0.16);
     }
+    .links a.logout-btn {
+      background: linear-gradient(180deg, #ffefe9, #ffd9cd);
+      border-color: #f1b7a6;
+      color: #982d1b;
+    }
+    .links a.logout-btn:hover {
+      border-color: #e59783;
+      box-shadow: 0 10px 20px rgba(149, 41, 20, 0.2);
+    }
+    .logout-modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12, 23, 45, 0.45);
+      z-index: 120;
+      padding: 16px;
+    }
+    .logout-modal-overlay.show {
+      display: flex;
+    }
+    .logout-modal {
+      width: min(420px, 100%);
+      border-radius: 16px;
+      border: 1px solid #cfddf2;
+      background: #ffffff;
+      box-shadow: 0 20px 36px rgba(13, 42, 78, 0.24);
+      padding: 20px;
+      text-align: center;
+    }
+    .logout-modal h3 {
+      margin: 0 0 10px;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: 1.35rem;
+      color: #10284d;
+    }
+    .logout-modal p {
+      margin: 0;
+      color: #38557d;
+      font-size: 0.95rem;
+    }
+    .logout-modal-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .logout-confirm-btn,
+    .logout-cancel-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 14px;
+      min-width: 120px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .logout-confirm-btn {
+      background: #de5a42;
+      color: #fff;
+    }
+    .logout-cancel-btn {
+      background: #e2e8f0;
+      color: #1f3555;
+    }
     .doctor-profile {
       position: absolute;
       top: 12px;
@@ -1109,6 +1175,7 @@
         <nav class="links">
           <a href="/login">Back to Role Login</a>
           <a href="/patient/book-appointment">Patient Booking Page</a>
+          <a href="{{ url_for('doctor_logout') }}" class="logout-btn confirm-logout-trigger">Logout</a>
         </nav>
       </header>
       <section class="grid-cards">
@@ -1319,6 +1386,16 @@
       <button id="cookieDeclineBtn" class="btn-decline" type="button">Decline</button>
     </div>
   </aside>
+  <div class="logout-modal-overlay" id="logoutModal" aria-hidden="true">
+    <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+      <h3 id="logoutModalTitle">Confirm Logout</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="logout-modal-actions">
+        <button type="button" class="logout-confirm-btn" id="logoutConfirmBtn">Yes, Logout</button>
+        <button type="button" class="logout-cancel-btn" id="logoutCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     let cachedAllAppointments = [];
@@ -1331,6 +1408,43 @@
     const cookieBanner = document.getElementById("cookieBanner");
     const cookieAcceptBtn = document.getElementById("cookieAcceptBtn");
     const cookieDeclineBtn = document.getElementById("cookieDeclineBtn");
+    const logoutTrigger = document.querySelector(".confirm-logout-trigger");
+    const logoutModal = document.getElementById("logoutModal");
+    const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
+    const logoutCancelBtn = document.getElementById("logoutCancelBtn");
+    let logoutUrl = logoutTrigger ? (logoutTrigger.getAttribute("href") || "") : "";
+
+    function openLogoutModal() {
+      if (!logoutModal) return;
+      logoutModal.classList.add("show");
+      logoutModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLogoutModal() {
+      if (!logoutModal) return;
+      logoutModal.classList.remove("show");
+      logoutModal.setAttribute("aria-hidden", "true");
+    }
+
+    if (logoutTrigger && logoutConfirmBtn && logoutCancelBtn && logoutModal) {
+      logoutTrigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        logoutUrl = logoutTrigger.getAttribute("href") || logoutUrl;
+        openLogoutModal();
+      });
+      logoutConfirmBtn.addEventListener("click", () => {
+        if (logoutUrl) window.location.href = logoutUrl;
+      });
+      logoutCancelBtn.addEventListener("click", closeLogoutModal);
+      logoutModal.addEventListener("click", (event) => {
+        if (event.target === logoutModal) closeLogoutModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && logoutModal.classList.contains("show")) {
+          closeLogoutModal();
+        }
+      });
+    }
 
     async function postJson(url, payload) {
       const res = await fetch(url, {
