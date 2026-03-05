@@ -10,11 +10,16 @@
     :root {
       --sidebar-expanded: 252px;
       --sidebar-collapsed: 86px;
-      --ink: #123d74;
-      --copy: #314766;
-      --line: #bdd6ee;
-      --card: #f6f9ff;
-      --tile: #f9fcff;
+      --bg-dark: #060d1b;
+      --bg-glow-1: #0b1630;
+      --bg-glow-2: #0f1f3f;
+      --panel: #0d1729;
+      --panel-2: #0f1b31;
+      --panel-line: #203252;
+      --text-main: #e6edf8;
+      --text-dim: #a5b4ce;
+      --text-soft: #8597b7;
+      --accent: #67c8ff;
     }
 
     * { box-sizing: border-box; }
@@ -23,11 +28,11 @@
       margin: 0;
       min-height: 100vh;
       font-family: "Outfit", "Segoe UI", sans-serif;
-      color: var(--copy);
+      color: var(--text-main);
       background:
-        radial-gradient(circle at 13% 11%, rgba(76, 186, 255, 0.17), transparent 35%),
-        radial-gradient(circle at 87% 18%, rgba(255, 183, 152, 0.12), transparent 35%),
-        linear-gradient(180deg, #d9e6f3 0%, #ccdaea 100%);
+        radial-gradient(circle at 10% 12%, rgba(65, 139, 255, 0.18), transparent 32%),
+        radial-gradient(circle at 88% 8%, rgba(33, 196, 255, 0.12), transparent 34%),
+        linear-gradient(180deg, var(--bg-glow-2) 0%, var(--bg-glow-1) 36%, var(--bg-dark) 100%);
     }
 
     .app-sidebar {
@@ -213,176 +218,197 @@
       transition: margin-left .28s ease, width .28s ease;
     }
 
-    .shell {
-      border: 1px solid #b5cbe0;
-      border-radius: 28px;
-      background: var(--card);
-      box-shadow: 0 22px 48px rgba(42, 68, 105, 0.12);
-      padding: 36px 34px 30px;
+    .about-shell {
+      display: grid;
+      gap: 16px;
+      animation: rise .45s ease both;
+    }
+
+    .about-card {
       position: relative;
+      border: 1px solid var(--panel-line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(16, 28, 49, 0.92), rgba(10, 19, 35, 0.95));
+      box-shadow: 0 14px 32px rgba(2, 7, 16, 0.35);
+      padding: 22px 22px 20px;
       overflow: hidden;
-      animation: rise .6s ease both;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: cardIn .62s cubic-bezier(.2,.8,.2,1) forwards;
     }
 
-    .ecg-strip {
-      position: absolute;
-      left: 32px;
-      right: 32px;
-      top: 118px;
-      height: 42px;
-      opacity: .6;
-      pointer-events: none;
-    }
-
-    .ecg-strip svg { width: 100%; height: 100%; display: block; }
-
-    .shell::before {
+    .about-card::after {
       content: "";
       position: absolute;
-      left: 34px;
-      right: 34px;
-      top: 94px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(130, 185, 233, .65), rgba(130, 185, 233, .18));
+      top: 0;
+      left: -140%;
+      width: 70%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(132, 194, 255, 0.13) 48%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      animation: cardSweep 3.4s ease-in-out infinite;
     }
 
-    .content {
-      display: grid;
-      grid-template-columns: 1.08fr .92fr;
-      gap: 22px;
-      align-items: center;
+    .about-card:nth-child(1) { animation-delay: .06s; }
+    .about-card:nth-child(2) { animation-delay: .18s; }
+    .about-card:nth-child(3) { animation-delay: .3s; }
+    .about-card:nth-child(4) { animation-delay: .42s; }
+    .about-card:nth-child(1)::after { animation-delay: .8s; }
+    .about-card:nth-child(2)::after { animation-delay: 1.25s; }
+    .about-card:nth-child(3)::after { animation-delay: 1.7s; }
+    .about-card:nth-child(4)::after { animation-delay: 2.15s; }
+
+    .about-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 38px rgba(3, 10, 23, 0.44);
+      border-color: #2a4270;
     }
 
     h1 {
-      margin: 0;
-      color: var(--ink);
+      margin: 0 0 8px;
+      color: var(--text-main);
       font-family: "Nunito", sans-serif;
-      font-size: clamp(1.72rem, 2.5vw, 2.5rem);
-      line-height: 1.03;
-      letter-spacing: .01em;
-    }
-
-    .subtitle {
-      margin: 10px 0 18px;
-      color: #466188;
-      font-size: clamp(0.96rem, 1.05vw, 1.16rem);
-      font-weight: 600;
-    }
-
-    .lead {
-      margin: 0 0 12px;
-      font-size: clamp(1rem, 1.14vw, 1.26rem);
-      line-height: 1.5;
-      color: #394f6f;
-      max-width: 94%;
-    }
-
-    .lead strong { color: #2f4163; }
-
-    .visual {
-      position: relative;
-      min-height: 520px;
-      border-radius: 220px 220px 30px 30px;
-      border: 1px solid #d5e5f4;
-      background:
-        radial-gradient(circle at 32% 40%, rgba(93, 177, 246, 0.22), transparent 42%),
-        radial-gradient(circle at 70% 72%, rgba(119, 208, 242, 0.17), transparent 45%),
-        linear-gradient(160deg, #edf6ff, #dceafb 58%, #d7e9fa);
-      overflow: hidden;
-      display: grid;
-      place-items: end center;
-      box-shadow: inset 0 0 45px rgba(95, 173, 230, 0.18);
-    }
-
-    .visual::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 18% 57%, rgba(255, 255, 255, 0.66), transparent 28%),
-        radial-gradient(circle at 77% 28%, rgba(255, 255, 255, 0.56), transparent 24%);
-      pointer-events: none;
-    }
-
-    .doctor-img {
-      width: 86%;
-      max-width: 560px;
-      object-fit: contain;
-      filter: drop-shadow(0 18px 30px rgba(56, 97, 141, 0.2));
-      transform: translateY(6px);
-      animation: float 5.5s ease-in-out infinite;
-    }
-
-    .icon-bubble {
-      position: absolute;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 1px solid #c9def0;
-      background: rgba(245, 251, 255, 0.86);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 8px 20px rgba(63, 118, 170, 0.13);
-      animation: bob 4.5s ease-in-out infinite;
-    }
-
-    .icon-bubble svg { width: 34px; height: 34px; stroke: #3e89da; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .b1 { top: 24%; left: 12%; }
-    .b2 { top: 12%; right: 14%; animation-delay: .8s; }
-    .b3 { top: 50%; right: 6%; animation-delay: 1.4s; }
-    .b4 { bottom: 16%; left: 8%; animation-delay: .5s; }
-
-    .tiles {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(220px, 1fr));
-      gap: 14px;
-    }
-
-    .tile {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--tile);
-      padding: 14px 14px 16px;
-      box-shadow: 0 10px 24px rgba(58, 97, 136, 0.08);
-      transition: transform .2s ease, box-shadow .2s ease;
-      animation: rise .6s ease both;
-    }
-
-    .tile:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(58, 97, 136, 0.16); }
-
-    .tile-top {
-      height: 80px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      background:
-        radial-gradient(circle at 26% 35%, rgba(74, 160, 233, 0.24), transparent 30%),
-        linear-gradient(140deg, #eef6ff, #dcecff);
-      display: grid;
-      place-items: center;
-    }
-
-    .tile-top svg { width: 42px; height: 42px; stroke: #2e86de; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-
-    .tile h3 {
-      margin: 0 0 6px;
-      color: #294e7c;
-      font-family: "Nunito", sans-serif;
-      font-size: 1.1rem;
-      font-weight: 800;
+      font-size: clamp(1.7rem, 2.4vw, 2.45rem);
       line-height: 1.1;
     }
 
-    .tile p { margin: 0; color: #516c8e; font-size: .96rem; line-height: 1.35; }
+    .about-intro {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: clamp(0.96rem, 1.02vw, 1.08rem);
+      line-height: 1.55;
+      max-width: 98%;
+    }
+
+    .meta-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .meta-box {
+      border: 1px solid #1f3252;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(9, 18, 36, 0.92), rgba(5, 12, 26, 0.98));
+      padding: 10px 12px 11px;
+      animation: metaPulse 3.2s ease-in-out infinite;
+    }
+
+    .meta-box:nth-child(2) { animation-delay: .32s; }
+    .meta-box:nth-child(3) { animation-delay: .64s; }
+
+    .meta-label {
+      margin: 0 0 4px;
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .meta-value {
+      margin: 0;
+      color: #f0f5ff;
+      font-family: "Nunito", sans-serif;
+      font-size: clamp(1.05rem, 1.5vw, 1.7rem);
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      color: #edf4ff;
+      font-family: "Nunito", sans-serif;
+      font-size: clamp(1.35rem, 1.8vw, 2rem);
+      line-height: 1.15;
+    }
+
+    .section-copy {
+      margin: 0 0 10px;
+      color: var(--text-dim);
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
+
+    .about-list {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 7px;
+      color: #d5e1f8;
+      font-size: 1.02rem;
+      line-height: 1.35;
+    }
+
+    .about-list li {
+      opacity: 0;
+      transform: translateX(-8px);
+      animation: listIn .45s ease forwards;
+    }
+
+    .about-card:nth-child(2) .about-list li:nth-child(1) { animation-delay: .34s; }
+    .about-card:nth-child(2) .about-list li:nth-child(2) { animation-delay: .41s; }
+    .about-card:nth-child(2) .about-list li:nth-child(3) { animation-delay: .48s; }
+    .about-card:nth-child(2) .about-list li:nth-child(4) { animation-delay: .55s; }
+    .about-card:nth-child(2) .about-list li:nth-child(5) { animation-delay: .62s; }
+    .about-card:nth-child(4) .about-list li:nth-child(1) { animation-delay: .58s; }
+    .about-card:nth-child(4) .about-list li:nth-child(2) { animation-delay: .65s; }
+    .about-card:nth-child(4) .about-list li:nth-child(3) { animation-delay: .72s; }
+
+    .dataset-note {
+      margin: 0 0 12px;
+      color: #d8e6ff;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .dataset-note code {
+      color: #f5f9ff;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #1f3252;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0c172d;
+    }
+
+    .data-table td {
+      border-bottom: 1px solid #1d2e4b;
+      padding: 10px 12px;
+      color: #dae6fb;
+      font-size: 0.98rem;
+      line-height: 1.35;
+      vertical-align: top;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .data-table td:first-child {
+      width: 28%;
+      color: #b0c2df;
+      font-weight: 700;
+      background: rgba(120, 162, 224, 0.06);
+    }
 
     .global-page-footer {
       width: 100%;
       margin: 14px auto 0;
       padding: .6rem .8rem;
       border-radius: 999px;
-      border: 1px solid #adc9e4;
-      background: rgba(242, 248, 255, 0.85);
-      color: #5c7899;
+      border: 1px solid #23375b;
+      background: rgba(9, 19, 35, 0.78);
+      color: #98accd;
       text-align: center;
       font-size: clamp(.78rem, .95vw, .92rem);
       font-weight: 600;
@@ -407,13 +433,25 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(6px); }
-      50% { transform: translateY(-2px); }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes bob {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+
+    @keyframes cardSweep {
+      0% { left: -140%; }
+      45%, 100% { left: 170%; }
+    }
+
+    @keyframes metaPulse {
+      0%, 100% { border-color: #1f3252; box-shadow: 0 0 0 rgba(96, 168, 255, 0); }
+      50% { border-color: #2a4370; box-shadow: 0 0 22px rgba(80, 160, 255, 0.15); }
+    }
+
+    @keyframes listIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
 
@@ -426,18 +464,33 @@
         width: calc(100vw - var(--sidebar-collapsed) - 16px);
         margin: 8px 8px 10px calc(var(--sidebar-collapsed) + 8px);
       }
-      .shell { padding: 20px 16px 18px; border-radius: 18px; }
-      .shell::before { left: 16px; right: 16px; top: 80px; }
-      .ecg-strip { left: 16px; right: 16px; top: 100px; }
-      .content { grid-template-columns: 1fr; }
-      .visual { min-height: 380px; border-radius: 24px; }
-      .tiles { grid-template-columns: 1fr; }
+      .about-card { padding: 16px 14px; border-radius: 14px; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .data-table td { padding: 9px 9px; font-size: 0.92rem; }
+      .data-table td:first-child { width: 41%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .about-shell,
+      .about-card,
+      .about-card::after,
+      .meta-box,
+      .about-list li {
+        animation: none !important;
+      }
+
+      .about-card,
+      .about-card:hover {
+        transform: none;
+      }
     }
   </style>
 </head>
 <body data-nav-active="About">
   {% set sidebar_name = session.get('patient_name') or session.get('doctor_name') or 'Patient' %}
   {% set sidebar_role = 'Patient Portal' if session.get('patient_name') else ('Doctor Portal' if session.get('doctor_name') else 'Patient Portal') %}
+  {% set is_patient = session.get('patient_authenticated') %}
+  {% set is_doctor = session.get('doctor_authenticated') %}
 
   <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
     <div class="sidebar-top">
@@ -468,69 +521,97 @@
       </div>
     </div>
     <ul class="sidebar-menu">
-      <li><a class="sidebar-link" data-nav="Dashboard" href="/doctor/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
-      <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
+      <li><a class="sidebar-link" data-nav="About" href="/about"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7h.01"/></svg></span><span class="sidebar-label">About</span></a></li>
       <li><a class="sidebar-link" data-nav="Doctor Login" href="/doctor/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></span><span class="sidebar-label">Doctor Login</span></a></li>
       <li><a class="sidebar-link" data-nav="Patient Login" href="/patient/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg></span><span class="sidebar-label">Patient Login</span></a></li>
       <li><a class="sidebar-link" data-nav="Portal Login" href="/login"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span><span class="sidebar-label">Portal Login</span></a></li>
-      <li><a class="sidebar-link" data-nav="About" href="/about"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7h.01"/></svg></span><span class="sidebar-label">About</span></a></li>
+      {% if is_doctor %}
+      <li><a class="sidebar-link" data-nav="Dashboard" href="/doctor/dashboard"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
+      <li><a class="sidebar-link" data-nav="AI Risk Prediction" href="/doctor/dashboard#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Prediction</span></a></li>
+      <li><a class="sidebar-link" data-nav="Logout" href="{{ url_for('doctor_logout') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
+      {% elif is_patient %}
+      <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
       <li><a class="sidebar-link" data-nav="Health Details" href="/patient/health-details"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg></span><span class="sidebar-label">Health Details</span></a></li>
       <li><a class="sidebar-link" data-nav="AI Risk Prediction" href="/patient/book-appointment#overallRisk"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Prediction</span></a></li>
       <li><a class="sidebar-link" data-nav="Profile" href="/patient/booking-confirmation"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span><span class="sidebar-label">Profile</span></a></li>
       <li><a class="sidebar-link" data-nav="Logout" href="/patient/logout"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
+      {% endif %}
     </ul>
   </aside>
 
   <main class="about-main">
-    <section class="shell">
-      <div class="ecg-strip" aria-hidden="true">
-        <svg viewBox="0 0 1400 100" preserveAspectRatio="none">
-          <path d="M0 56 L160 56 L184 56 L206 20 L228 84 L252 38 L286 56 L560 56 L582 56 L604 22 L628 84 L650 40 L684 56 L948 56 L972 56 L994 22 L1018 82 L1040 40 L1074 56 L1400 56" fill="none" stroke="rgba(116, 184, 239, .8)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-
-      <div class="content">
-        <div class="text-block">
-          <h1>About Our AI Healthcare System</h1>
-          <p class="subtitle">AI-Powered Medical Appointment and Disease Risk Prediction System</p>
-          <p class="lead">
-            Our AI-powered platform enables patients to create accounts, enter health details, and book doctor appointments online.
-            Using advanced intelligence, the system analyzes clinical inputs such as age, symptoms, glucose, blood pressure, and BMI
-            to predict disease risk levels as <strong>Low, Medium, or High</strong>.
-          </p>
-          <p class="lead">
-            It supports doctors with <strong>AI-generated risk indicators</strong>, patient summaries, and appointment management through a
-            dedicated <strong>doctor dashboard</strong>.
-          </p>
-          <p class="lead">Our goal is to make healthcare <strong>smarter, faster, and more efficient</strong> for everyone.</p>
+    <section class="about-shell">
+      <article class="about-card">
+        <h1>About This Project</h1>
+        <p class="about-intro">
+          AIHealth Hub is an AI-assisted healthcare support system for risk-aware appointment planning. It evaluates patient health inputs using historical and engineered clinical features, and provides practical insights for triage support, appointment prioritization, and care follow-up.
+        </p>
+        <div class="meta-grid">
+          <div class="meta-box">
+            <p class="meta-label">Primary Goal</p>
+            <p class="meta-value">Risk Forecast</p>
+          </div>
+          <div class="meta-box">
+            <p class="meta-label">Scope</p>
+            <p class="meta-value">Patient-Level</p>
+          </div>
+          <div class="meta-box">
+            <p class="meta-label">Output Horizon</p>
+            <p class="meta-value">Instant/Visit-Based</p>
+          </div>
         </div>
+      </article>
 
-        <div class="visual">
-          <span class="icon-bubble b1"><svg viewBox="0 0 24 24"><path d="M9 2h6v5H9zM4 7h16v15H4z"/><path d="M8 12h8M12 8v8"/></svg></span>
-          <span class="icon-bubble b2"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-4 4 8 2-4h6"/></svg></span>
-          <span class="icon-bubble b3"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg></span>
-          <span class="icon-bubble b4"><svg viewBox="0 0 24 24"><path d="M4 4h7a5 5 0 0 1 5 5v11"/><path d="M16 20a3 3 0 1 0 0-6h-1"/><path d="M5 4v5a4 4 0 0 0 4 4h3"/></svg></span>
-          <img class="doctor-img" src="https://images.pexels.com/photos/8376233/pexels-photo-8376233.png?auto=compress&cs=tinysrgb&w=1200" alt="Healthcare professional illustration" />
-        </div>
-      </div>
+      <article class="about-card">
+        <h2 class="section-title">How The Project Works</h2>
+        <ul class="about-list">
+          <li>Collects patient profile, vitals, and symptom signals from portal workflows.</li>
+          <li>Transforms raw health entries into model-ready risk features.</li>
+          <li>Runs trained AI models to classify disease risk into actionable levels.</li>
+          <li>Shows doctors and patients a consistent summary for appointment decisions.</li>
+          <li>Supports admin-controlled data updates and model-driven screening flows.</li>
+        </ul>
+      </article>
 
-      <div class="tiles">
-        <article class="tile">
-          <div class="tile-top"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></div>
-          <h3>AI Risk Analysis</h3>
-          <p>Predict disease risks accurately using AI-powered clinical indicators.</p>
-        </article>
-        <article class="tile">
-          <div class="tile-top"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/><path d="m9 14 2 2 4-4"/></svg></div>
-          <h3>Smart Appointment Booking</h3>
-          <p>Easily schedule doctor visits with priority recommendations.</p>
-        </article>
-        <article class="tile">
-          <div class="tile-top"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/><path d="M3 10h3M18 10h3"/></svg></div>
-          <h3>Doctor Decision Support</h3>
-          <p>AI insights and summaries to improve diagnosis and patient care.</p>
-        </article>
-      </div>
+      <article class="about-card">
+        <h2 class="section-title">Data Used By The Model</h2>
+        <p class="dataset-note">Current dataset: <code>backend/datasets/Healthcare_FeatureEngineered.csv</code></p>
+        <table class="data-table" role="table" aria-label="Model data fields">
+          <tbody>
+            <tr>
+              <td>Date &amp; Identity</td>
+              <td>patient id, age, gender, profile linkage, visit context</td>
+            </tr>
+            <tr>
+              <td>Vitals &amp; Risk Signals</td>
+              <td>blood pressure, glucose, bmi, clinical flags, symptom counts</td>
+            </tr>
+            <tr>
+              <td>Symptom Indicators</td>
+              <td>fatigue, chest pain, breathlessness, fever, headache, and encoded symptom categories</td>
+            </tr>
+            <tr>
+              <td>Derived Features</td>
+              <td>engineered risk buckets, normalized symptom tokens, and model-ready encoded attributes</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="about-card">
+        <h2 class="section-title">How To Measure "How Much Better"</h2>
+        <p class="section-copy">
+          Improvement should be measured against your current manual/heuristic triage baseline over the same patient window.
+        </p>
+        <ul class="about-list">
+          <li>Track model error and classification quality: precision, recall, F1, and calibration.</li>
+          <li>Compare missed high-risk cases and unnecessary urgent referrals before vs after adoption.</li>
+          <li>Track appointment quality impact: faster high-risk routing and more stable doctor workload.</li>
+        </ul>
+        <p class="section-copy" style="margin-top:12px;">
+          In this project, "better" means safer prioritization, fewer avoidable misses, and improved consistency in clinical decision support.
+        </p>
+      </article>
     </section>
 
     <footer class="global-page-footer">

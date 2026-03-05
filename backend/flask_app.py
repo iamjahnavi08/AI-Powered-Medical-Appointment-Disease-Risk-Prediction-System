@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 from datetime import datetime, timedelta
+from functools import wraps
 from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import uuid4
@@ -45,6 +46,62 @@ PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Z
 PASSWORD_POLICY_MESSAGE = (
     "Password must contain minimum 8 characters, including uppercase, lowercase, number, and special character."
 )
+
+
+def _is_patient_authenticated() -> bool:
+    return bool(str(session.get("patient_id", "")).strip()) and bool(session.get("patient_authenticated"))
+
+
+def _is_doctor_authenticated() -> bool:
+    return bool(str(session.get("doctor_id", "")).strip()) and bool(session.get("doctor_authenticated"))
+
+
+def _active_role() -> str:
+    if _is_doctor_authenticated():
+        return "doctor"
+    if _is_patient_authenticated():
+        return "patient"
+    return "anonymous"
+
+
+def patient_required(*, api: bool = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            role = _active_role()
+            if role == "patient":
+                return func(*args, **kwargs)
+            if role == "doctor":
+                if api:
+                    return jsonify({"detail": "Forbidden: doctor account cannot access patient endpoint."}), 403
+                return redirect(url_for("doctor_dashboard"))
+            if api:
+                return jsonify({"detail": "Unauthorized"}), 401
+            return redirect(url_for("patient_login"))
+
+        return wrapper
+
+    return decorator
+
+
+def doctor_required(*, api: bool = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            role = _active_role()
+            if role == "doctor":
+                return func(*args, **kwargs)
+            if role == "patient":
+                if api:
+                    return jsonify({"detail": "Forbidden: patient account cannot access doctor endpoint."}), 403
+                return redirect(url_for("book_appointment"))
+            if api:
+                return jsonify({"detail": "Unauthorized"}), 401
+            return redirect(url_for("doctor_login"))
+
+        return wrapper
+
+    return decorator
 
 
 def _parse_appointment_time(value: Any) -> Optional[datetime]:
@@ -688,8 +745,13 @@ def patient_signup() -> Any:
         if not errors:
             try:
                 patient_id = _create_patient_account(name, unique_code, password)
+                session.pop("doctor_id", None)
+                session.pop("doctor_name", None)
+                session.pop("doctor_authenticated", None)
                 session["patient_id"] = patient_id
                 session["patient_name"] = name
+                session["patient_authenticated"] = False
+                session["role"] = "patient"
                 session["allow_health_details"] = True
                 return redirect(url_for("health_details", patient_id=patient_id))
             except ValueError as exc:
@@ -829,6 +891,8 @@ def patient_login() -> Any:
         session.pop("patient_id", None)
         session.pop("patient_name", None)
         session.pop("patient_authenticated", None)
+        if session.get("role") == "patient":
+            session.pop("role", None)
 
     if request.method == "POST":
         login_using = request.form.get("login_using", "patient_name").strip().lower()
@@ -873,6 +937,7 @@ def patient_login() -> Any:
                 session["patient_id"] = patient_id
                 session["patient_name"] = patient_name
                 session["patient_authenticated"] = True
+                session["role"] = "patient"
                 session.pop("health_confirmation", None)
                 session.pop("allow_health_details", None)
                 return render_template(
@@ -891,11 +956,9 @@ def patient_login() -> Any:
 
 
 @app.route("/patient/book-appointment")
+@patient_required()
 def book_appointment() -> Any:
     patient_id = session.get("patient_id")
-    patient_authenticated = bool(session.get("patient_authenticated"))
-    if not patient_id or not patient_authenticated:
-        return redirect(url_for("patient_login"))
     patient_name = str(session.get("patient_name", "")).strip()
     if not patient_name:
         patient_name = _get_patient_name_by_id(str(patient_id).strip())
@@ -913,16 +976,17 @@ def patient_logout() -> Any:
     session.pop("patient_id", None)
     session.pop("patient_name", None)
     session.pop("patient_authenticated", None)
+    if session.get("role") == "patient":
+        session.pop("role", None)
     session.pop("health_confirmation", None)
     session.pop("allow_health_details", None)
     return redirect(url_for("patient_login"))
 
 
 @app.route("/patient/booking-confirmation")
+@patient_required()
 def patient_booking_confirmation() -> Any:
     patient_id = str(session.get("patient_id", "")).strip()
-    if not patient_id:
-        return redirect(url_for("patient_login"))
 
     patient_name = str(session.get("patient_name", "")).strip() or _get_patient_name_by_id(patient_id)
     normalized_pid = _normalize_patient_id(patient_id)
@@ -983,10 +1047,9 @@ def patient_booking_confirmation() -> Any:
 
 
 @app.post("/patient/appointments/cancel")
+@patient_required(api=True)
 def patient_cancel_appointment() -> Any:
     patient_id = str(session.get("patient_id", "")).strip()
-    if not patient_id:
-        return redirect(url_for("patient_login"))
 
     appointment_id = str(request.form.get("appointment_id", "")).strip()
     if not appointment_id:
@@ -1006,6 +1069,14 @@ def patient_cancel_appointment() -> Any:
 
 @app.get("/patient/features/<patient_id>")
 def patient_features(patient_id: str) -> Any:
+    if _is_patient_authenticated():
+        session_pid = _normalize_patient_id(session.get("patient_id"))
+        requested_pid = _normalize_patient_id(patient_id)
+        if session_pid != requested_pid:
+            return jsonify({"detail": "Forbidden: you can only access your own patient record."}), 403
+    elif not _is_doctor_authenticated():
+        return jsonify({"detail": "Unauthorized"}), 401
+
     try:
         features = get_features_for_patient(patient_id)
         return jsonify({"patient_id": patient_id, "patient_features": features})
@@ -1016,6 +1087,7 @@ def patient_features(patient_id: str) -> Any:
 
 
 @app.post("/patient/book-appointment-submit")
+@patient_required(api=True)
 def submit_appointment() -> Any:
     payload = request.get_json(silent=True) or {}
     patient_id = str(payload.get("patient_id", "")).strip()
@@ -1038,6 +1110,11 @@ def submit_appointment() -> Any:
         return jsonify({"detail": "appointment_type is required"}), 400
     if not appointment_time:
         return jsonify({"detail": "appointment_time is required"}), 400
+
+    session_pid = _normalize_patient_id(session.get("patient_id"))
+    payload_pid = _normalize_patient_id(patient_id)
+    if not session_pid or payload_pid != session_pid:
+        return jsonify({"detail": "Forbidden: patient_id does not match your logged-in session."}), 403
 
     try:
         parsed_time = datetime.fromisoformat(appointment_time)
@@ -1150,6 +1227,8 @@ def doctor_login() -> Any:
         session.pop("doctor_id", None)
         session.pop("doctor_name", None)
         session.pop("doctor_authenticated", None)
+        if session.get("role") == "doctor":
+            session.pop("role", None)
 
     if request.method == "POST":
         login_using = request.form.get("login_using", "doctor_id").strip().lower()
@@ -1195,6 +1274,7 @@ def doctor_login() -> Any:
                 session["doctor_id"] = resolved_doctor_id
                 session["doctor_name"] = resolved_doctor_id
                 session["doctor_authenticated"] = True
+                session["role"] = "doctor"
                 return render_template(
                     "flask_doctor_login.html",
                     errors=[],
@@ -1211,11 +1291,9 @@ def doctor_login() -> Any:
 
 
 @app.route("/doctor/dashboard")
+@doctor_required()
 def doctor_dashboard() -> Any:
     doctor_id = session.get("doctor_id")
-    doctor_authenticated = bool(session.get("doctor_authenticated"))
-    if not doctor_id or not doctor_authenticated:
-        return redirect(url_for("doctor_login"))
     doctor_name = str(session.get("doctor_name", "")).strip() or str(doctor_id)
     return render_template("flask_doctor_dashboard.html", doctor_id=doctor_id, doctor_name=doctor_name)
 
@@ -1225,32 +1303,27 @@ def doctor_logout() -> Any:
     session.pop("doctor_id", None)
     session.pop("doctor_name", None)
     session.pop("doctor_authenticated", None)
+    if session.get("role") == "doctor":
+        session.pop("role", None)
     return redirect(url_for("doctor_login"))
 
 
 @app.get("/doctor/appointments")
+@doctor_required(api=True)
 def doctor_appointments() -> Any:
-    doctor_id = session.get("doctor_id")
-    if not doctor_id:
-        return jsonify({"detail": "Unauthorized"}), 401
     appointments = sorted(APPOINTMENTS, key=_doctor_appointment_sort_key)
     return jsonify({"appointments": appointments})
 
 
 @app.get("/doctor/patient-database")
+@doctor_required(api=True)
 def doctor_patient_database() -> Any:
-    doctor_id = session.get("doctor_id")
-    if not doctor_id:
-        return jsonify({"detail": "Unauthorized"}), 401
     return jsonify({"patients": patient_db.list_profiles()})
 
 
 @app.post("/patient/predict-risk")
+@patient_required(api=True)
 def patient_predict_risk() -> Any:
-    patient_id = session.get("patient_id")
-    if not patient_id:
-        return jsonify({"detail": "Unauthorized"}), 401
-
     payload = request.get_json(silent=True) or {}
     patient_features = payload.get("patient_features")
     if not patient_features:
@@ -1276,11 +1349,8 @@ def patient_predict_risk() -> Any:
 
 
 @app.post("/doctor/predict-risk")
+@doctor_required(api=True)
 def doctor_predict_risk() -> Any:
-    doctor_id = session.get("doctor_id")
-    if not doctor_id:
-        return jsonify({"detail": "Unauthorized"}), 401
-
     payload = request.get_json(silent=True) or {}
     patient_features = payload.get("patient_features")
     if not patient_features:
