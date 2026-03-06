@@ -1944,9 +1944,9 @@
     <ul class="sidebar-menu">
       <li><a class="sidebar-link" data-nav="About" href="/about"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7h.01"/></svg></span><span class="sidebar-label">About</span></a></li>
       {% if session.get('doctor_authenticated') %}
-      <li><a class="sidebar-link" data-nav="Dashboard" href="/doctor/dashboard"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
-      <li><a class="sidebar-link" data-nav="AI Risk Analytics" href="/doctor/dashboard#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Analytics</span></a></li>
-      <li><a class="sidebar-link" data-nav="Patient Database" href="/doctor/dashboard#past-appointments"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="6" cy="18" r="1"/></svg></span><span class="sidebar-label">Patient Database</span></a></li>
+      <li><a class="sidebar-link" data-nav="Dashboard" href="{{ url_for('doctor_dashboard') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
+      <li><a class="sidebar-link" data-nav="AI Risk Analytics" href="{{ url_for('doctor_dashboard') }}#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Analytics</span></a></li>
+      <li><a class="sidebar-link" data-nav="Patient Database" href="{{ url_for('doctor_dashboard') }}#past-appointments"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="6" cy="18" r="1"/></svg></span><span class="sidebar-label">Patient Database</span></a></li>
       <li><a class="sidebar-link" data-nav="Logout" href="{{ url_for('doctor_logout') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
       {% elif session.get('patient_authenticated') %}
       <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
@@ -2098,7 +2098,7 @@
         </section>
       </section>
 
-      <section class="panel" id="ai-risk-analytics" style="margin-top:12px;">
+      <section class="panel" id="ai-risk-analytics" style="margin-top:12px; scroll-margin-top: 86px;">
         <h2>AI Risk Analytics</h2>
         <div class="risk-layout">
           <div>
@@ -2141,7 +2141,7 @@
         </div>
       </section>
 
-      <section class="panel" id="past-appointments" style="margin-top:12px;">
+      <section class="panel" id="past-appointments" style="margin-top:12px; scroll-margin-top: 86px;">
         <h2>Patient Database</h2>
         <div class="db-toolbar">
           <input id="dbSearch" class="db-search" type="search" placeholder="Search by Patient ID, Name, Symptoms, Gender..." />
@@ -2205,7 +2205,7 @@
     const sidebarLinks = document.querySelectorAll(".sidebar-link");
     const doctorAppointmentsApi = {{ url_for("doctor_appointments")|tojson }};
     const doctorPatientDatabaseApi = {{ url_for("doctor_patient_database")|tojson }};
-    const doctorLoginUrl = {{ url_for("doctor_login")|tojson }};
+    const roleLoginUrl = {{ url_for("role_login")|tojson }};
     const appDialog = document.getElementById("appDialog");
     const appDialogTitle = document.getElementById("appDialogTitle");
     const appDialogMessage = document.getElementById("appDialogMessage");
@@ -2259,11 +2259,14 @@
 
     showLoginSuccessDialogIfNeeded();
 
-    function resolveActiveNav() {
-      const path = window.location.pathname || "";
-      const hash = window.location.hash || "";
+    function getPathWithoutTrailingSlash(path) {
+      return (path || "").replace(/\/+$/, "");
+    }
 
-      if (path === "/doctor/dashboard") {
+    function resolveActiveNav() {
+      const path = getPathWithoutTrailingSlash(window.location.pathname || "");
+      const hash = window.location.hash || "";
+      if (path.endsWith("/doctor/dashboard")) {
         if (hash === "#past-appointments") return "Patient Database";
         if (hash === "#ai-risk-analytics") return "AI Risk Analytics";
         return "Dashboard";
@@ -2282,14 +2285,27 @@
       setActiveSidebarLink(resolveActiveNav());
     }
 
+    let isLeavingDashboard = false;
+    let dashboardRefreshTimer = null;
+
     async function fetchJsonWithAuth(url) {
+      if (isLeavingDashboard) {
+        throw new Error("Navigation in progress");
+      }
       const res = await fetch(url, {
         method: "GET",
         credentials: "same-origin",
         headers: { "Accept": "application/json" },
       });
       if (res.status === 401 || res.status === 403) {
-        window.location.href = doctorLoginUrl;
+        if (!isLeavingDashboard) {
+          isLeavingDashboard = true;
+          if (dashboardRefreshTimer) {
+            clearInterval(dashboardRefreshTimer);
+            dashboardRefreshTimer = null;
+          }
+          window.location.href = roleLoginUrl;
+        }
         throw new Error("Unauthorized");
       }
       if (!res.ok) {
@@ -2331,13 +2347,28 @@
     window.addEventListener("hashchange", syncActiveSidebarFromLocation);
     window.addEventListener("popstate", syncActiveSidebarFromLocation);
     sidebarLinks.forEach((link) => {
-      link.addEventListener("click", () => {
+      link.addEventListener("click", (event) => {
         const href = link.getAttribute("href") || "";
+        const hashIndex = href.indexOf("#");
+        const targetHash = hashIndex >= 0 ? href.slice(hashIndex) : "";
+        const isCurrentDashboardPath = getPathWithoutTrailingSlash(window.location.pathname || "").endsWith("/doctor/dashboard");
+
+        if (isCurrentDashboardPath && (targetHash === "#past-appointments" || targetHash === "#ai-risk-analytics")) {
+          event.preventDefault();
+          const targetEl = document.querySelector(targetHash);
+          if (targetEl) {
+            history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}${targetHash}`);
+            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          syncActiveSidebarFromLocation();
+          return;
+        }
+
         if (href.endsWith("#past-appointments")) {
           setActiveSidebarLink("Patient Database");
         } else if (href.endsWith("#ai-risk-analytics")) {
           setActiveSidebarLink("AI Risk Analytics");
-        } else if (href === "/doctor/dashboard") {
+        } else if (href.includes("/doctor/dashboard")) {
           setActiveSidebarLink("Dashboard");
         }
       });
@@ -2419,6 +2450,11 @@
         openLogoutModal();
       });
       logoutConfirmBtn.addEventListener("click", () => {
+        isLeavingDashboard = true;
+        if (dashboardRefreshTimer) {
+          clearInterval(dashboardRefreshTimer);
+          dashboardRefreshTimer = null;
+        }
         if (logoutUrl) window.location.href = logoutUrl;
       });
       logoutCancelBtn.addEventListener("click", closeLogoutModal);
@@ -3023,7 +3059,14 @@
       });
     });
     refreshDashboard();
-    setInterval(refreshDashboard, 5000);
+    dashboardRefreshTimer = setInterval(refreshDashboard, 5000);
+    window.addEventListener("beforeunload", () => {
+      isLeavingDashboard = true;
+      if (dashboardRefreshTimer) {
+        clearInterval(dashboardRefreshTimer);
+        dashboardRefreshTimer = null;
+      }
+    });
   </script>
 </body>
 </html>

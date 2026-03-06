@@ -1298,6 +1298,12 @@ def doctor_dashboard() -> Any:
     return render_template("flask_doctor_dashboard.html", doctor_id=doctor_id, doctor_name=doctor_name)
 
 
+@app.route("/doctor/patient-database-page")
+@doctor_required()
+def doctor_patient_database_page() -> Any:
+    return redirect(f'{url_for("doctor_dashboard")}#past-appointments')
+
+
 @app.route("/doctor/logout")
 def doctor_logout() -> Any:
     session.pop("doctor_id", None)
