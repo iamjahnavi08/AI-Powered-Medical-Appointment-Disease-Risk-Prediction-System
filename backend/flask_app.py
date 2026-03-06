@@ -1385,7 +1385,7 @@ def submit_appointment() -> Any:
     if _is_doctor_on_leave(doctor_id, parsed_time):
         if risk_level_text == "high":
             emergency_doctors = _available_emergency_doctors(parsed_time, exclude_doctor_id=doctor_id)
-            alternative = emergency_doctors[0] if emergency_doctors else _find_alternative_doctor(doctor_id, parsed_time)
+            alternative = emergency_doctors[0] if emergency_doctors else None
             if alternative:
                 return jsonify(
                     {
