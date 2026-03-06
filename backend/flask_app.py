@@ -980,7 +980,7 @@ def patient_logout() -> Any:
         session.pop("role", None)
     session.pop("health_confirmation", None)
     session.pop("allow_health_details", None)
-    return redirect(url_for("patient_login"))
+    return redirect(url_for("role_login"))
 
 
 @app.route("/patient/booking-confirmation")
@@ -1305,7 +1305,7 @@ def doctor_logout() -> Any:
     session.pop("doctor_authenticated", None)
     if session.get("role") == "doctor":
         session.pop("role", None)
-    return redirect(url_for("doctor_login"))
+    return redirect(url_for("role_login"))
 
 
 @app.get("/doctor/appointments")
