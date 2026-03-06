@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Patient Database</title>
+  <style>
+    :root {
+      --bg: #eef4ff;
+      --card: #ffffff;
+      --ink: #1f3d6d;
+      --line: #c8d8ee;
+      --accent: #2f73d9;
+      --accent-2: #1f6ba5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(120deg, #f6eae9 0%, #e9eef8 45%, #e7f1ff 100%);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: #f7fbff;
+      padding: 16px 12px;
+    }
+    .brand {
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: #1e7f86;
+    }
+    .profile {
+      border: 1px solid #cde2ea;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #ebf7f8;
+    }
+    .menu { list-style: none; padding: 0; margin: 8px 0 0; }
+    .menu a {
+      display: block;
+      text-decoration: none;
+      color: #225d66;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .menu a.active { background: #cfeaf2; color: #176f77; }
+    .menu a:hover { background: #e5f3f7; }
+    .page {
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #1a2f5a;
+    }
+    .header p {
+      margin: 6px 0 0;
+      color: #4e6489;
+      font-size: 1rem;
+    }
+    .top-actions a {
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #a6bfe3;
+      color: #1d5d95;
+      font-weight: 700;
+      background: #e8f0fd;
+      margin-left: 8px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 10px 22px rgba(35, 72, 124, 0.08);
+      padding: 14px;
+    }
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .title-row h2 {
+      margin: 0;
+      font-size: 2rem;
+      color: #18325d;
+    }
+    .record-count {
+      font-weight: 700;
+      color: #2e6bb8;
+      border: 1px solid #b5cae9;
+      background: #ecf3ff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      white-space: nowrap;
+    }
+    .search {
+      width: 100%;
+      border: 1px solid #bdd0eb;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      outline: none;
+    }
+    .table-wrap {
+      max-height: calc(100vh - 250px);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1080px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #eaf0fb;
+      z-index: 1;
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #dde7f5;
+      color: #3f5579;
+      vertical-align: top;
+    }
+    .muted { color: #6f83a5; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .table-wrap { max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  {% set doctor_display_name = (doctor_name or doctor_id or "Doctor") %}
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">AIHealth Hub</div>
+      <div class="profile">
+        <div><strong>{{ doctor_display_name }}</strong></div>
+        <div class="muted">Doctor Portal</div>
+      </div>
+      <ul class="menu">
+        <li><a href="{{ url_for('about_page') }}">About</a></li>
+        <li><a href="{{ url_for('doctor_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('doctor_dashboard') }}#ai-risk-analytics">AI Risk Analytics</a></li>
+        <li><a class="active" href="{{ url_for('doctor_patient_database_page') }}">Patient Database</a></li>
+        <li><a href="{{ url_for('doctor_logout') }}">Logout</a></li>
+      </ul>
+    </aside>
+    <main class="page">
+      <div class="header">
+        <div>
+          <h1>Patient Database</h1>
+          <p>Hi <strong>{{ doctor_display_name }}</strong>, welcome</p>
+        </div>
+        <div class="top-actions">
+          <a href="{{ url_for('doctor_dashboard') }}">Back To Dashboard</a>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="title-row">
+          <h2>Patient Database</h2>
+          <span class="record-count" id="dbCount">0 records</span>
+        </div>
+        <input id="dbSearch" class="search" type="search" placeholder="Search by Patient ID, Name, Symptoms, Gender..." />
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Symptoms</th>
+                <th>Glucose</th>
+                <th>BP (Sys/Dia)</th>
+                <th>BMI</th>
+                <th>Smoking</th>
+                <th>Alcohol</th>
+                <th>Family History</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody id="patientDbRows">
+              <tr><td colspan="12">Loading patient data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const doctorPatientDatabaseApi = {{ url_for("doctor_patient_database")|tojson }};
+    const roleLoginUrl = {{ url_for("role_login")|tojson }};
+    const dbRows = document.getElementById("patientDbRows");
+    const dbSearch = document.getElementById("dbSearch");
+    const dbCount = document.getElementById("dbCount");
+    let rows = [];
+
+    function safeText(v) {
+      return v == null ? "" : String(v);
+    }
+
+    function fmtNumber(v, decimals = 1) {
+      if (v == null || v === "") return "-";
+      const n = Number(v);
+      if (Number.isNaN(n)) return safeText(v);
+      return n.toFixed(decimals);
+    }
+
+    function parseDate(v) {
+      const t = safeText(v).trim();
+      if (!t) return null;
+      const d = new Date(t);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function rowSearchText(item) {
+      return [
+        safeText(item.patient_id),
+        safeText(item.patient_name),
+        safeText(item.gender),
+        safeText(item.symptoms),
+        safeText(item.medical_history),
+        safeText(item.family_history)
+      ].join(" ").toLowerCase();
+    }
+
+    function renderTable(searchText) {
+      const q = safeText(searchText).trim().toLowerCase();
+      const filtered = !q ? rows : rows.filter((item) => rowSearchText(item).includes(q));
+
+      if (!filtered.length) {
+        dbRows.innerHTML = '<tr><td colspan="12">No patient data found.</td></tr>';
+      } else {
+        dbRows.innerHTML = filtered.map((item) => {
+          const bpSys = fmtNumber(item.blood_pressure_systolic, 0);
+          const bpDia = fmtNumber(item.blood_pressure_diastolic, 0);
+          const bpText = bpSys === "-" && bpDia === "-" ? "-" : `${bpSys}/${bpDia === "-" ? "--" : bpDia}`;
+          const updated = parseDate(item.updated_at);
+          const updatedText = updated ? updated.toLocaleString() : safeText(item.updated_at || "-");
+          return `
+            <tr>
+              <td>${safeText(item.patient_id)}</td>
+              <td>${safeText(item.patient_name || "-")}</td>
+              <td>${fmtNumber(item.age, 0)}</td>
+              <td>${safeText(item.gender || "-")}</td>
+              <td>${safeText(item.symptoms || "-")}</td>
+              <td>${fmtNumber(item.glucose, 1)}</td>
+              <td>${bpText}</td>
+              <td>${fmtNumber(item.calculated_bmi, 1)}</td>
+              <td>${safeText(item.smoking_habit || "-")}</td>
+              <td>${safeText(item.alcohol_habit || "-")}</td>
+              <td>${safeText(item.family_history || "-")}</td>
+              <td>${updatedText}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+      dbCount.textContent = `${filtered.length} records`;
+    }
+
+    async function fetchPatientDatabase() {
+      const res = await fetch(doctorPatientDatabaseApi, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+      });
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = roleLoginUrl;
+        return;
+      }
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = await res.json();
+      rows = Array.isArray(data.patients) ? data.patients : [];
+      renderTable(dbSearch.value);
+    }
+
+    dbSearch.addEventListener("input", (e) => renderTable(e.target.value));
+    fetchPatientDatabase().catch(() => {
+      dbRows.innerHTML = '<tr><td colspan="12">Failed to load patient data.</td></tr>';
+      dbCount.textContent = "0 records";
+    });
+  </script>
+</body>
+</html>

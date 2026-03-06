@@ -1634,6 +1634,7 @@
     body.dashboard-ready .main-grid .panel:nth-child(2) { animation-delay: 0.34s; }
     body.dashboard-ready .frame > .panel:nth-of-type(1) { animation-delay: 0.38s; }
     body.dashboard-ready .frame > .panel:nth-of-type(2) { animation-delay: 0.42s; }
+
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0.01ms !important;
@@ -1946,7 +1947,7 @@
       {% if session.get('doctor_authenticated') %}
       <li><a class="sidebar-link" data-nav="Dashboard" href="{{ url_for('doctor_dashboard') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Dashboard</span></a></li>
       <li><a class="sidebar-link" data-nav="AI Risk Analytics" href="{{ url_for('doctor_dashboard') }}#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Analytics</span></a></li>
-      <li><a class="sidebar-link" data-nav="Patient Database" href="{{ url_for('doctor_dashboard') }}#past-appointments"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="6" cy="18" r="1"/></svg></span><span class="sidebar-label">Patient Database</span></a></li>
+      <li><a class="sidebar-link" data-nav="Patient Database" href="{{ url_for('doctor_patient_database_page') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="6" cy="18" r="1"/></svg></span><span class="sidebar-label">Patient Database</span></a></li>
       <li><a class="sidebar-link" data-nav="Logout" href="{{ url_for('doctor_logout') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
       {% elif session.get('patient_authenticated') %}
       <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
@@ -2141,36 +2142,6 @@
         </div>
       </section>
 
-      <section class="panel" id="past-appointments" style="margin-top:12px; scroll-margin-top: 86px;">
-        <h2>Patient Database</h2>
-        <div class="db-toolbar">
-          <input id="dbSearch" class="db-search" type="search" placeholder="Search by Patient ID, Name, Symptoms, Gender..." />
-          <span id="dbCount" class="db-meta">0 records</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Patient ID</th>
-                <th>Patient Name</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Symptoms</th>
-                <th>Glucose</th>
-                <th>BP (Sys/Dia)</th>
-                <th>BMI</th>
-                <th>Smoking</th>
-                <th>Alcohol</th>
-                <th>Family History</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody id="patientDbRows">
-              <tr><td colspan="12">No patient data found.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
     </section>
   </main>
   <aside id="cookieBanner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie consent">
@@ -2204,7 +2175,6 @@
     const sidebarToggle = document.getElementById("sidebarToggle");
     const sidebarLinks = document.querySelectorAll(".sidebar-link");
     const doctorAppointmentsApi = {{ url_for("doctor_appointments")|tojson }};
-    const doctorPatientDatabaseApi = {{ url_for("doctor_patient_database")|tojson }};
     const roleLoginUrl = {{ url_for("role_login")|tojson }};
     const appDialog = document.getElementById("appDialog");
     const appDialogTitle = document.getElementById("appDialogTitle");
@@ -2267,7 +2237,6 @@
       const path = getPathWithoutTrailingSlash(window.location.pathname || "");
       const hash = window.location.hash || "";
       if (path.endsWith("/doctor/dashboard")) {
-        if (hash === "#past-appointments") return "Patient Database";
         if (hash === "#ai-risk-analytics") return "AI Risk Analytics";
         return "Dashboard";
       }
@@ -2353,7 +2322,7 @@
         const targetHash = hashIndex >= 0 ? href.slice(hashIndex) : "";
         const isCurrentDashboardPath = getPathWithoutTrailingSlash(window.location.pathname || "").endsWith("/doctor/dashboard");
 
-        if (isCurrentDashboardPath && (targetHash === "#past-appointments" || targetHash === "#ai-risk-analytics")) {
+        if (isCurrentDashboardPath && targetHash === "#ai-risk-analytics") {
           event.preventDefault();
           const targetEl = document.querySelector(targetHash);
           if (targetEl) {
@@ -2364,10 +2333,10 @@
           return;
         }
 
-        if (href.endsWith("#past-appointments")) {
-          setActiveSidebarLink("Patient Database");
-        } else if (href.endsWith("#ai-risk-analytics")) {
+        if (href.endsWith("#ai-risk-analytics")) {
           setActiveSidebarLink("AI Risk Analytics");
+        } else if (href.includes("/doctor/patient-database-page")) {
+          setActiveSidebarLink("Patient Database");
         } else if (href.includes("/doctor/dashboard")) {
           setActiveSidebarLink("Dashboard");
         }
@@ -2376,7 +2345,6 @@
 
     let cachedAllAppointments = [];
     let cachedAppointments = [];
-    let cachedPatientDbRows = [];
     let selectedAppointmentKey = null;
     let selectedPatientFeatures = null;
     let activeMonthKey = "";
@@ -2955,59 +2923,6 @@
       selectAppointment(selectedIndex);
     }
 
-    function patientDbSearchText(item) {
-      return [
-        safeText(item.patient_id),
-        safeText(item.patient_name),
-        safeText(item.gender),
-        safeText(item.symptoms),
-        safeText(item.medical_history),
-        safeText(item.family_history)
-      ].join(" ").toLowerCase();
-    }
-
-    function renderPatientDatabaseTable(rows, searchText) {
-      const tbody = document.getElementById("patientDbRows");
-      const query = safeText(searchText).trim().toLowerCase();
-      const filtered = !query ? rows : rows.filter((item) => patientDbSearchText(item).includes(query));
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12">No patient data found.</td></tr>';
-      } else {
-        tbody.innerHTML = filtered.map((item) => {
-          const bpSys = fmtNumber(item.blood_pressure_systolic, 0);
-          const bpDia = fmtNumber(item.blood_pressure_diastolic, 0);
-          const bpText = bpSys === "-" && bpDia === "-" ? "-" : `${bpSys}/${bpDia === "-" ? "--" : bpDia}`;
-          const updated = parseDate(item.updated_at);
-          const updatedText = updated ? updated.toLocaleString() : safeText(item.updated_at || "-");
-          return `
-            <tr>
-              <td>${safeText(item.patient_id)}</td>
-              <td>${safeText(item.patient_name || "-")}</td>
-              <td>${fmtNumber(item.age, 0)}</td>
-              <td>${safeText(item.gender || "-")}</td>
-              <td>${safeText(item.symptoms || "-")}</td>
-              <td>${fmtNumber(item.glucose, 1)}</td>
-              <td>${bpText}</td>
-              <td>${fmtNumber(item.calculated_bmi, 1)}</td>
-              <td>${safeText(item.smoking_habit || "-")}</td>
-              <td>${safeText(item.alcohol_habit || "-")}</td>
-              <td>${safeText(item.family_history || "-")}</td>
-              <td>${updatedText}</td>
-            </tr>
-          `;
-        }).join("");
-      }
-      setText("dbCount", `${filtered.length} records`);
-    }
-
-    async function refreshPatientDatabase() {
-      const data = await fetchJsonWithAuth(doctorPatientDatabaseApi);
-      cachedPatientDbRows = Array.isArray(data.patients) ? data.patients : [];
-      const q = document.getElementById("dbSearch").value;
-      renderPatientDatabaseTable(cachedPatientDbRows, q);
-    }
-
     async function refreshDashboard() {
       const data = await fetchJsonWithAuth(doctorAppointmentsApi);
       const appointments = Array.isArray(data.appointments) ? data.appointments : [];
@@ -3020,12 +2935,8 @@
       updateInsights(appointments);
       updatePriorityAlerts(appointments);
       applyAppointmentFiltersAndRender();
-      await refreshPatientDatabase();
     }
 
-    document.getElementById("dbSearch").addEventListener("input", (event) => {
-      renderPatientDatabaseTable(cachedPatientDbRows, event.target.value);
-    });
     document.getElementById("riskFilter").addEventListener("change", () => {
       applyAppointmentFiltersAndRender();
     });
