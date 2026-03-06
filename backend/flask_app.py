@@ -765,6 +765,10 @@ def _normalize_patient_id(value: Any) -> str:
         return text
 
 
+def _normalize_doctor_id(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
 def _bootstrap_patient_db_from_csv() -> None:
     try:
         ensure_csv_exists(NEW_PATIENT_CSV)
@@ -1605,14 +1609,33 @@ def doctor_logout() -> Any:
 @app.get("/doctor/appointments")
 @doctor_required(api=True)
 def doctor_appointments() -> Any:
-    appointments = sorted(APPOINTMENTS, key=_doctor_appointment_sort_key)
+    current_doctor_id = _normalize_doctor_id(session.get("doctor_id"))
+    appointments = [
+        ap
+        for ap in APPOINTMENTS
+        if _normalize_doctor_id(ap.get("doctor_id")) == current_doctor_id
+    ]
+    appointments = sorted(appointments, key=_doctor_appointment_sort_key)
     return jsonify({"appointments": appointments})
 
 
 @app.get("/doctor/patient-database")
 @doctor_required(api=True)
 def doctor_patient_database() -> Any:
-    return jsonify({"patients": patient_db.list_profiles()})
+    current_doctor_id = _normalize_doctor_id(session.get("doctor_id"))
+    doctor_patient_ids = {
+        _normalize_patient_id(ap.get("patient_id"))
+        for ap in APPOINTMENTS
+        if _normalize_doctor_id(ap.get("doctor_id")) == current_doctor_id
+    }
+    if not doctor_patient_ids:
+        return jsonify({"patients": []})
+
+    patients = []
+    for row in patient_db.list_profiles():
+        if _normalize_patient_id(row.get("patient_id")) in doctor_patient_ids:
+            patients.append(row)
+    return jsonify({"patients": patients})
 
 
 @app.get("/doctor/leaves")
