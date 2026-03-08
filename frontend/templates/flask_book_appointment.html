@@ -1814,13 +1814,18 @@
       return hh * 60 + mm;
     }
 
+    function isNightEmergencyWindowFromMinutes(totalMinutes) {
+      if (totalMinutes == null) return false;
+      return totalMinutes >= 19 * 60 || totalMinutes < 7 * 60;
+    }
+
     async function updateEmergencyDoctorInlineList() {
       if (!emergencyDoctorInlineCard || !emergencyDoctorInlineList) return;
       const dateValue = document.getElementById("appointmentDate").value;
       const timeValue = document.getElementById("appointmentTimeOnly").value;
       const timeMinutes = parseTimeMinutes(timeValue);
 
-      if (!dateValue || timeMinutes == null || timeMinutes < 19 * 60) {
+      if (!dateValue || !isNightEmergencyWindowFromMinutes(timeMinutes)) {
         emergencyDoctorInlineCard.style.display = "none";
         emergencyDoctorInlineList.innerHTML = "";
         return;

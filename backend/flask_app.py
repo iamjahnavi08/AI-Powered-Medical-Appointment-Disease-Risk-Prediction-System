@@ -533,6 +533,10 @@ DOCTOR_PROFILE_COLUMNS = ["doctor_id", "doctor_name", "specialization", "availab
 DOCTOR_LEAVE_COLUMNS = ["doctor_id", "leave_date"]
 
 
+def _normalize_emergency_flag(value: Any) -> str:
+    return "yes" if str(value or "").strip().lower() in {"1", "true", "yes", "y"} else "no"
+
+
 def _ensure_aux_csv(path: Path, columns: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
@@ -563,10 +567,20 @@ def _load_doctor_profiles_df() -> pd.DataFrame:
         if col not in profile_df.columns:
             profile_df[col] = ""
 
+    profile_df = profile_df[DOCTOR_PROFILE_COLUMNS].copy()
+    profile_df["doctor_id"] = profile_df["doctor_id"].astype(str).str.strip()
+    profile_df["doctor_name"] = profile_df["doctor_name"].astype(str).str.strip()
+    profile_df["specialization"] = profile_df["specialization"].astype(str).str.strip()
+    profile_df["available_time"] = profile_df["available_time"].astype(str).str.strip()
+    profile_df["emergency_doctor"] = profile_df["emergency_doctor"].map(_normalize_emergency_flag)
+    profile_df = profile_df[profile_df["doctor_id"] != ""]
+    profile_df["_doctor_key"] = profile_df["doctor_id"].map(_normalize_doctor_id)
+    profile_df = profile_df.drop_duplicates(subset=["_doctor_key"], keep="first").drop(columns=["_doctor_key"])
+
     doctor_ids = _load_doctor_ids()
     if doctor_ids:
-        existing = {str(v).strip() for v in profile_df["doctor_id"].tolist() if str(v).strip()}
-        missing = [did for did in doctor_ids if did not in existing]
+        existing = {_normalize_doctor_id(v) for v in profile_df["doctor_id"].tolist() if str(v).strip()}
+        missing = [did for did in doctor_ids if _normalize_doctor_id(did) not in existing]
         if missing:
             additions = pd.DataFrame(
                 [
@@ -575,15 +589,15 @@ def _load_doctor_profiles_df() -> pd.DataFrame:
                         "doctor_name": did,
                         "specialization": "General Medicine",
                         "available_time": "10:00 AM to 9:00 PM",
-                        "emergency_doctor": "yes",
+                        "emergency_doctor": "no",
                     }
                     for did in missing
                 ]
             )
             profile_df = pd.concat([profile_df[DOCTOR_PROFILE_COLUMNS], additions], ignore_index=True)
-            profile_df = profile_df[DOCTOR_PROFILE_COLUMNS]
-            profile_df.to_csv(DOCTOR_PROFILE_CSV, index=False)
-
+    profile_df = profile_df[DOCTOR_PROFILE_COLUMNS]
+    profile_df["emergency_doctor"] = profile_df["emergency_doctor"].map(_normalize_emergency_flag)
+    profile_df.to_csv(DOCTOR_PROFILE_CSV, index=False)
     return profile_df[DOCTOR_PROFILE_COLUMNS]
 
 
@@ -607,15 +621,16 @@ def _doctor_profile_by_id(doctor_id: str) -> Dict[str, str]:
     did = str(doctor_id or "").strip()
     if not did:
         return {}
+    normalized_did = _normalize_doctor_id(did)
     profiles = _load_doctor_profiles_df()
-    matches = profiles[profiles["doctor_id"].astype(str).str.strip() == did]
+    matches = profiles[profiles["doctor_id"].astype(str).map(_normalize_doctor_id) == normalized_did]
     if matches.empty:
         return {
             "doctor_id": did,
             "doctor_name": did,
             "specialization": "General Medicine",
             "available_time": "10:00 AM to 9:00 PM",
-            "emergency_doctor": "yes",
+            "emergency_doctor": "no",
         }
     row = matches.iloc[0].to_dict()
     return {
@@ -623,19 +638,19 @@ def _doctor_profile_by_id(doctor_id: str) -> Dict[str, str]:
         "doctor_name": str(row.get("doctor_name", did)).strip() or did,
         "specialization": str(row.get("specialization", "General Medicine")).strip() or "General Medicine",
         "available_time": str(row.get("available_time", "10:00 AM to 9:00 PM")).strip() or "10:00 AM to 9:00 PM",
-        "emergency_doctor": str(row.get("emergency_doctor", "yes")).strip() or "yes",
+        "emergency_doctor": _normalize_emergency_flag(row.get("emergency_doctor", "no")),
     }
 
 
 def _is_doctor_on_leave(doctor_id: str, appointment_date: datetime) -> bool:
-    did = str(doctor_id or "").strip()
+    did = _normalize_doctor_id(doctor_id)
     if not did:
         return False
     date_key = appointment_date.date().isoformat()
     leaves = _load_doctor_leave_df()
     if leaves.empty:
         return False
-    mask = (leaves["doctor_id"].astype(str).str.strip() == did) & (
+    mask = (leaves["doctor_id"].astype(str).map(_normalize_doctor_id) == did) & (
         leaves["leave_date"].astype(str).str.strip() == date_key
     )
     return bool(mask.any())
@@ -650,7 +665,8 @@ def _find_alternative_doctor(selected_doctor_id: str, appointment_date: datetime
 
     profiles = profiles.copy()
     profiles["doctor_id"] = profiles["doctor_id"].astype(str).str.strip()
-    profiles = profiles[profiles["doctor_id"] != str(selected_doctor_id or "").strip()]
+    selected_norm = _normalize_doctor_id(selected_doctor_id)
+    profiles = profiles[profiles["doctor_id"].map(_normalize_doctor_id) != selected_norm]
     if selected_spec:
         profiles = profiles[
             profiles["specialization"].astype(str).str.strip().str.lower() == selected_spec
@@ -671,24 +687,34 @@ def _find_alternative_doctor(selected_doctor_id: str, appointment_date: datetime
             "doctor_name": str(row.get("doctor_name", candidate_id)).strip() or candidate_id,
             "specialization": str(row.get("specialization", "General Medicine")).strip() or "General Medicine",
             "available_time": str(row.get("available_time", "10:00 AM to 9:00 PM")).strip() or "10:00 AM to 9:00 PM",
-            "emergency_doctor": str(row.get("emergency_doctor", "yes")).strip() or "yes",
+            "emergency_doctor": _normalize_emergency_flag(row.get("emergency_doctor", "no")),
         }
     return None
 
 
 def _is_truthy_text(value: Any) -> bool:
-    return str(value or "").strip().lower() in {"1", "true", "yes", "y"}
+    return _normalize_emergency_flag(value) == "yes"
+
+
+def _is_night_emergency_window(appointment_time: datetime) -> bool:
+    # Night window spans 7:00 PM through 6:59 AM (crosses midnight).
+    minutes = appointment_time.hour * 60 + appointment_time.minute
+    return minutes >= 19 * 60 or minutes < 7 * 60
+
+
+def _is_emergency_doctor_profile(profile: Dict[str, Any]) -> bool:
+    return _is_truthy_text(profile.get("emergency_doctor", ""))
 
 
 def _available_emergency_doctors(appointment_date: datetime, exclude_doctor_id: str = "") -> list[Dict[str, str]]:
     profiles = _load_doctor_profiles_df()
     if profiles.empty:
         return []
-    exclude = str(exclude_doctor_id or "").strip()
+    exclude = _normalize_doctor_id(exclude_doctor_id)
     profiles = profiles.copy()
     profiles["doctor_id"] = profiles["doctor_id"].astype(str).str.strip()
     if exclude:
-        profiles = profiles[profiles["doctor_id"] != exclude]
+        profiles = profiles[profiles["doctor_id"].map(_normalize_doctor_id) != exclude]
     profiles = profiles[profiles["emergency_doctor"].map(_is_truthy_text)]
     if profiles.empty:
         return []
@@ -705,7 +731,7 @@ def _available_emergency_doctors(appointment_date: datetime, exclude_doctor_id: 
                 "doctor_name": str(row.get("doctor_name", did)).strip() or did,
                 "specialization": str(row.get("specialization", "General Medicine")).strip() or "General Medicine",
                 "available_time": str(row.get("available_time", "10:00 AM to 9:00 PM")).strip() or "10:00 AM to 9:00 PM",
-                "emergency_doctor": str(row.get("emergency_doctor", "yes")).strip() or "yes",
+                "emergency_doctor": _normalize_emergency_flag(row.get("emergency_doctor", "no")),
             }
         )
     return rows
@@ -724,8 +750,9 @@ def _add_doctor_leave(doctor_id: str, leave_date: str) -> None:
     date_key = parsed.date().isoformat()
 
     leaves = _load_doctor_leave_df()
+    did_norm = _normalize_doctor_id(did)
     already = (
-        (leaves["doctor_id"].astype(str).str.strip() == did)
+        (leaves["doctor_id"].astype(str).map(_normalize_doctor_id) == did_norm)
         & (leaves["leave_date"].astype(str).str.strip() == date_key)
     )
     if bool(already.any()):
@@ -748,9 +775,10 @@ def _remove_doctor_leave(doctor_id: str, leave_date: str) -> None:
     date_key = parsed.date().isoformat()
 
     leaves = _load_doctor_leave_df()
+    did_norm = _normalize_doctor_id(did)
     filtered = leaves[
         ~(
-            (leaves["doctor_id"].astype(str).str.strip() == did)
+            (leaves["doctor_id"].astype(str).map(_normalize_doctor_id) == did_norm)
             & (leaves["leave_date"].astype(str).str.strip() == date_key)
         )
     ]
@@ -1393,6 +1421,23 @@ def submit_appointment() -> Any:
 
     risk_level_text = str(risk_assessment.risk_level or "").strip().lower()
     selected_doctor_profile = _doctor_profile_by_id(doctor_id)
+
+    if _is_night_emergency_window(parsed_time) and not _is_emergency_doctor_profile(selected_doctor_profile):
+        emergency_doctors = _available_emergency_doctors(parsed_time, exclude_doctor_id=doctor_id)
+        alternative = emergency_doctors[0] if emergency_doctors else None
+        return jsonify(
+            {
+                "booking_status": "doctor_unavailable",
+                "reason": "non_emergency_doctor_night_window",
+                "risk_level": risk_level_text.title() or "Low",
+                "message": "Only emergency doctors are available during night hours (7:00 PM to 7:00 AM). Please choose an emergency doctor.",
+                "selected_doctor": selected_doctor_profile,
+                "alternative_doctor": alternative,
+                "emergency_doctors_available": emergency_doctors,
+                "can_book_alternative": bool(alternative),
+            }
+        )
+
     if _is_doctor_on_leave(doctor_id, parsed_time):
         if risk_level_text == "high":
             emergency_doctors = _available_emergency_doctors(parsed_time, exclude_doctor_id=doctor_id)
@@ -1655,7 +1700,8 @@ def doctor_leaves() -> Any:
     doctor_id = str(request.args.get("doctor_id", "")).strip()
     rows = _load_doctor_leave_df().to_dict(orient="records")
     if doctor_id:
-        rows = [r for r in rows if str(r.get("doctor_id", "")).strip() == doctor_id]
+        doctor_norm = _normalize_doctor_id(doctor_id)
+        rows = [r for r in rows if _normalize_doctor_id(r.get("doctor_id", "")) == doctor_norm]
     return jsonify({"leaves": rows})
 
 
@@ -1761,14 +1807,13 @@ def patient_emergency_doctors() -> Any:
     except ValueError:
         return jsonify({"detail": "Invalid date/time format"}), 400
 
-    minutes = parsed.hour * 60 + parsed.minute
-    is_evening_window = minutes >= 19 * 60
-    doctors = _available_emergency_doctors(parsed) if is_evening_window else []
+    is_night_window = _is_night_emergency_window(parsed)
+    doctors = _available_emergency_doctors(parsed) if is_night_window else []
     return jsonify(
         {
             "date": parsed.date().isoformat(),
             "time": f"{parsed.hour:02d}:{parsed.minute:02d}",
-            "window_active": is_evening_window,
+            "window_active": is_night_window,
             "emergency_doctors": doctors,
         }
     )
