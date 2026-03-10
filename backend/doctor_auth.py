@@ -25,8 +25,6 @@ PASSWORD_POLICY_MESSAGE = (
 
 class DoctorSignupRequest(BaseModel):
     doctor_id: str = Field(..., min_length=1, description="New doctor identifier")
-    id_type: str = Field(..., min_length=1, description="aadhaar or pan")
-    id_number: str = Field(..., min_length=1, description="ID number")
     password: str = Field(..., min_length=8, description="New doctor password")
 
     @field_validator("doctor_id")
@@ -46,23 +44,6 @@ class DoctorSignupRequest(BaseModel):
         if not PASSWORD_POLICY_PATTERN.fullmatch(cleaned):
             raise ValueError(PASSWORD_POLICY_MESSAGE)
         return cleaned
-
-    @field_validator("id_type")
-    @classmethod
-    def validate_id_type(cls, value: str) -> str:
-        cleaned = value.strip().lower()
-        if cleaned not in {"aadhaar", "pan"}:
-            raise ValueError("id_type must be either aadhaar or pan")
-        return cleaned
-
-    @field_validator("id_number")
-    @classmethod
-    def validate_id_number(cls, value: str) -> str:
-        cleaned = value.strip().upper()
-        if not cleaned:
-            raise ValueError("id_number cannot be empty")
-        return cleaned
-
 
 class DoctorLoginRequest(BaseModel):
     doctor_id: str = Field(..., min_length=1, description="Existing doctor identifier")
@@ -126,9 +107,9 @@ class DoctorAuthManager:
                 accounts[did] = row
         return accounts
 
-    def signup(self, doctor_id: str, id_type: str, id_number: str, password: str) -> None:
+    def signup(self, doctor_id: str, password: str) -> None:
         did = doctor_id.strip()
-        ucode = self._compose_unique_code(id_type, id_number)
+        ucode = f"AUTO:{did.upper()}"
         pwd = password.strip()
         if not PASSWORD_POLICY_PATTERN.fullmatch(pwd):
             raise ValueError(PASSWORD_POLICY_MESSAGE)
@@ -136,9 +117,6 @@ class DoctorAuthManager:
 
         if did in accounts:
             raise ValueError("Doctor ID already exists. Please use login.")
-        if any(str(row.get("unique_code", "")).strip().upper() == ucode for row in accounts.values()):
-            raise ValueError("Unique Code already exists. Use a different Unique Code.")
-
         salt = os.urandom(16)
         password_hash = self._hash_password(pwd, salt)
         created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")

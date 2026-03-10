@@ -458,11 +458,11 @@ def _create_patient_account(name: str, unique_code: str, password: str) -> str:
     df = _load_patients_df()
     if df["name"].astype(str).str.strip().str.lower().eq(name.lower()).any():
         raise ValueError("Patient name already exists. Use a different name.")
-    normalized_code = _normalize_unique_code(unique_code)
+    patient_id = _next_patient_id(df)
+    normalized_code = _normalize_unique_code(unique_code) if str(unique_code).strip() else f"AUTO:PATIENT-{patient_id}"
     existing_codes = df["unique_code"].astype(str).str.strip().str.upper()
     if (existing_codes == normalized_code).any() or (existing_codes == normalized_code.split(":", 1)[-1]).any():
         raise ValueError("Unique Code already exists. Use a different Unique Code.")
-    patient_id = _next_patient_id(df)
     new_row = {
         "patient_id": patient_id,
         "name": name,
@@ -998,25 +998,16 @@ def about_page() -> Any:
 @app.route("/patient/signup", methods=["GET", "POST"])
 def patient_signup() -> Any:
     errors: list[str] = []
-    form_data = {"name": "", "id_type": "", "id_number": ""}
+    form_data = {"name": ""}
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        id_type = request.form.get("id_type", "").strip().lower()
-        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         form_data["name"] = name
-        form_data["id_type"] = id_type
-        form_data["id_number"] = id_number
 
         if not name:
             errors.append("Patient Name is required.")
-        unique_code = ""
-        try:
-            unique_code = _compose_unique_code(id_type, id_number)
-        except ValueError as exc:
-            errors.append(str(exc))
         if not PASSWORD_POLICY_PATTERN.fullmatch(password):
             errors.append(PASSWORD_POLICY_MESSAGE)
         if password != confirm_password:
@@ -1024,7 +1015,7 @@ def patient_signup() -> Any:
 
         if not errors:
             try:
-                patient_id = _create_patient_account(name, unique_code, password)
+                patient_id = _create_patient_account(name, "", password)
                 session.pop("doctor_id", None)
                 session.pop("doctor_name", None)
                 session.pop("doctor_authenticated", None)
@@ -1503,24 +1494,16 @@ def submit_appointment() -> Any:
 @app.route("/doctor/signup", methods=["GET", "POST"])
 def doctor_signup() -> Any:
     errors: list[str] = []
-    form_data = {"doctor_id": "", "id_type": "", "id_number": ""}
+    form_data = {"doctor_id": ""}
 
     if request.method == "POST":
         doctor_id = request.form.get("doctor_id", "").strip()
-        id_type = request.form.get("id_type", "").strip().lower()
-        id_number = request.form.get("id_number", "").strip().upper()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         form_data["doctor_id"] = doctor_id
-        form_data["id_type"] = id_type
-        form_data["id_number"] = id_number
 
         if not doctor_id:
             errors.append("Doctor ID is required.")
-        try:
-            _compose_unique_code(id_type, id_number)
-        except ValueError as exc:
-            errors.append(str(exc))
         if not PASSWORD_POLICY_PATTERN.fullmatch(password):
             errors.append(PASSWORD_POLICY_MESSAGE)
         if password != confirm_password:
@@ -1528,7 +1511,7 @@ def doctor_signup() -> Any:
 
         if not errors:
             try:
-                doctor_auth_manager.signup(doctor_id, id_type, id_number, password)
+                doctor_auth_manager.signup(doctor_id, password)
                 return redirect(url_for("doctor_login"))
             except ValueError as exc:
                 errors.append(str(exc))

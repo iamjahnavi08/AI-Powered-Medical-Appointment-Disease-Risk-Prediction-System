@@ -668,16 +668,6 @@
           <label for="name">Patient Name</label>
           <input id="name" name="name" value="{{ form_data.name }}" autocomplete="off" required />
 
-          <label for="id_type">ID Type</label>
-          <select id="id_type" name="id_type" autocomplete="off" required>
-            <option value="">Select ID Type</option>
-            <option value="aadhaar" {% if form_data.id_type == "aadhaar" %}selected{% endif %}>Aadhaar Card</option>
-            <option value="pan" {% if form_data.id_type == "pan" %}selected{% endif %}>PAN Card</option>
-          </select>
-
-          <label for="id_number">ID Number</label>
-          <input id="id_number" name="id_number" value="{{ form_data.id_number }}" autocomplete="off" required />
-
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="new-password" required />
 
@@ -695,36 +685,8 @@
     function clearSignupCookies() {
       const expired = "Thu, 01 Jan 1970 00:00:00 GMT";
       document.cookie = `patient_signup_name=; expires=${expired}; path=/; SameSite=Lax`;
-      document.cookie = `patient_signup_id_type=; expires=${expired}; path=/; SameSite=Lax`;
-      document.cookie = `patient_signup_id_number=; expires=${expired}; path=/; SameSite=Lax`;
     }
-
-    function syncIdRules() {
-      const typeEl = document.getElementById("id_type");
-      const idEl = document.getElementById("id_number");
-      const t = String(typeEl.value || "").toLowerCase();
-
-      if (t === "aadhaar") {
-        idEl.placeholder = "Enter 12-digit Aadhaar number";
-        idEl.maxLength = 12;
-        idEl.pattern = "[0-9]{12}";
-        idEl.title = "Aadhaar must be exactly 12 digits";
-      } else if (t === "pan") {
-        idEl.placeholder = "Enter PAN in format AAAAA9999A";
-        idEl.maxLength = 10;
-        idEl.pattern = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}";
-        idEl.title = "PAN must be in format AAAAA9999A";
-      } else {
-        idEl.placeholder = "Select ID Type first";
-        idEl.maxLength = 30;
-        idEl.removeAttribute("pattern");
-        idEl.title = "";
-      }
-    }
-
-    document.getElementById("id_type").addEventListener("change", syncIdRules);
     clearSignupCookies();
-    syncIdRules();
   </script>
   <footer class="global-page-footer">
     <div class="global-page-footer-line">
