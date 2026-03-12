@@ -53,7 +53,7 @@ PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Z
 PASSWORD_POLICY_MESSAGE = (
     "Password must contain minimum 8 characters, including uppercase (A-Z), lowercase (a-z), number (0-9), and special character (@,!,#,$,%,&,*)."
 )
-SYMPTOMS_SANITIZE_PATTERN = re.compile(r"[^A-Za-z,\s]+")
+SYMPTOMS_SANITIZE_PATTERN = re.compile(r"[^A-Za-z0-9,\s./()+:&'-]+")
 HEALTH_DATA_SUBMITTED_AT_COLUMN = "Health_Data_Submitted_At"
 
 

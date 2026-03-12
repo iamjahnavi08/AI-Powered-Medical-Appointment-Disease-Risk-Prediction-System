@@ -2076,7 +2076,7 @@
 
     function sanitizeSymptomsText(value) {
       return String(value ?? "")
-        .replace(/[^A-Za-z,\s]/g, "")
+        .replace(/[^A-Za-z0-9,\s./()+:&'-]/g, "")
         .replace(/\s*,\s*/g, ", ")
         .replace(/,\s*,+/g, ", ")
         .replace(/\s{2,}/g, " ")
