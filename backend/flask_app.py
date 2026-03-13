@@ -1231,7 +1231,7 @@ def _get_openai_chat_client() -> Any:
         return None
 
     try:
-        from openai import OpenAI
+        from openai import OpenAI # type: ignore
     except Exception as exc:  # pragma: no cover - optional dependency
         app.logger.warning("OpenAI SDK unavailable for patient chat: %s", exc)
         return None
