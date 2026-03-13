@@ -373,6 +373,32 @@
     }
     .appt-row:last-child { border-bottom: 0; }
     .muted { color: var(--muted); }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 96px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .status-chip.completed {
+      background: #e8f7ee;
+      color: #166534;
+    }
+    .status-chip.missed {
+      background: #ffe8e8;
+      color: #b42318;
+    }
+    .past-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
     .priority-chip {
       display: inline-block;
       margin-top: 6px;
@@ -634,12 +660,12 @@
           {% for ap in upcoming_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">??</span>
+                <span class="date-icon">&#128197;</span>
                 <span>{{ ap.date_label }}</span>
               </div>
               <div>{{ ap.time_label }}</div>
               <div>
-                <div>Dr. {{ ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
+                <div>Dr. {{ ap.doctor_name or ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
                 <span class="priority-chip {{ ap.priority_badge_color }}">{{ ap.priority_badge_text }}</span>
                 <div class="slot-note">Recommended Slot: {{ ap.recommended_slot }}</div>
               </div>
@@ -662,19 +688,21 @@
           {% for ap in past_appointments %}
             <div class="appt-row">
               <div class="date-cell">
-                <span class="date-icon">??</span>
+                <span class="date-icon">&#128197;</span>
                 <span>{{ ap.date_label }}</span>
               </div>
-              <div>{{ ap.time_label }}</div>
+              <div>{{ ap.time_value }}</div>
               <div>
-                <div>Dr. {{ ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
-                <span class="priority-chip {{ ap.priority_badge_color }}">{{ ap.priority_badge_text }}</span>
-                <div class="slot-note">Recommended Slot: {{ ap.recommended_slot }}</div>
+                <div>Dr. {{ ap.doctor_name or ap.doctor_id }} <span class="muted">({{ ap.appointment_type }})</span></div>
+                <div class="past-meta">
+                  <span class="status-chip completed">Completed</span>
+                  <span class="muted">Patient: {{ ap.patient_name or patient_name or '--' }}</span>
+                </div>
               </div>
               <button
                 type="button"
                 class="btn btn-view"
-                onclick="alert('Doctor: Dr. {{ ap.doctor_id }}\nType: {{ ap.appointment_type }}\nDate: {{ ap.date_label }}\nTime: {{ ap.time_label }}');"
+                onclick="alert('Status: Completed\nDoctor: Dr. {{ ap.doctor_name or ap.doctor_id }}\nType: {{ ap.appointment_type }}\nDate: {{ ap.date_label }}\nTime: {{ ap.time_value }}');"
               >
                 View Details
               </button>

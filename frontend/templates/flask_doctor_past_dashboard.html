@@ -1932,7 +1932,7 @@
     }
   </style>
 </head>
-<body data-nav-active="Dashboard">
+<body data-nav-active="Past Dashboard">
   {% set doctor_display_name = (doctor_name or doctor_id or "Doctor") %}
   <div class="scene" aria-hidden="true">
     <div class="sparkles"></div>
@@ -1982,7 +1982,7 @@
       {% if session.get('doctor_authenticated') %}
       <li><a class="sidebar-link" data-nav="Dashboard" href="{{ url_for('doctor_dashboard') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M3 13h8v8H3zM13 3h8v8h-8zM13 13h8v8h-8zM3 3h8v8H3z"/></svg></span><span class="sidebar-label">Upcoming Dashboard</span></a></li>
       <li><a class="sidebar-link" data-nav="Past Dashboard" href="{{ url_for('doctor_past_dashboard') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M7 3v4M17 3v4M4 9h16"/><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M9 14h6"/></svg></span><span class="sidebar-label">Past Dashboard</span></a></li>
-      <li><a class="sidebar-link" data-nav="AI Risk Analytics" href="{{ url_for('doctor_dashboard') }}#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Analytics</span></a></li>
+      <li><a class="sidebar-link" data-nav="AI Risk Analytics" href="{{ url_for('doctor_past_dashboard') }}#ai-risk-analytics"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Analytics</span></a></li>
       <li><a class="sidebar-link" data-nav="Patient Database" href="{{ url_for('doctor_patient_database_page') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="6" cy="18" r="1"/></svg></span><span class="sidebar-label">Patient Database</span></a></li>
       <li><a class="sidebar-link" data-nav="Logout" href="{{ url_for('doctor_logout') }}"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
       {% elif session.get('patient_authenticated') %}
@@ -1998,7 +1998,7 @@
     <section class="frame">
       <header class="topbar">
         <div class="title">
-          <h1>Doctor Decision Support Dashboard</h1>
+          <h1>Doctor Past Appointments Dashboard</h1>
           <p>Hi <strong>{{ doctor_display_name }}</strong>, welcome</p>
         </div>
         <div class="account-strip" aria-label="Account controls">
@@ -2067,7 +2067,7 @@
       </section>
       <section class="main-grid">
         <section class="panel" id="upcoming-appointments">
-          <h2>Upcoming Appointments</h2>
+          <h2>Past Appointments</h2>
           <div class="table-filters" aria-label="Appointment Filters">
             <div class="filter-group">
               <label for="riskFilter">Risk Level</label>
@@ -2098,21 +2098,21 @@
                 </tr>
               </thead>
               <tbody id="rows">
-                <tr><td colspan="6">No appointments yet.</td></tr>
+                <tr><td colspan="6">No past appointments yet.</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
         <section class="panel">
-          <h2>Patient Summary Insights</h2>
+          <h2>Past Appointment Insights</h2>
           <div class="insights">
             <div class="list-box">
-              <h3>Recently Predicted Patients</h3>
+              <h3>Recently Completed Patients</h3>
               <ul id="recentPredictedList"><li>No records yet.</li></ul>
             </div>
             <div class="list-box">
-              <h3>High-Risk Priority Queue</h3>
+              <h3>High-Risk Completed Queue</h3>
               <ul id="priorityList"><li>No high-risk patients.</li></ul>
             </div>
             <div class="list-box">
@@ -2122,7 +2122,7 @@
           </div>
 
           <div class="review">
-            <h3>Quick Patient Review</h3>
+            <h3>Completed Appointment Review</h3>
             <div class="review-grid">
               <div><strong>Patient ID</strong><br><span id="rvPatient">-</span></div>
               <div><strong>Patient Name</strong><br><span id="rvDoctor">-</span></div>
@@ -2139,7 +2139,7 @@
       </section>
 
       <section class="panel" id="ai-risk-analytics" style="margin-top:12px; scroll-margin-top: 86px;">
-        <h2>AI Risk Analytics</h2>
+        <h2>Past Appointment Analytics</h2>
         <div class="risk-layout">
           <div>
             <div class="section-title">Risk Distribution</div>
@@ -2161,7 +2161,7 @@
               </div>
             </div>
 
-            <div class="section-title">Recent Risk Prediction Trends</div>
+            <div class="section-title">Past Appointment Trends</div>
             <div class="trend">
               <svg id="trendSvg" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"></svg>
               <div class="trend-labels" id="trendLabels"></div>
@@ -2354,6 +2354,7 @@
         return "Dashboard";
       }
       if (path.endsWith("/doctor/past-dashboard")) {
+        if (hash === "#ai-risk-analytics") return "AI Risk Analytics";
         return "Past Dashboard";
       }
 
@@ -2436,7 +2437,8 @@
         const href = link.getAttribute("href") || "";
         const hashIndex = href.indexOf("#");
         const targetHash = hashIndex >= 0 ? href.slice(hashIndex) : "";
-        const isCurrentDashboardPath = getPathWithoutTrailingSlash(window.location.pathname || "").endsWith("/doctor/dashboard");
+        const currentPath = getPathWithoutTrailingSlash(window.location.pathname || "");
+        const isCurrentDashboardPath = currentPath.endsWith("/doctor/dashboard") || currentPath.endsWith("/doctor/past-dashboard");
 
         if (isCurrentDashboardPath && targetHash === "#ai-risk-analytics") {
           event.preventDefault();
@@ -2462,7 +2464,7 @@
     });
 
     let cachedAllAppointments = [];
-    let cachedUpcomingAppointments = [];
+    let cachedPastAppointments = [];
     let cachedAppointments = [];
     let selectedAppointmentKey = null;
     let selectedPatientFeatures = null;
@@ -2472,7 +2474,7 @@
     const cookieAcceptBtn = document.getElementById("cookieAcceptBtn");
     const cookieDeclineBtn = document.getElementById("cookieDeclineBtn");
     const modeSelect = document.getElementById("modeSelect");
-    const modeStorageKey = "doctor_dashboard_mode";
+    const modeStorageKey = "doctor_past_dashboard_mode";
     let modeAnimationTimer = null;
 
     function applyDashboardMode(mode) {
@@ -2699,10 +2701,10 @@
       const previousValue = select.value || "all";
 
       select.innerHTML = '<option value="all">All Dates</option>';
-      // Rolling list: remove past dates automatically and keep adding upcoming dates.
-      for (let offset = 0; offset < DATE_FILTER_WINDOW_DAYS; offset += 1) {
+      // Rolling list for past dashboard: recent past dates only.
+      for (let offset = 1; offset <= DATE_FILTER_WINDOW_DAYS; offset += 1) {
         const dt = new Date(now);
-        dt.setDate(now.getDate() + offset);
+        dt.setDate(now.getDate() - offset);
         const option = document.createElement("option");
         option.value = toIsoDay(dt);
         option.textContent = toDdMmYyyy(dt);
@@ -2737,7 +2739,7 @@
     }
 
     function applyAppointmentFiltersAndRender() {
-      const filteredAppointments = getFilteredAppointments(cachedUpcomingAppointments);
+      const filteredAppointments = getFilteredAppointments(cachedPastAppointments);
       renderAppointmentsTable(filteredAppointments);
     }
 
@@ -2747,7 +2749,7 @@
     }
 
     function appointmentStatus(item) {
-      return isUpcomingAppointment(item) ? "Upcoming" : "Completed";
+      return "Completed";
     }
 
     function formatGender(value) {
@@ -2870,7 +2872,7 @@
       }
 
       appointments.forEach((item) => {
-        const sourceDate = parseDate(item.booked_at) || parseDate(item.appointment_time);
+        const sourceDate = parseDate(item.appointment_time) || parseDate(item.booked_at);
         if (!sourceDate) return;
         const key = toIsoDay(sourceDate);
         if (!map[key]) return;
@@ -2917,7 +2919,7 @@
 
     function updateInsights(appointments, patients) {
       const recent = [...appointments]
-        .sort((a, b) => (parseDate(b.booked_at)?.getTime() || 0) - (parseDate(a.booked_at)?.getTime() || 0))
+        .sort((a, b) => (parseDate(b.appointment_time)?.getTime() || 0) - (parseDate(a.appointment_time)?.getTime() || 0))
         .slice(0, 6);
 
       const recentList = document.getElementById("recentPredictedList");
@@ -2926,13 +2928,13 @@
       } else {
         recentList.innerHTML = recent.map((item) => {
           const risk = normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class);
-          return `<li>Patient ${safeText(item.patient_id)} - ${risk} - ${fmtDateTime(item.booked_at)}</li>`;
+          return `<li>Patient ${safeText(item.patient_id)} - ${risk} - ${fmtDateTime(item.appointment_time)}</li>`;
         }).join("");
       }
 
       const priority = [...appointments]
         .filter((item) => normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "High Risk")
-        .sort((a, b) => (parseDate(a.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER) - (parseDate(b.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER))
+        .sort((a, b) => (parseDate(b.appointment_time)?.getTime() || 0) - (parseDate(a.appointment_time)?.getTime() || 0))
         .slice(0, 6);
 
       const priorityList = document.getElementById("priorityList");
@@ -2966,32 +2968,30 @@
     }
 
     function updatePriorityAlerts(appointments) {
-      const highUpcoming = appointments.filter((item) => {
-        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "High Risk"
-          && appointmentStatus(item) === "Upcoming";
+      const highCompleted = appointments.filter((item) => {
+        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "High Risk";
       });
 
-      const mediumUpcoming = appointments.filter((item) => {
-        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "Medium Risk"
-          && appointmentStatus(item) === "Upcoming";
+      const mediumCompleted = appointments.filter((item) => {
+        return normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class) === "Medium Risk";
       });
 
-      const within24 = highUpcoming.filter((item) => {
+      const completedLastWeek = appointments.filter((item) => {
         const t = parseDate(item.appointment_time);
         if (!t) return false;
-        const diff = t.getTime() - Date.now();
-        return diff >= 0 && diff <= 24 * 60 * 60 * 1000;
+        const diff = Date.now() - t.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       });
 
       const alerts = [];
-      alerts.push(`<span class="alert high">High-risk upcoming: ${highUpcoming.length}</span>`);
-      alerts.push(`<span class="alert medium">Medium-risk upcoming: ${mediumUpcoming.length}</span>`);
-      if (within24.length > 0) {
-        alerts.push(`<span class="alert info">Urgent within 24h: ${within24.length}</span>`);
+      alerts.push(`<span class="alert high">High-risk completed: ${highCompleted.length}</span>`);
+      alerts.push(`<span class="alert medium">Medium-risk completed: ${mediumCompleted.length}</span>`);
+      if (completedLastWeek.length > 0) {
+        alerts.push(`<span class="alert info">Completed in last 7 days: ${completedLastWeek.length}</span>`);
       }
       if (appointments.length === 0) {
         alerts.length = 0;
-        alerts.push('<span class="alert info">No appointment data available yet.</span>');
+        alerts.push('<span class="alert info">No past appointment data available yet.</span>');
       }
 
       document.getElementById("priorityAlerts").innerHTML = alerts.join("");
@@ -3019,9 +3019,9 @@
     function renderAppointmentsTable(appointments) {
       const rows = document.getElementById("rows");
       if (appointments.length === 0) {
-        const emptyMessage = cachedUpcomingAppointments.length > 0
+        const emptyMessage = cachedPastAppointments.length > 0
           ? "No appointments match selected filters."
-          : "No upcoming appointments yet.";
+          : "No past appointments yet.";
         rows.innerHTML = `<tr><td colspan="6">${emptyMessage}</td></tr>`;
         setText("rvPatient", "-");
         setText("rvDoctor", "-");
@@ -3038,9 +3038,9 @@
         const br = riskRank(b.risk_assessment && b.risk_assessment.predicted_class);
         if (ar !== br) return ar - br;
 
-        const ad = parseDate(a.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER;
-        const bd = parseDate(b.appointment_time)?.getTime() || Number.MAX_SAFE_INTEGER;
-        if (ad !== bd) return ad - bd;
+        const ad = parseDate(a.appointment_time)?.getTime() || 0;
+        const bd = parseDate(b.appointment_time)?.getTime() || 0;
+        if (ad !== bd) return bd - ad;
 
         const ab = parseDate(a.booked_at)?.getTime() || 0;
         const bb = parseDate(b.booked_at)?.getTime() || 0;
@@ -3090,16 +3090,16 @@
       const appointments = Array.isArray(appointmentsData.appointments) ? appointmentsData.appointments : [];
       const patients = Array.isArray(patientDatabaseData.patients) ? patientDatabaseData.patients : [];
       const splitAppointments = splitAppointmentsByDate(appointments);
-      const upcomingAppointments = splitAppointments.upcoming;
-      cachedAllAppointments = upcomingAppointments;
-      cachedUpcomingAppointments = upcomingAppointments;
+      const pastAppointments = splitAppointments.past;
+      cachedAllAppointments = pastAppointments;
+      cachedPastAppointments = pastAppointments;
       ensureCurrentMonthDateOptions();
 
-      const counts = updateOverview(upcomingAppointments);
-      updateRiskCharts(counts, upcomingAppointments.length);
-      updateTrend(upcomingAppointments);
-      updateInsights(upcomingAppointments, patients);
-      updatePriorityAlerts(upcomingAppointments);
+      const counts = updateOverview(pastAppointments);
+      updateRiskCharts(counts, pastAppointments.length);
+      updateTrend(pastAppointments);
+      updateInsights(pastAppointments, patients);
+      updatePriorityAlerts(pastAppointments);
       applyAppointmentFiltersAndRender();
     }
 

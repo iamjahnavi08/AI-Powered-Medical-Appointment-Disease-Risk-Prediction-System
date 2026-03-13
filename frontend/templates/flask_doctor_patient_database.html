@@ -90,6 +90,94 @@
       box-shadow: 0 10px 22px rgba(35, 72, 124, 0.08);
       padding: 14px;
     }
+    .section-heading {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      color: #173763;
+      line-height: 1.1;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      position: relative;
+      border: 1px solid #c8d8ee;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f5f9ff);
+      box-shadow: 0 10px 22px rgba(35, 72, 124, 0.08);
+      padding: 14px 14px 16px;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 16px;
+      right: 16px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #5d9cf0, #7cb3f4);
+    }
+    .stat-card.high::before { background: linear-gradient(90deg, #e27b8c, #f2a1ab); }
+    .stat-card.medium::before { background: linear-gradient(90deg, #d9b15b, #ebca79); }
+    .stat-card.low::before { background: linear-gradient(90deg, #7cbf9b, #a6d5b6); }
+    .stat-label {
+      margin: 0 0 10px;
+      color: #5f7aa4;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .stat-value-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #cfe0f4;
+      background: #edf4ff;
+      color: #3568aa;
+      flex: 0 0 auto;
+    }
+    .stat-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .stat-card.high .stat-icon {
+      background: #fdecef;
+      border-color: #efc2cc;
+      color: #c54a61;
+    }
+    .stat-card.medium .stat-icon {
+      background: #fff5df;
+      border-color: #e8cf95;
+      color: #a67811;
+    }
+    .stat-card.low .stat-icon {
+      background: #e8f7ee;
+      border-color: #b8dec5;
+      color: #2f7a51;
+    }
+    .stat-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #173763;
+    }
     .title-row {
       display: flex;
       justify-content: space-between;
@@ -150,7 +238,11 @@
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .table-wrap { max-height: none; }
+    }
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -181,6 +273,64 @@
           <a href="{{ url_for('doctor_dashboard') }}">Back To Dashboard</a>
         </div>
       </div>
+
+      <h2 class="section-heading">Upcoming Appointments</h2>
+      <section class="stats-grid" aria-label="Upcoming appointments overview">
+        <article class="stat-card">
+          <p class="stat-label">Total Patients</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Z"/><path d="M4 20c0-3 3.6-5 8-5s8 2 8 5"/></svg>
+            </span>
+            <div class="stat-value" id="kpiPatients">0</div>
+          </div>
+        </article>
+        <article class="stat-card">
+          <p class="stat-label">Total Appointments</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 2v4M17 2v4M4 9h16"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            </span>
+            <div class="stat-value" id="kpiAppointments">0</div>
+          </div>
+        </article>
+        <article class="stat-card high">
+          <p class="stat-label">High Risk</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m12 3 9 18H3L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span>
+            <div class="stat-value" id="kpiHigh">0</div>
+          </div>
+        </article>
+        <article class="stat-card medium">
+          <p class="stat-label">Medium Risk</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m12 4 8 16H4L12 4Z"/></svg>
+            </span>
+            <div class="stat-value" id="kpiMedium">0</div>
+          </div>
+        </article>
+        <article class="stat-card low">
+          <p class="stat-label">Low Risk</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+            </span>
+            <div class="stat-value" id="kpiLow">0</div>
+          </div>
+        </article>
+        <article class="stat-card">
+          <p class="stat-label">Today's Appointments</p>
+          <div class="stat-value-row">
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg>
+            </span>
+            <div class="stat-value" id="kpiToday">0</div>
+          </div>
+        </article>
+      </section>
 
       <section class="card">
         <div class="title-row">
@@ -217,6 +367,7 @@
 
   <script>
     const doctorPatientDatabaseApi = {{ url_for("doctor_patient_database")|tojson }};
+    const doctorAppointmentsApi = {{ url_for("doctor_appointments")|tojson }};
     const roleLoginUrl = {{ url_for("role_login")|tojson }};
     const dbRows = document.getElementById("patientDbRows");
     const dbSearch = document.getElementById("dbSearch");
@@ -239,6 +390,53 @@
       if (!t) return null;
       const d = new Date(t);
       return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function toIsoDay(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function normalizeRisk(level) {
+      const text = safeText(level).toLowerCase();
+      if (text.includes("high")) return "High Risk";
+      if (text.includes("medium")) return "Medium Risk";
+      return "Low Risk";
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = safeText(value);
+    }
+
+    function updateOverview(appointments) {
+      const patients = new Set();
+      let high = 0;
+      let medium = 0;
+      let low = 0;
+      let todayCount = 0;
+      const todayKey = toIsoDay(new Date());
+
+      appointments.forEach((item) => {
+        patients.add(safeText(item.patient_id));
+        const risk = normalizeRisk(item.risk_assessment && item.risk_assessment.predicted_class);
+        if (risk === "High Risk") high += 1;
+        else if (risk === "Medium Risk") medium += 1;
+        else low += 1;
+
+        const at = parseDate(item.appointment_time);
+        if (at && toIsoDay(at) === todayKey) todayCount += 1;
+      });
+
+      setText("kpiPatients", patients.size);
+      setText("kpiAppointments", appointments.length);
+      setText("kpiHigh", high);
+      setText("kpiMedium", medium);
+      setText("kpiLow", low);
+      setText("kpiToday", todayCount);
     }
 
     function rowSearchText(item) {
@@ -287,18 +485,28 @@
     }
 
     async function fetchPatientDatabase() {
-      const res = await fetch(doctorPatientDatabaseApi, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: { "Accept": "application/json" }
-      });
-      if (res.status === 401 || res.status === 403) {
+      const [patientRes, appointmentRes] = await Promise.all([
+        fetch(doctorPatientDatabaseApi, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        }),
+        fetch(doctorAppointmentsApi, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        })
+      ]);
+      if ([patientRes, appointmentRes].some((res) => res.status === 401 || res.status === 403)) {
         window.location.href = roleLoginUrl;
         return;
       }
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-      const data = await res.json();
-      rows = Array.isArray(data.patients) ? data.patients : [];
+      if (!patientRes.ok) throw new Error(`Request failed: ${patientRes.status}`);
+      if (!appointmentRes.ok) throw new Error(`Request failed: ${appointmentRes.status}`);
+      const patientData = await patientRes.json();
+      const appointmentData = await appointmentRes.json();
+      rows = Array.isArray(patientData.patients) ? patientData.patients : [];
+      updateOverview(Array.isArray(appointmentData.appointments) ? appointmentData.appointments : []);
       renderTable(dbSearch.value);
     }
 

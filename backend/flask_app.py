@@ -123,6 +123,24 @@ def _parse_appointment_time(value: Any) -> Optional[datetime]:
         return None
 
 
+def _appointment_day(value: Optional[datetime]) -> Optional[datetime]:
+    if value is None:
+        return None
+    return value.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _is_upcoming_appointment_date(value: Optional[datetime], *, reference: Optional[datetime] = None) -> bool:
+    appointment_day = _appointment_day(value)
+    if appointment_day is None:
+        return False
+    reference_day = _appointment_day(reference or datetime.now())
+    return bool(reference_day and appointment_day >= reference_day)
+
+
+def _appointment_history_status(value: Optional[datetime], *, reference: Optional[datetime] = None) -> str:
+    return "Completed" if value and not _is_upcoming_appointment_date(value, reference=reference) else "Missed"
+
+
 def _normalize_risk_label(value: Any) -> str:
     text = str(value or "").strip().lower()
     if "high" in text:
@@ -178,6 +196,12 @@ def _format_time_label(dt: Optional[datetime]) -> str:
     end = end.replace(hour=end.hour + 1) if end.hour < 23 else end
     end_text = end.strftime("%I:%M %p").lstrip("0")
     return f"{start} - {end_text}"
+
+
+def _format_time_value(dt: Optional[datetime]) -> str:
+    if dt is None:
+        return "--"
+    return dt.strftime("%I:%M %p").lstrip("0")
 
 
 def _to_int(value: str, field_name: str, min_value: int, max_value: int) -> int:
@@ -1545,11 +1569,17 @@ def book_appointment() -> Any:
     if not patient_name:
         patient_name = _get_patient_name_by_id(str(patient_id).strip())
     doctor_ids = _load_doctor_ids()
+    patient_features: Dict[str, Any] = {}
+    try:
+        patient_features = get_features_for_patient(str(patient_id).strip())
+    except ValueError:
+        patient_features = {}
     return render_template(
         "flask_book_appointment.html",
         patient_id=patient_id,
         doctor_ids=doctor_ids,
         patient_name=patient_name,
+        patient_features=patient_features,
     )
 
 
@@ -1607,14 +1637,19 @@ def patient_booking_confirmation() -> Any:
         if _normalize_patient_id(item.get("patient_id")) != normalized_pid:
             continue
         dt = _parse_appointment_time(item.get("appointment_time"))
+        doctor_profile = _doctor_profile_by_id(str(item.get("doctor_id", "")).strip())
         patient_appointments.append(
             {
                 "appointment_id": str(item.get("appointment_id", "")),
+                "patient_name": str(item.get("patient_name", "")).strip() or patient_name,
                 "doctor_id": str(item.get("doctor_id", "")).strip(),
+                "doctor_name": doctor_profile.get("doctor_name", "").strip() or str(item.get("doctor_id", "")).strip(),
                 "appointment_type": str(item.get("appointment_type", "")).strip(),
                 "appointment_time": dt,
                 "date_label": _format_date_label(dt),
                 "time_label": _format_time_label(dt),
+                "time_value": _format_time_value(dt),
+                "history_status": _appointment_history_status(dt),
                 "appointment_priority": str(item.get("appointment_priority", "")).strip() or "Normal",
                 "recommended_slot": str(item.get("recommended_slot", "")).strip() or "Next Available Date",
                 "priority_badge_text": str(item.get("priority_badge_text", "")).strip() or "Normal Appointment",
@@ -1625,8 +1660,8 @@ def patient_booking_confirmation() -> Any:
     patient_appointments.sort(key=lambda x: x.get("appointment_time") or datetime.min, reverse=True)
 
     now = datetime.now()
-    upcoming = [a for a in patient_appointments if a.get("appointment_time") and a["appointment_time"] >= now]
-    past = [a for a in patient_appointments if not a.get("appointment_time") or a["appointment_time"] < now]
+    upcoming = [a for a in patient_appointments if _is_upcoming_appointment_date(a.get("appointment_time"), reference=now)]
+    past = [a for a in patient_appointments if not _is_upcoming_appointment_date(a.get("appointment_time"), reference=now)]
     upcoming.sort(key=lambda x: x.get("appointment_time") or datetime.max)
 
     patient_features: Dict[str, Any] = {}
@@ -1952,6 +1987,14 @@ def doctor_dashboard() -> Any:
     doctor_id = session.get("doctor_id")
     doctor_name = str(session.get("doctor_name", "")).strip() or str(doctor_id)
     return render_template("flask_doctor_dashboard.html", doctor_id=doctor_id, doctor_name=doctor_name)
+
+
+@app.route("/doctor/past-dashboard")
+@doctor_required()
+def doctor_past_dashboard() -> Any:
+    doctor_id = session.get("doctor_id")
+    doctor_name = str(session.get("doctor_name", "")).strip() or str(doctor_id)
+    return render_template("flask_doctor_past_dashboard.html", doctor_id=doctor_id, doctor_name=doctor_name)
 
 
 @app.route("/doctor/patient-database-page")

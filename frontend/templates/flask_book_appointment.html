@@ -1680,6 +1680,7 @@
       </div>
 
         <button id="bookBtn" type="button">Book Appointment</button>
+        <div id="bookOutput" class="output" style="margin-top:12px;">Patient details loaded.</div>
       </section>
     </div>
   </main>
@@ -1852,6 +1853,7 @@
 
     let bookingRedirectTimer = null;
     let loadedPatientFeatures = null;
+    const initialPatientFeatures = {{ (patient_features or {})|tojson }};
     let riskPanelTimer = null;
     let riskPanelRequestId = 0;
     let appointmentTimeTouched = false;
@@ -2302,8 +2304,8 @@
       }
       const raw = sleepInput.value.trim();
       if (!raw) {
-        sleepInput.setCustomValidity("Average Sleep Hours is required.");
-        return false;
+        sleepInput.setCustomValidity("");
+        return true;
       }
       const parsed = Number(raw);
       if (!Number.isInteger(parsed) || parsed < 3 || parsed > 12) {
@@ -2367,7 +2369,7 @@
         ? bmiMetrics.category
         : (base.Weight_Category ?? base.BMI_Category ?? "");
 
-      if (!syncFeatureSleepValidation()) {
+      if (averageSleepHours !== "" && !syncFeatureSleepValidation()) {
         throw new Error("Average Sleep Hours must be a whole number between 3 and 12.");
       }
 
@@ -2836,6 +2838,14 @@
       }
     }
 
+    async function applyLoadedPatientFeatures(patientId, features) {
+      loadedPatientFeatures = features || null;
+      setFeatureFormValues(loadedPatientFeatures || {});
+      setFeatureEditMode(false);
+      await updateRiskPanel(loadedPatientFeatures || {});
+      renderOutput(formatPatientSummaryHtml(patientId, loadedPatientFeatures || {}), false, true);
+    }
+
     async function loadPatientFeatures() {
       const patientId = document.getElementById("patientId").value.trim();
       if (!patientId) throw new Error("Enter Patient ID first.");
@@ -2843,15 +2853,18 @@
       const res = await fetch(`/patient/features/${encodeURIComponent(patientId)}`);
       const data = await res.json();
       if (!res.ok) {
+        const fallbackFeatures = initialPatientFeatures && Object.keys(initialPatientFeatures).length > 0
+          ? initialPatientFeatures
+          : null;
+        if (fallbackFeatures) {
+          await applyLoadedPatientFeatures(patientId, fallbackFeatures);
+          return;
+        }
         loadedPatientFeatures = null;
         setFeatureFormValues({});
         throw new Error("Patient ID data not found");
       }
-      loadedPatientFeatures = data.patient_features || null;
-      setFeatureFormValues(loadedPatientFeatures || {});
-      setFeatureEditMode(false);
-      await updateRiskPanel(loadedPatientFeatures || {});
-      renderOutput(formatPatientSummaryHtml(data.patient_id, loadedPatientFeatures || {}), false, true);
+      await applyLoadedPatientFeatures(data.patient_id, data.patient_features || null);
     }
 
     async function savePatientFeatures() {
@@ -2861,10 +2874,7 @@
       const data = await postJson(`/patient/features/${encodeURIComponent(patientId)}`, {
         patient_features: patientFeatures
       });
-      loadedPatientFeatures = data.patient_features || patientFeatures;
-      setFeatureFormValues(loadedPatientFeatures || {});
-      await updateRiskPanel(loadedPatientFeatures || {});
-      renderOutput(formatPatientSummaryHtml(data.patient_id, loadedPatientFeatures || {}), false, true);
+      await applyLoadedPatientFeatures(data.patient_id, data.patient_features || patientFeatures);
     }
 
     async function submitAppointmentPayload(payload, sourcePayloadForSuggestion) {
@@ -3030,6 +3040,9 @@
     });
 
     setFeatureEditMode(false);
+    if (initialPatientFeatures && Object.keys(initialPatientFeatures).length > 0) {
+      applyLoadedPatientFeatures(document.getElementById("patientId").value.trim(), initialPatientFeatures).catch(() => {});
+    }
 
     const chatbotPopup = document.getElementById("chatbotPopup");
     const chatbotLauncher = document.getElementById("chatbotLauncher");
