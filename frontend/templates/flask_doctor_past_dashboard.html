@@ -1931,6 +1931,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body data-nav-active="Past Dashboard">
   {% set doctor_display_name = (doctor_name or doctor_id or "Doctor") %}
@@ -3145,8 +3146,10 @@
       }
     });
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

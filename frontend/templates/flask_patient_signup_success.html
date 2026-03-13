@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -85,6 +85,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
   <script>
     setTimeout(function () {
       window.location.href = "/patient/login";
@@ -108,8 +109,10 @@
       <span>Contact: support@aihealthhub.com</span>
     </div>
   </footer>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

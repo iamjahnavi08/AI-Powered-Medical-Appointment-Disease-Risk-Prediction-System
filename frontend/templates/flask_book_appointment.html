@@ -1330,6 +1330,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body data-nav-active="Book Appointment">
   <div class="quick-controls" aria-label="Theme and session controls">
@@ -3065,8 +3066,10 @@
     });
     updateEmergencyDoctorInlineList();
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

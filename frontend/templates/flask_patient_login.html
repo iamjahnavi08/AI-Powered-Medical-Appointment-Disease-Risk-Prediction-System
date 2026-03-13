@@ -740,6 +740,7 @@
       color: #fff;
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body data-nav-active="Patient Login">
   {% set sidebar_name = (form_data.patient_name if form_data and form_data.patient_name else "Patient") %}
@@ -992,8 +993,10 @@
       <span>Contact: support@aihealthhub.com</span>
     </div>
   </footer>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

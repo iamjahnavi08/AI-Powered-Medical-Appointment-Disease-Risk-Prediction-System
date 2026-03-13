@@ -485,6 +485,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body data-nav-active="About">
   {% set sidebar_name = session.get('patient_name') or session.get('doctor_name') or 'Patient' %}
@@ -654,8 +655,10 @@
 
     initSidebar();
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

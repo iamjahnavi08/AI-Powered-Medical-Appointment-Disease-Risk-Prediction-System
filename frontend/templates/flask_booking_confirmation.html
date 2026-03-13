@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -604,6 +604,7 @@
       stroke-linejoin: round;
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body>
   {% set f = patient_features or {} %}
@@ -844,8 +845,10 @@
       <span>Contact: support@aihealthhub.com</span>
     </div>
   </footer>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

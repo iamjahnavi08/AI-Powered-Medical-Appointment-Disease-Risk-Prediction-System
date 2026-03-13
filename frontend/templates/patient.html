@@ -291,6 +291,7 @@
       background: linear-gradient(160deg, #FFE3E1 0%, #9CD5FF 100%) !important;
       background-color: #FFE3E1 !important;
     }</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body>
   <main class="shell">
@@ -519,8 +520,10 @@
 
     prefillPatientIdFromQuery();
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
 
 
 

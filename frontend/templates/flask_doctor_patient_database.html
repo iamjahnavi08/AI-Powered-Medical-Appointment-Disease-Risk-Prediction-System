@@ -245,6 +245,7 @@
       .stats-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body>
   {% set doctor_display_name = (doctor_name or doctor_id or "Doctor") %}
@@ -516,5 +517,6 @@
       dbCount.textContent = "0 records";
     });
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>

@@ -336,6 +336,7 @@
       .bubble { max-width: 100%; }
     }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body data-nav-active="AI Chat">
   <aside class="app-sidebar">
@@ -561,5 +562,7 @@
       chatSubtitle.textContent = 'Try questions like "show my patient details", "what is my risk level?", "give doctor precautions", or "give me a doctors list for my condition".';
     }
   </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
+
