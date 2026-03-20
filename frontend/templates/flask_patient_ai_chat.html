@@ -170,11 +170,17 @@
       margin-bottom: 6px;
     }
     .snapshot-value { font-size: 0.98rem; font-weight: 800; color: #194b56; }
-    .precautions {
+    .snapshot-value.risk-low { color: #1f8f4e; }
+    .snapshot-value.risk-medium { color: #b38a00; }
+    .snapshot-value.risk-high { color: #cc3f3f; }
+    .patient-description {
       margin-top: 18px;
-      padding-left: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #d6e9eb;
       color: #305b65;
-      line-height: 1.55;
+      line-height: 1.65;
     }
     .doctor-panel-title {
       margin: 18px 0 10px;
@@ -220,27 +226,239 @@
       color: #2c5e99;
     }
     .chat-card {
-      padding: 18px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
+      gap: 18px;
       min-height: calc(100vh - 56px);
+      background:
+        radial-gradient(circle at top right, rgba(77, 149, 182, 0.1), transparent 26%),
+        linear-gradient(180deg, rgba(251, 254, 255, 0.96), rgba(241, 247, 249, 0.92));
     }
     .chat-head {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 16px;
+    }
+    .chat-head h2 {
+      font-size: clamp(1.9rem, 3vw, 3rem);
+      color: #173f4a;
+      line-height: 1.05;
+    }
+    .chat-head .subtitle {
+      max-width: 760px;
+      margin-top: 14px;
+      font-size: 0.96rem;
+      line-height: 1.7;
     }
     .chat-status {
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: #daf1f4;
+      background: linear-gradient(135deg, #dff4f6, #edf8fb);
       color: #1a7178;
       font-size: 0.76rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      border: 1px solid #cae5e9;
+      box-shadow: 0 10px 20px rgba(28, 102, 112, 0.08);
+      white-space: nowrap;
+    }
+    .chat-console {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid #d7e8ea;
+      background: linear-gradient(180deg, rgba(34, 71, 82, 0.06), rgba(255, 255, 255, 0.92));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 16px 28px rgba(21, 69, 80, 0.08);
+    }
+    .composer {
+      display: block;
+    }
+    .composer-shell {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid #d7e6e8;
+      box-shadow: 0 14px 24px rgba(19, 65, 75, 0.08);
+    }
+    .composer textarea {
+      width: 100%;
+      min-height: 110px;
+      max-height: 220px;
+      resize: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text);
+      background: transparent;
+      outline: none;
+    }
+    .composer-tools {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid #deebed;
+    }
+    .composer-hint {
+      color: #5c7b83;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .composer button {
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 20px;
+      min-width: 144px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 16px 26px rgba(22, 108, 116, 0.24);
+    }
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0 0;
+    }
+    .prompt-chip {
+      border: 1px solid #cadddf;
+      background: rgba(255, 255, 255, 0.9);
+      color: #245f67;
+      border-radius: 999px;
+      padding: 10px 15px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 16px rgba(23, 69, 80, 0.05);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .prompt-chip:hover {
+      transform: translateY(-1px);
+      border-color: #a8ccd1;
+      box-shadow: 0 14px 22px rgba(23, 69, 80, 0.09);
+    }
+    .composer-answer {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid #deebed;
+    }
+    .chat-answer-label {
+      margin: 0 0 10px;
+      color: #63818a;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .bubble {
+      max-width: 100%;
+      padding: 15px 18px;
+      border-radius: 22px;
+      border: 1px solid #d2e5e8;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      box-shadow: 0 12px 22px rgba(22, 71, 81, 0.08);
+    }
+    .bubble.bot {
+      align-self: stretch;
+      background: linear-gradient(180deg, #ffffff, #f6fbfc);
+      color: #1f4f58;
+    }
+    .bubble.user {
+      align-self: stretch;
+      background: linear-gradient(180deg, #ddf3f6, #cfecef);
+      color: #12434d;
+      border-color: #bde1e6;
+    }
+    .history-panel {
+      padding: 16px;
+      border-radius: 24px;
+      border: 1px solid #d7e7e9;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .history-title {
+      margin: 0;
+      color: #173f4a;
+      font-size: 1rem;
+    }
+    .history-clear {
+      border: 1px solid #cbdcdf;
+      background: #fff;
+      color: #2a6670;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .history-list {
+      display: grid;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .history-empty {
+      margin: 0;
+      color: #6a858c;
+      line-height: 1.6;
+    }
+    .history-item {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f5fafb);
+      border: 1px solid #d6e6e8;
+      box-shadow: 0 10px 18px rgba(20, 69, 79, 0.05);
+    }
+    .history-meta {
+      margin: 0 0 8px;
+      color: #72909a;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .history-question,
+    .history-reply {
+      margin: 0;
+      line-height: 1.6;
+    }
+    .history-question {
+      color: #174854;
+      font-weight: 700;
+    }
+    .history-reply {
+      margin-top: 6px;
+      color: #52727a;
+      font-size: 0.9rem;
     }
     .chat-stream {
       flex: 1;
@@ -248,76 +466,29 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      padding: 8px 4px 18px;
+      padding: 4px 2px 2px;
     }
     .bubble {
       max-width: min(82%, 720px);
-      padding: 14px 16px;
-      border-radius: 18px;
+      padding: 15px 18px;
+      border-radius: 22px;
       border: 1px solid #d2e5e8;
-      line-height: 1.6;
+      line-height: 1.7;
       white-space: pre-wrap;
-      box-shadow: 0 10px 18px rgba(22, 71, 81, 0.08);
+      box-shadow: 0 12px 22px rgba(22, 71, 81, 0.08);
     }
     .bubble.bot {
       align-self: flex-start;
-      background: var(--bubble-bot);
+      background: linear-gradient(180deg, #ffffff, #f6fbfc);
       color: #1f4f58;
     }
     .bubble.user {
       align-self: flex-end;
-      background: var(--bubble-user);
+      background: linear-gradient(180deg, #ddf3f6, #cfecef);
       color: #12434d;
       border-color: #bde1e6;
     }
-    .composer {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      padding-top: 14px;
-      border-top: 1px solid #d7e8ea;
-    }
-    .composer textarea {
-      min-height: 64px;
-      max-height: 180px;
-      resize: vertical;
-      border-radius: 16px;
-      border: 1px solid #c7dde0;
-      padding: 14px;
-      font: inherit;
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.96);
-      outline: none;
-    }
-    .composer button {
-      border: 0;
-      border-radius: 16px;
-      padding: 0 20px;
-      min-width: 132px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      color: #fff;
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .quick-prompts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 10px 0 0;
-    }
-    .prompt-chip {
-      border: 1px solid #c5dfe2;
-      background: #fff;
-      color: #245f67;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font: inherit;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .error-text { color: #b42318; font-weight: 700; margin: 8px 0 0; min-height: 20px; }
+    .error-text { color: #b42318; font-weight: 700; margin: -6px 0 0; min-height: 20px; }
     @media (max-width: 1080px) {
       .shell { grid-template-columns: 1fr; }
       .chat-card { min-height: auto; }
@@ -332,8 +503,20 @@
       }
       .page { padding: 14px; }
       .snapshot-grid { grid-template-columns: 1fr; }
-      .composer { grid-template-columns: 1fr; }
       .bubble { max-width: 100%; }
+      .chat-head {
+        flex-direction: column;
+      }
+      .chat-status {
+        align-self: flex-start;
+      }
+      .composer-tools {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .composer button {
+        width: 100%;
+      }
     }
   </style>
   <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
@@ -376,45 +559,43 @@
       <section class="card summary-card">
         <p class="eyebrow">Patient AI Assistant</p>
         <h1>Ask about your health record</h1>
-        <p class="subtitle">This chat assistant answers from the logged-in patient profile, appointment history, AI risk summary, and doctor-style precautions already stored in the portal.</p>
 
         <div class="snapshot-grid">
           <div class="snapshot-item">
             <span class="snapshot-label">Patient</span>
-            <span class="snapshot-value">{{ initial_snapshot.patient_name or patient_name }}</span>
+            <span class="snapshot-value" id="snapshotPatientName">{{ initial_snapshot.patient_name or patient_name }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Age</span>
-            <span class="snapshot-value">{{ initial_snapshot.age or "--" }}</span>
+            <span class="snapshot-value" id="snapshotAge">{{ initial_snapshot.age or "--" }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Gender</span>
-            <span class="snapshot-value">{{ initial_snapshot.gender or "--" }}</span>
+            <span class="snapshot-value" id="snapshotGender">{{ initial_snapshot.gender or "--" }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Risk Level</span>
-            <span class="snapshot-value">{{ initial_snapshot.risk_level or "--" }}</span>
+            <span class="snapshot-value {% set initial_risk = (initial_snapshot.risk_level or '')|lower %}{% if 'low' in initial_risk %}risk-low{% elif 'medium' in initial_risk %}risk-medium{% elif 'high' in initial_risk %}risk-high{% endif %}" id="snapshotRiskLevel">{{ initial_snapshot.risk_level or "--" }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Recommended Slot</span>
-            <span class="snapshot-value">{{ initial_snapshot.recommended_slot or "--" }}</span>
+            <span class="snapshot-value" id="snapshotRecommendedSlot">{{ initial_snapshot.recommended_slot or "--" }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Symptoms</span>
-            <span class="snapshot-value">{{ initial_snapshot.symptoms or "--" }}</span>
+            <span class="snapshot-value" id="snapshotSymptoms">{{ initial_snapshot.symptoms or "--" }}</span>
           </div>
           <div class="snapshot-item">
             <span class="snapshot-label">Sleep Hours</span>
-            <span class="snapshot-value">{{ initial_snapshot.average_sleep_hours or "--" }}</span>
+            <span class="snapshot-value" id="snapshotSleepHours">{{ initial_snapshot.average_sleep_hours or "--" }}</span>
           </div>
         </div>
 
-        <h3 style="margin-top:18px;">Doctor Precautions</h3>
-        <ul class="precautions" id="precautionList">
-          {% for item in initial_precautions %}
-          <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
+        <h3 style="margin-top:18px;">Patient Description</h3>
+        {% set description_name = initial_snapshot.patient_name or 'The patient' %}
+        <p class="patient-description" id="patientDescription">
+          {{ ('The patient' if description_name|lower in ['self', 'patient'] else description_name) ~ ' is ' ~ ('a ' ~ initial_snapshot.age ~ '-year-old ' if initial_snapshot.age else '') ~ (initial_snapshot.gender|lower if initial_snapshot.gender else 'patient') ~ ' with a current risk level of ' ~ (initial_snapshot.risk_level or 'not available') ~ '. Reported symptoms: ' ~ (initial_snapshot.symptoms or 'not available') ~ '. Average sleep is ' ~ (initial_snapshot.average_sleep_hours or 'not available') ~ ', and the recommended slot is ' ~ (initial_snapshot.recommended_slot or 'not available') ~ '.' }}
+        </p>
         <h3 class="doctor-panel-title">Suggested Doctors</h3>
         <div class="doctor-list" id="doctorList">
           {% for item in initial_suggested_doctors %}
@@ -435,29 +616,49 @@
       <section class="card chat-card">
         <div class="chat-head">
           <div>
-            <p class="eyebrow">Live Chat</p>
-            <h2>Patient Support Bot</h2>
-            <p class="subtitle">Try questions like “show my patient details”, “what is my risk level?”, “what precautions should I follow?”, or “who is my next doctor?”.</p>
+            <p class="eyebrow">Live Chat - {{ patient_name or "Patient" }}</p>
+            <h2>Where should we start?</h2>
+            <p class="subtitle">Ask about your profile, risk summary, observations, suggested doctors, or next appointment. Use a quick prompt below or type your own question.</p>
           </div>
           <div class="chat-status">Patient {{ patient_id }}</div>
         </div>
 
-        <div class="quick-prompts">
-          <button class="prompt-chip" type="button" data-prompt="Show my patient details">Patient Details</button>
-          <button class="prompt-chip" type="button" data-prompt="What is my risk level?">Risk Level</button>
-          <button class="prompt-chip" type="button" data-prompt="Give doctor precautions for me">Doctor Precautions</button>
-          <button class="prompt-chip" type="button" data-prompt="Give me a doctors list for my condition">Doctors List</button>
-          <button class="prompt-chip" type="button" data-prompt="Who is my next doctor appointment with?">Next Appointment</button>
+        <div class="chat-console">
+          <form class="composer" id="chatForm">
+            <div class="composer-shell">
+              <textarea id="chatInput" placeholder="Write anything about your health record, risk level, observations, doctors, or appointments..."></textarea>
+              <div class="composer-answer">
+                <p class="chat-answer-label">Current Answer</p>
+                <div class="chat-stream" id="chatStream">
+                  <div class="bubble bot">{{ initial_reply }}</div>
+                </div>
+              </div>
+              <div class="composer-tools">
+                <div class="composer-hint">Quick patient support prompt</div>
+                <button type="submit" id="sendBtn">Ask Now</button>
+              </div>
+            </div>
+          </form>
+
+          <div class="quick-prompts">
+            <button class="prompt-chip" type="button" data-prompt="Show my patient details">Patient Profile</button>
+            <button class="prompt-chip" type="button" data-prompt="What is my risk level?">Risk Summary</button>
+            <button class="prompt-chip" type="button" data-prompt="Give doctor precautions for me">Observations</button>
+            <button class="prompt-chip" type="button" data-prompt="Give me a doctors list for my condition">Suggested Doctors</button>
+            <button class="prompt-chip" type="button" data-prompt="Who is my next doctor appointment with?">Next Appointment</button>
+          </div>
         </div>
 
-        <div class="chat-stream" id="chatStream">
-          <div class="bubble bot">{{ initial_reply }}</div>
+        <div class="history-panel">
+          <div class="history-head">
+            <h3 class="history-title">Previous Chat History</h3>
+            <button class="history-clear" id="clearHistoryBtn" type="button">Clear History</button>
+          </div>
+          <div class="history-list" id="chatHistoryList">
+            <p class="history-empty" id="chatHistoryEmpty">Your previous questions and answers will appear here.</p>
+          </div>
         </div>
 
-        <form class="composer" id="chatForm">
-          <textarea id="chatInput" placeholder="Ask about your patient details, symptoms, appointments, risk, or precautions..."></textarea>
-          <button type="submit" id="sendBtn">Send</button>
-        </form>
         <div class="error-text" id="chatError"></div>
       </section>
     </div>
@@ -469,10 +670,24 @@
     const chatInput = document.getElementById("chatInput");
     const chatError = document.getElementById("chatError");
     const sendBtn = document.getElementById("sendBtn");
-    const precautionList = document.getElementById("precautionList");
+    const patientDescription = document.getElementById("patientDescription");
     const doctorList = document.getElementById("doctorList");
+    const chatHistoryList = document.getElementById("chatHistoryList");
+    const chatHistoryEmpty = document.getElementById("chatHistoryEmpty");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const snapshotPatientName = document.getElementById("snapshotPatientName");
+    const snapshotAge = document.getElementById("snapshotAge");
+    const snapshotGender = document.getElementById("snapshotGender");
+    const snapshotRiskLevel = document.getElementById("snapshotRiskLevel");
+    const snapshotRecommendedSlot = document.getElementById("snapshotRecommendedSlot");
+    const snapshotSymptoms = document.getElementById("snapshotSymptoms");
+    const snapshotSleepHours = document.getElementById("snapshotSleepHours");
+    const patientId = {{ patient_id|tojson }};
+    const chatHistoryStorageKey = `patient_ai_chat_history_${patientId}`;
+    let currentSnapshot = {{ initial_snapshot|tojson }};
 
     function appendBubble(text, role) {
+      if (!chatStream) return;
       const bubble = document.createElement("div");
       bubble.className = `bubble ${role}`;
       bubble.textContent = text;
@@ -480,14 +695,121 @@
       chatStream.scrollTop = chatStream.scrollHeight;
     }
 
-    function renderPrecautions(items) {
-      if (!precautionList || !Array.isArray(items)) return;
-      precautionList.innerHTML = "";
-      items.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        precautionList.appendChild(li);
+    function loadChatHistory() {
+      try {
+        const raw = localStorage.getItem(chatHistoryStorageKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveChatHistory(items) {
+      try {
+        localStorage.setItem(chatHistoryStorageKey, JSON.stringify(items));
+      } catch (error) {
+        // Ignore storage write failures and keep the chat usable.
+      }
+    }
+
+    function renderChatHistory(items) {
+      if (!chatHistoryList || !chatHistoryEmpty) return;
+      const historyItems = Array.isArray(items) ? items : [];
+      chatHistoryList.innerHTML = "";
+      if (historyItems.length === 0) {
+        chatHistoryList.appendChild(chatHistoryEmpty);
+        chatHistoryEmpty.hidden = false;
+        if (clearHistoryBtn) clearHistoryBtn.hidden = true;
+        return;
+      }
+      chatHistoryEmpty.hidden = true;
+      if (clearHistoryBtn) clearHistoryBtn.hidden = false;
+      historyItems.forEach((item) => {
+        const article = document.createElement("article");
+        article.className = "history-item";
+        const timestamp = document.createElement("p");
+        timestamp.className = "history-meta";
+        timestamp.textContent = item.timestamp || "Previous chat";
+        const question = document.createElement("p");
+        question.className = "history-question";
+        question.textContent = `You: ${item.question || ""}`;
+        const reply = document.createElement("p");
+        reply.className = "history-reply";
+        reply.textContent = `Bot: ${item.reply || ""}`;
+        article.appendChild(timestamp);
+        article.appendChild(question);
+        article.appendChild(reply);
+        chatHistoryList.appendChild(article);
       });
+    }
+
+    function addChatHistoryEntry(question, reply) {
+      const history = loadChatHistory();
+      const timestamp = new Date().toLocaleString([], {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      history.unshift({
+        question: String(question || "").trim(),
+        reply: String(reply || "").trim(),
+        timestamp
+      });
+      const trimmedHistory = history.slice(0, 12);
+      saveChatHistory(trimmedHistory);
+      renderChatHistory(trimmedHistory);
+    }
+
+    function resizeComposer() {
+      if (!chatInput) return;
+      chatInput.style.height = "auto";
+      chatInput.style.height = `${Math.min(chatInput.scrollHeight, 220)}px`;
+    }
+
+    function snapshotValue(value, fallback = "not available") {
+      const text = String(value ?? "").trim();
+      return text && text !== "--" ? text : fallback;
+    }
+
+    function applyRiskLevelClass(value) {
+      if (!snapshotRiskLevel) return;
+      snapshotRiskLevel.classList.remove("risk-low", "risk-medium", "risk-high");
+      const riskText = String(value ?? "").toLowerCase();
+      if (riskText.includes("low")) {
+        snapshotRiskLevel.classList.add("risk-low");
+      } else if (riskText.includes("medium")) {
+        snapshotRiskLevel.classList.add("risk-medium");
+      } else if (riskText.includes("high")) {
+        snapshotRiskLevel.classList.add("risk-high");
+      }
+    }
+
+    function renderSnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== "object") return;
+      if (snapshotPatientName) snapshotPatientName.textContent = snapshotValue(snapshot.patient_name, "{{ patient_name }}");
+      if (snapshotAge) snapshotAge.textContent = snapshotValue(snapshot.age, "--");
+      if (snapshotGender) snapshotGender.textContent = snapshotValue(snapshot.gender, "--");
+      if (snapshotRiskLevel) snapshotRiskLevel.textContent = snapshotValue(snapshot.risk_level, "--");
+      if (snapshotRecommendedSlot) snapshotRecommendedSlot.textContent = snapshotValue(snapshot.recommended_slot, "--");
+      if (snapshotSymptoms) snapshotSymptoms.textContent = snapshotValue(snapshot.symptoms, "--");
+      if (snapshotSleepHours) snapshotSleepHours.textContent = snapshotValue(snapshot.average_sleep_hours, "--");
+      applyRiskLevelClass(snapshot.risk_level);
+    }
+
+    function renderPatientDescription(snapshot) {
+      if (!patientDescription || !snapshot || typeof snapshot !== "object") return;
+      const rawName = snapshotValue(snapshot.patient_name, "The patient");
+      const subject = ["self", "patient"].includes(rawName.toLowerCase()) ? "The patient" : rawName;
+      const age = snapshotValue(snapshot.age, "");
+      const gender = snapshotValue(snapshot.gender, "patient").toLowerCase();
+      const riskLevel = snapshotValue(snapshot.risk_level);
+      const symptoms = snapshotValue(snapshot.symptoms);
+      const sleepHours = snapshotValue(snapshot.average_sleep_hours);
+      const recommendedSlot = snapshotValue(snapshot.recommended_slot);
+      const agePhrase = age ? ` is a ${age}-year-old ${gender}` : ` is a ${gender}`;
+      patientDescription.textContent = `${subject}${agePhrase} with a current risk level of ${riskLevel}. Reported symptoms: ${symptoms}. Average sleep is ${sleepHours}, and the recommended slot is ${recommendedSlot}.`;
     }
 
     function renderSuggestedDoctors(items) {
@@ -522,8 +844,9 @@
       chatError.textContent = "";
       appendBubble(trimmed, "user");
       chatInput.value = "";
+      resizeComposer();
       sendBtn.disabled = true;
-      sendBtn.textContent = "Sending...";
+      sendBtn.textContent = "Asking...";
       try {
         const res = await fetch("/patient/ai-chat/message", {
           method: "POST",
@@ -534,14 +857,17 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Unable to get chatbot response.");
         appendBubble(data.reply || "No response available.", "bot");
-        renderPrecautions(data.precautions || []);
+        addChatHistoryEntry(trimmed, data.reply || "No response available.");
+        currentSnapshot = data.patient_snapshot || currentSnapshot;
+        renderSnapshot(currentSnapshot);
+        renderPatientDescription(currentSnapshot);
         renderSuggestedDoctors(data.suggested_doctors || []);
       } catch (error) {
         appendBubble("I could not answer that right now. Please try again.", "bot");
         chatError.textContent = error.message || "Chat failed.";
       } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = "Send";
+        sendBtn.textContent = "Ask Now";
         chatInput.focus();
       }
     }
@@ -551,15 +877,34 @@
       await sendMessage(chatInput.value);
     });
 
+    chatInput.addEventListener("input", resizeComposer);
+    chatInput.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        await sendMessage(chatInput.value);
+      }
+    });
+
     document.querySelectorAll("[data-prompt]").forEach((button) => {
       button.addEventListener("click", async () => {
         await sendMessage(button.getAttribute("data-prompt") || "");
       });
     });
 
+    if (clearHistoryBtn) {
+      clearHistoryBtn.addEventListener("click", () => {
+        saveChatHistory([]);
+        renderChatHistory([]);
+      });
+    }
+
     const chatSubtitle = document.querySelector(".chat-head .subtitle");
+    renderSnapshot(currentSnapshot);
+    renderPatientDescription(currentSnapshot);
+    renderChatHistory(loadChatHistory());
+    resizeComposer();
     if (chatSubtitle) {
-      chatSubtitle.textContent = 'Try questions like "show my patient details", "what is my risk level?", "give doctor precautions", or "give me a doctors list for my condition".';
+      chatSubtitle.textContent = "Ask about your profile, risk summary, observations, suggested doctors, or next appointment. Use a quick prompt below or type your own question.";
     }
   </script>
   <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
