@@ -5,117 +5,642 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AIHealth Hub - Nurse Signup</title>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap");
+
     :root {
-      --bg-a: #f0f7fb;
-      --bg-b: #d9ebf1;
-      --card: rgba(255, 255, 255, 0.9);
-      --line: #c8dde4;
-      --text: #164852;
-      --muted: #58757d;
-      --accent: #1c8a94;
-      --accent-dark: #146870;
+      --ink: #314375;
+      --ink-strong: #2b3f73;
+      --muted: #4f5f8d;
+      --line: #c3d0ea;
+      --card-bg: rgba(245, 247, 253, 0.88);
+      --button-a: #267fb5;
+      --button-b: #356ddb;
+      --spark: rgba(255, 255, 255, 0.85);
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      color: var(--text);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(92deg, #fbe7e5 0%, #e3e4f2 52%, #dbe6fa 100%);
+      animation: fade-in 700ms ease both;
+    }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
       background:
-        radial-gradient(circle at 10% 18%, rgba(95, 201, 193, 0.18), transparent 28%),
-        radial-gradient(circle at 88% 80%, rgba(56, 138, 186, 0.18), transparent 30%),
-        linear-gradient(180deg, var(--bg-a), var(--bg-b));
+        radial-gradient(circle at 14% 8%, rgba(255, 243, 228, 0.65) 0%, rgba(255, 243, 228, 0) 38%),
+        radial-gradient(circle at 78% 14%, rgba(238, 244, 255, 0.75) 0%, rgba(238, 244, 255, 0) 36%),
+        radial-gradient(circle at 88% 78%, rgba(173, 210, 255, 0.35) 0%, rgba(173, 210, 255, 0) 40%);
+      animation: drift-bg 16s ease-in-out infinite alternate;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(1px);
+      opacity: 0.55;
+      animation: orb-float 14s ease-in-out infinite;
+    }
+
+    .orb-a {
+      width: 250px;
+      height: 250px;
+      left: -70px;
+      top: 16%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 162, 180, 0.7), rgba(255, 162, 180, 0.08) 70%);
+    }
+
+    .orb-b {
+      width: 300px;
+      height: 300px;
+      right: -90px;
+      top: 10%;
+      background: radial-gradient(circle at 65% 30%, rgba(118, 178, 255, 0.75), rgba(118, 178, 255, 0.1) 72%);
+      animation-delay: -4.8s;
+    }
+
+    .orb-c {
+      width: 210px;
+      height: 210px;
+      right: 12%;
+      bottom: 5%;
+      background: radial-gradient(circle at 45% 45%, rgba(142, 215, 255, 0.6), rgba(142, 215, 255, 0.06) 74%);
+      animation-delay: -2.2s;
+    }
+
+    .sparkles {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 2% 20%, var(--spark) 0 3px, transparent 4px),
+        radial-gradient(circle at 8% 36%, var(--spark) 0 2px, transparent 4px),
+        radial-gradient(circle at 16% 12%, rgba(255, 255, 255, 0.65) 0 1px, transparent 3px),
+        radial-gradient(circle at 64% 16%, rgba(255, 255, 255, 0.76) 0 2px, transparent 4px),
+        radial-gradient(circle at 83% 26%, rgba(255, 255, 255, 0.7) 0 2px, transparent 4px),
+        radial-gradient(circle at 92% 64%, rgba(255, 255, 255, 0.82) 0 2px, transparent 4px),
+        radial-gradient(circle at 34% 68%, rgba(255, 255, 255, 0.62) 0 1px, transparent 3px),
+        radial-gradient(circle at 70% 84%, rgba(255, 255, 255, 0.74) 0 1px, transparent 3px),
+        radial-gradient(circle at 26% 88%, rgba(255, 255, 255, 0.72) 0 2px, transparent 4px);
+      opacity: 0.9;
+      animation: float-spark 22s linear infinite alternate;
+    }
+
+    .medical-icon {
+      position: absolute;
+      width: 68px;
+      height: 68px;
+      stroke: rgba(255, 255, 255, 0.5);
+      stroke-width: 2.2;
+      fill: none;
+      filter: drop-shadow(0 6px 14px rgba(118, 147, 206, 0.25));
+      animation: float-icon 8s ease-in-out infinite;
+    }
+
+    .icon-plus-left {
+      left: 3%;
+      top: 43%;
+      width: 58px;
+      height: 58px;
+    }
+
+    .icon-lock {
+      left: 7%;
+      top: 53%;
+      animation-delay: -1.5s;
+    }
+
+    .icon-kit {
+      left: 40%;
+      top: 43%;
+      animation-delay: -0.9s;
+    }
+
+    .icon-plus-right {
+      right: 2%;
+      top: 62%;
+      width: 58px;
+      height: 58px;
+      animation-delay: -1.9s;
+    }
+
+    .icon-user {
+      left: 4%;
+      bottom: 14%;
+      animation-delay: -2.4s;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 2;
+      width: min(1320px, 95vw);
+      min-height: calc(100vh - 70px);
+      margin: 0 auto;
+      padding: clamp(0.8rem, 1.8vw, 1.4rem) clamp(0.9rem, 2.2vw, 1.8rem) clamp(0.6rem, 1.2vw, 1rem);
       display: grid;
-      place-items: center;
-      padding: 18px;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(0.75rem, 1.4vw, 1.2rem);
+      align-items: start;
     }
+
+    .hospital {
+      margin: 0;
+      font-size: clamp(1rem, 1.45vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: 0.085em;
+      text-transform: uppercase;
+      animation: rise-in 650ms ease both;
+    }
+
+    .brand-ai,
+    .brand-health,
+    .brand-hub {
+      display: inline-block;
+      animation: brand-float 3.2s ease-in-out infinite;
+    }
+
+    .brand-ai {
+      color: #2f6fdb;
+      animation-delay: 0s;
+    }
+
+    .brand-health {
+      color: #d94343;
+      animation-delay: 0.18s;
+    }
+
+    .brand-hub {
+      color: #111111;
+      animation-delay: 0.32s;
+    }
+
+    .left h1 {
+      margin: 0.22rem 0 0;
+      font-size: clamp(1.7rem, 3.8vw, 3.05rem);
+      line-height: 1.03;
+      letter-spacing: -0.02em;
+      color: #33497e;
+      animation: rise-in 780ms ease 100ms both;
+    }
+
+    .subtitle {
+      margin: 0.65rem 0 0;
+      font-size: clamp(1rem, 1.35vw, 1.32rem);
+      font-weight: 700;
+      color: #364d80;
+      animation: rise-in 840ms ease 180ms both;
+    }
+
+    .desc {
+      margin: 0.6rem 0 0;
+      max-width: 54ch;
+      font-size: clamp(0.88rem, 1vw, 0.98rem);
+      line-height: 1.62;
+      color: var(--muted);
+      animation: rise-in 940ms ease 220ms both;
+    }
+
+    .bullets {
+      margin: 0.72rem 0 0;
+      padding-left: 1.15rem;
+      color: #425481;
+      font-size: clamp(0.86rem, 1.05vw, 0.98rem);
+      line-height: 1.7;
+      animation: rise-in 980ms ease 280ms both;
+    }
+
+    .left-image {
+      margin-top: 0.7rem;
+      width: 100%;
+      max-width: 660px;
+      max-height: 31vh;
+      border-radius: 1.22rem;
+      border: 1px solid rgba(221, 229, 245, 0.96);
+      overflow: hidden;
+      box-shadow: 0 18px 30px rgba(57, 78, 124, 0.17);
+      animation: rise-in 1080ms ease 320ms both;
+    }
+
+    .left-image img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      animation: breathe 6.5s ease-in-out infinite;
+    }
+
+    .right {
+      display: flex;
+      justify-content: center;
+      align-items: start;
+    }
+
     .card {
-      width: min(520px, 100%);
-      padding: 28px;
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      box-shadow: 0 22px 34px rgba(20, 73, 83, 0.12);
+      width: min(540px, 100%);
+      max-height: calc(100vh - 130px);
+      overflow: auto;
+      border-radius: 1.9rem;
+      border: 1px solid rgba(218, 230, 248, 0.95);
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow:
+        0 20px 38px rgba(54, 71, 114, 0.16),
+        0 0 0 1px rgba(255, 255, 255, 0.38) inset;
+      padding: clamp(1rem, 1.7vw, 1.3rem);
+      animation: rise-in 880ms ease 220ms both, card-float 7.5s ease-in-out 1.2s infinite;
     }
-    h1 { margin: 0; font-size: 2.2rem; }
-    p { color: var(--muted); line-height: 1.7; }
+
+    .card h2 {
+      margin: 0;
+      font-size: clamp(1.95rem, 2.9vw, 2.5rem);
+      line-height: 1.06;
+      color: var(--ink-strong);
+      animation: title-pulse 3.6s ease-in-out infinite;
+    }
+
+    .hint {
+      margin: 0.95rem 0 0.3rem;
+      font-size: clamp(0.98rem, 1.15vw, 1.05rem);
+      font-weight: 700;
+      color: #364d81;
+    }
+
+    .errors {
+      margin: 0.8rem 0 0.3rem;
+      padding: 0.65rem 0.78rem;
+      border-radius: 0.72rem;
+      border: 1px solid #f0c7c7;
+      background: #fff1f1;
+      color: #8f2525;
+      font-size: 0.94rem;
+    }
+
     label {
       display: block;
-      margin: 14px 0 6px;
-      font-weight: 700;
-      color: #23525d;
+      margin: 0.5rem 0 0.2rem;
+      font-size: clamp(0.96rem, 1.08vw, 1.03rem);
+      font-weight: 800;
+      color: #2f457a;
     }
+
     input {
       width: 100%;
-      padding: 13px 14px;
-      border-radius: 14px;
-      border: 1px solid #cadde2;
+      border: 1px solid var(--line);
+      border-radius: 0.92rem;
+      padding: 0.62rem 0.82rem;
       font: inherit;
-      background: #f8fcfd;
+      font-size: 0.95rem;
+      color: #2b4274;
+      background: rgba(244, 248, 255, 0.75);
+      transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease;
     }
+
     input:focus {
       outline: none;
-      border-color: #7cc6ce;
-      box-shadow: 0 0 0 3px rgba(54, 154, 166, 0.16);
+      border-color: #84acee;
+      box-shadow: 0 0 0 3px rgba(129, 172, 238, 0.22);
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px);
     }
+
     button {
+      position: relative;
+      overflow: hidden;
+      margin-top: 0.7rem;
       width: 100%;
-      margin-top: 18px;
-      padding: 14px;
       border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      color: #fff;
+      border-radius: 0.96rem;
+      padding: 0.62rem;
       font: inherit;
+      font-size: clamp(1.05rem, 1.2vw, 1.18rem);
       font-weight: 800;
+      color: #ffffff;
       cursor: pointer;
+      background: linear-gradient(105deg, var(--button-a), var(--button-b));
+      box-shadow: 0 12px 22px rgba(44, 106, 201, 0.34);
+      transition: transform 170ms ease, box-shadow 170ms ease, filter 170ms ease;
+      animation: cta-pulse 2.6s ease-in-out infinite;
     }
-    .errors {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid #efc3c3;
-      background: #fff1f1;
-      color: #8a2c2c;
+
+    button::after {
+      content: "";
+      position: absolute;
+      top: -25%;
+      left: -30%;
+      width: 25%;
+      height: 150%;
+      transform: rotate(18deg);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0));
+      animation: sheen 4s ease-in-out infinite;
     }
-    a {
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 15px 26px rgba(44, 106, 201, 0.4);
+    }
+
+    .create {
+      margin-top: 1rem;
       display: inline-block;
-      margin-top: 16px;
-      color: #1b6f78;
-      text-decoration: none;
+      font-size: clamp(1.05rem, 1.28vw, 1.15rem);
       font-weight: 700;
+      color: #2f6fdb;
+      text-decoration: none;
+    }
+
+    .create:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .dna-wave {
+      position: absolute;
+      left: -6%;
+      right: -6%;
+      bottom: -16px;
+      height: 210px;
+      opacity: 0.74;
+      filter: drop-shadow(0 -8px 22px rgba(134, 175, 245, 0.43));
+      animation: wave-rise 10s ease-in-out infinite;
+    }
+
+    .dna-wave path {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.75);
+      stroke-width: 2.2;
+      stroke-dasharray: 2 8;
+    }
+
+    .dna-wave .line-b {
+      stroke: rgba(167, 206, 255, 0.65);
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes drift-bg {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-1.3%) scale(1.03); }
+    }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float-icon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-9px); }
+    }
+
+    @keyframes float-spark {
+      from { transform: translateY(0); opacity: 0.72; }
+      to { transform: translateY(-20px); opacity: 1; }
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.014); }
+    }
+
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes sheen {
+      0%, 72% { left: -30%; }
+      100% { left: 120%; }
+    }
+
+    @keyframes wave-rise {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+
+    @keyframes orb-float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.06); }
+    }
+
+    @keyframes title-pulse {
+      0%, 100% { transform: translateY(0); text-shadow: 0 0 0 rgba(53, 109, 219, 0); }
+      50% { transform: translateY(-1px); text-shadow: 0 6px 18px rgba(53, 109, 219, 0.18); }
+    }
+
+    @keyframes brand-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    @keyframes cta-pulse {
+      0%, 100% { box-shadow: 0 12px 22px rgba(44, 106, 201, 0.34); }
+      50% { box-shadow: 0 16px 30px rgba(44, 106, 201, 0.46); }
+    }
+
+    @media (max-width: 1030px) {
+      .shell {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .left-image {
+        max-width: 100%;
+        max-height: 34vh;
+      }
+
+      .right {
+        justify-content: stretch;
+      }
+
+      .card {
+        width: 100%;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .dna-wave {
+        height: 140px;
+        bottom: -22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .global-page-footer {
+      width: min(92vw, 980px);
+      margin: 0 auto 0.35rem;
+      padding: 0.56rem 0.95rem;
+      border-radius: 0.82rem;
+      border: 1px solid rgba(170, 188, 214, 0.85);
+      background: rgba(233, 238, 246, 0.84);
+      color: #607089;
+      text-align: center;
+      line-height: 1.2;
+      font-size: clamp(0.74rem, 0.95vw, 0.84rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      box-shadow: 0 6px 14px rgba(83, 97, 127, 0.08);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .global-page-footer-line {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      white-space: nowrap;
+    }
+
+    .global-page-footer .sep {
+      opacity: 0.6;
+      font-weight: 700;
+    }
+
+    @media (max-width: 840px) {
+      .global-page-footer {
+        width: min(96vw, 980px);
+        font-size: 0.76rem;
+        padding: 0.52rem 0.72rem;
+      }
+
+      .global-page-footer-line {
+        white-space: normal;
+        line-height: 1.35;
+      }
     }
   </style>
   <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
 </head>
 <body>
-  <main class="card">
-    <h1>Create Nurse Account</h1>
-    <p>Register a nurse account to maintain patient vitals, glucose levels, and official intake records before doctor review.</p>
+  <div class="scene" aria-hidden="true">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="orb orb-c"></div>
+    <div class="sparkles"></div>
 
-    {% if errors %}
-    <div class="errors">
-      {% for error in errors %}
-      <div>{{ error }}</div>
-      {% endfor %}
-    </div>
-    {% endif %}
+    <svg class="medical-icon icon-plus-left" viewBox="0 0 24 24">
+      <path d="M12 4v16M4 12h16" />
+    </svg>
 
-    <form method="post">
-      <label for="nurse_id">Nurse ID</label>
-      <input id="nurse_id" name="nurse_id" value="{{ form_data.nurse_id }}" />
+    <svg class="medical-icon icon-lock" viewBox="0 0 24 24">
+      <rect x="4" y="10" width="16" height="10" rx="2" />
+      <path d="M8 10V8a4 4 0 0 1 8 0v2" />
+    </svg>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" />
+    <svg class="medical-icon icon-kit" viewBox="0 0 24 24">
+      <rect x="3" y="7" width="18" height="13" rx="2.5" />
+      <path d="M9 7V5a3 3 0 0 1 6 0v2M12 10v6M9 13h6" />
+    </svg>
 
-      <label for="confirm_password">Confirm Password</label>
-      <input id="confirm_password" name="confirm_password" type="password" />
+    <svg class="medical-icon icon-plus-right" viewBox="0 0 24 24">
+      <path d="M12 4v16M4 12h16" />
+    </svg>
 
-      <button type="submit">Create Account</button>
-    </form>
+    <svg class="medical-icon icon-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.4" />
+      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </svg>
 
-    <a href="/nurse/login">Already have a nurse account? Login</a>
+    <svg class="dna-wave" viewBox="0 0 1600 240" preserveAspectRatio="none">
+      <path d="M0 150C130 120 180 210 300 172C410 140 490 82 600 122C730 170 820 232 940 186C1080 132 1140 112 1280 146C1412 178 1490 210 1600 156" />
+      <path class="line-b" d="M0 170C120 132 220 114 340 152C460 190 520 228 640 174C770 118 860 116 980 158C1110 204 1230 216 1370 168C1480 130 1540 132 1600 150" />
+    </svg>
+  </div>
+
+  <main class="shell">
+    <section class="left">
+      <p class="hospital"><span class="brand-ai">AI</span><span class="brand-health">Health</span> <span class="brand-hub">Hub</span></p>
+      <h1>Nurse Portal</h1>
+      <p class="subtitle">Create secure nurse access for intake and patient workflow</p>
+      <p class="desc">Register a nurse account to manage intake tasks, keep patient vitals updated, and prepare clean records before doctor review.</p>
+      <ul class="bullets">
+        <li>Create your nurse account securely</li>
+        <li>Maintain patient vitals and symptom updates</li>
+        <li>Support smoother doctor review and queue management</li>
+      </ul>
+      <div class="left-image">
+        <img
+          src="https://images.pexels.com/photos/7088530/pexels-photo-7088530.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          onerror="this.onerror=null;this.src='https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1200';"
+          alt="Healthcare professional reviewing patient records"
+        />
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="card">
+        <h2>Create Nurse Account</h2>
+        <p class="hint">Enter your nurse ID and password to set up portal access.</p>
+
+        {% if errors %}
+          <div class="errors">
+            {% for error in errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" autocomplete="off">
+          <label for="nurse_id">Nurse ID</label>
+          <input id="nurse_id" name="nurse_id" value="{{ form_data.nurse_id }}" autocomplete="off" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" required />
+
+          <label for="confirm_password">Confirm Password</label>
+          <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required />
+
+          <button type="submit">Create Account</button>
+        </form>
+
+        <a class="create" href="/nurse/login">Already have a nurse account? Login</a>
+      </div>
+    </section>
   </main>
+
+  <footer class="global-page-footer">
+    <div class="global-page-footer-line">
+      <span>&copy; 2026 AIHealth Hub</span>
+      <span class="sep">|</span>
+      <span>Powered by AI Healthcare System</span>
+      <span class="sep">|</span>
+      <span>Contact: support@aihealthhub.com</span>
+    </div>
+  </footer>
   <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
 </body>
 </html>
