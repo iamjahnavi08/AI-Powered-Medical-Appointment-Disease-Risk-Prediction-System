@@ -2903,14 +2903,9 @@
       return d;
     }
 
-    function appointmentDay(value) {
-      const d = parseDate(value);
-      return d ? startOfDay(d) : null;
-    }
-
     function isUpcomingAppointment(item) {
-      const day = appointmentDay(item && item.appointment_time);
-      return !!day && day.getTime() >= startOfDay(new Date()).getTime();
+      const appointmentTime = parseDate(item && item.appointment_time);
+      return !!appointmentTime && appointmentTime.getTime() >= Date.now();
     }
 
     function splitAppointmentsByDate(appointments) {
@@ -3037,7 +3032,7 @@
       return n.toFixed(decimals).replace(/\\.0+$/, "");
     }
 
-    function updateOverview(appointments, patients = []) {
+    function updateOverview(appointments) {
       const appointmentPatients = new Set();
       let high = 0;
       let medium = 0;
@@ -3056,16 +3051,7 @@
         if (at && toIsoDay(at) === todayKey) todayCount += 1;
       });
 
-      if (appointments.length === 0 && Array.isArray(patients) && patients.length > 0) {
-        patients.forEach((item) => {
-          const risk = normalizeRisk(item && item.risk_report && item.risk_report.risk_level);
-          if (risk === "High Risk") high += 1;
-          else if (risk === "Medium Risk") medium += 1;
-          else low += 1;
-        });
-      }
-
-      setText("kpiPatients", appointments.length > 0 ? appointmentPatients.size : (Array.isArray(patients) ? patients.length : 0));
+      setText("kpiPatients", appointmentPatients.size);
       setText("kpiAppointments", appointments.length);
       setText("kpiHigh", high);
       setText("kpiMedium", medium);
@@ -3160,6 +3146,11 @@
     }
 
     function updateInsights(appointments, patients) {
+      const appointmentPatientIds = new Set(
+        appointments
+          .map((item) => safeText(item.patient_id).trim())
+          .filter(Boolean)
+      );
       const recent = [...appointments]
         .sort((a, b) => (parseDate(b.booked_at)?.getTime() || 0) - (parseDate(a.booked_at)?.getTime() || 0))
         .slice(0, 6);
@@ -3189,6 +3180,7 @@
       }
 
       const updatedPatients = [...(patients || [])]
+        .filter((item) => appointmentPatientIds.has(safeText(item.patient_id).trim()))
         .filter((item) => parseDate(item.health_data_submitted_at))
         .sort((a, b) => (parseDate(b.health_data_submitted_at)?.getTime() || 0) - (parseDate(a.health_data_submitted_at)?.getTime() || 0))
         .slice(0, 6);
@@ -3263,21 +3255,14 @@
           ? "No appointments match selected filters."
           : "No upcoming appointments yet.";
         rows.innerHTML = `<tr><td colspan="6">${emptyMessage}</td></tr>`;
-        const fallbackPatient = [...cachedPatients]
-          .filter((item) => item && item.patient_features && Object.keys(item.patient_features).length > 0)
-          .sort((a, b) => (parseDate(b.health_data_submitted_at)?.getTime() || 0) - (parseDate(a.health_data_submitted_at)?.getTime() || 0))[0];
-        if (fallbackPatient) {
-          selectPatientProfile(fallbackPatient);
-        } else {
-          setText("rvPatient", "-");
-          setText("rvDoctor", "-");
-          setText("rvTime", "-");
-          setText("rvRisk", "-");
-          document.getElementById("reviewFeatures").textContent = "Select an appointment row to review patient details.";
-          document.getElementById("predictOutput").textContent = "No appointment selected yet.";
-          document.getElementById("predictOutput").className = "output";
-          clearDoctorRiskReport();
-        }
+        setText("rvPatient", "-");
+        setText("rvDoctor", "-");
+        setText("rvTime", "-");
+        setText("rvRisk", "-");
+        document.getElementById("reviewFeatures").textContent = "Select an appointment row to review patient details.";
+        document.getElementById("predictOutput").textContent = "No appointment selected yet.";
+        document.getElementById("predictOutput").className = "output";
+        clearDoctorRiskReport();
         return;
       }
 
@@ -3344,7 +3329,7 @@
       cachedUpcomingAppointments = upcomingAppointments;
       ensureCurrentMonthDateOptions();
 
-      const counts = updateOverview(upcomingAppointments, patients);
+      const counts = updateOverview(upcomingAppointments);
       updateRiskCharts(counts, upcomingAppointments.length);
       updateTrend(upcomingAppointments);
       updateInsights(upcomingAppointments, patients);

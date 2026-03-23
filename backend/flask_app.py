@@ -3216,7 +3216,11 @@ def doctor_logout() -> Any:
 @doctor_required(api=True)
 def doctor_appointments() -> Any:
     current_doctor_id = _normalize_doctor_id(session.get("doctor_id"))
-    appointments = patient_db.list_appointments(doctor_id=current_doctor_id)
+    appointments = [
+        appointment
+        for appointment in patient_db.list_appointments()
+        if _normalize_doctor_id(appointment.get("doctor_id")) == current_doctor_id
+    ]
     appointments = sorted(appointments, key=_doctor_appointment_sort_key)
     return jsonify({"appointments": appointments})
 
@@ -3226,24 +3230,25 @@ def doctor_appointments() -> Any:
 def doctor_patient_database() -> Any:
     current_doctor_id = _normalize_doctor_id(session.get("doctor_id"))
     all_profiles = patient_db.list_profiles()
+    doctor_appointments = [
+        appointment
+        for appointment in patient_db.list_appointments()
+        if _normalize_doctor_id(appointment.get("doctor_id")) == current_doctor_id
+    ]
     appointment_lookup: Dict[str, Dict[str, Any]] = {}
-    for appointment in patient_db.list_appointments(doctor_id=current_doctor_id):
+    for appointment in doctor_appointments:
         pid = _normalize_patient_id(appointment.get("patient_id"))
         if pid and pid not in appointment_lookup:
             appointment_lookup[pid] = appointment
 
     doctor_patient_ids = {
         _normalize_patient_id(ap.get("patient_id"))
-        for ap in patient_db.list_appointments(doctor_id=current_doctor_id)
-        if _normalize_doctor_id(ap.get("doctor_id")) == current_doctor_id
+        for ap in doctor_appointments
+        if _normalize_patient_id(ap.get("patient_id"))
     }
 
     patients = []
-    source_rows = (
-        [row for row in all_profiles if _normalize_patient_id(row.get("patient_id")) in doctor_patient_ids]
-        if doctor_patient_ids
-        else all_profiles
-    )
+    source_rows = [row for row in all_profiles if _normalize_patient_id(row.get("patient_id")) in doctor_patient_ids]
     for row in source_rows:
         patient = dict(row)
         appointment = appointment_lookup.get(_normalize_patient_id(patient.get("patient_id")))

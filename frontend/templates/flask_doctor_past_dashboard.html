@@ -2671,14 +2671,9 @@
       return d;
     }
 
-    function appointmentDay(value) {
-      const d = parseDate(value);
-      return d ? startOfDay(d) : null;
-    }
-
     function isUpcomingAppointment(item) {
-      const day = appointmentDay(item && item.appointment_time);
-      return !!day && day.getTime() >= startOfDay(new Date()).getTime();
+      const appointmentTime = parseDate(item && item.appointment_time);
+      return !!appointmentTime && appointmentTime.getTime() >= Date.now();
     }
 
     function splitAppointmentsByDate(appointments) {
