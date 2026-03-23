@@ -14,11 +14,13 @@ import pandas as pd
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 from doctor_auth import DoctorAuthManager
+from nurse_auth import NurseAuthManager
 from paths import (
     DOCTOR_ACCOUNTS_CSV,
     DOCTOR_LEAVE_CSV,
     DOCTOR_PROFILE_CSV,
     NEW_PATIENT_CSV,
+    NURSE_ACCOUNTS_CSV,
     PATIENTS_CSV,
     PATIENT_DB_PATH,
     ensure_csv_exists,
@@ -49,6 +51,7 @@ app.config.update(
 app.jinja_env.auto_reload = True
 
 doctor_auth_manager = DoctorAuthManager()
+nurse_auth_manager = NurseAuthManager()
 risk_engine = RiskEngine(MODEL_PATH, LABEL_ENCODER_PATH)
 patient_db = PatientDatabase(PATIENT_DB_PATH)
 PASSWORD_POLICY_PATTERN = re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
@@ -90,9 +93,15 @@ def _is_doctor_authenticated() -> bool:
     return bool(str(session.get("doctor_id", "")).strip()) and bool(session.get("doctor_authenticated"))
 
 
+def _is_nurse_authenticated() -> bool:
+    return bool(str(session.get("nurse_id", "")).strip()) and bool(session.get("nurse_authenticated"))
+
+
 def _active_role() -> str:
     if _is_doctor_authenticated():
         return "doctor"
+    if _is_nurse_authenticated():
+        return "nurse"
     if _is_patient_authenticated():
         return "patient"
     return "anonymous"
@@ -109,6 +118,10 @@ def patient_required(*, api: bool = False):
                 if api:
                     return jsonify({"detail": "Forbidden: doctor account cannot access patient endpoint."}), 403
                 return redirect(url_for("doctor_dashboard"))
+            if role == "nurse":
+                if api:
+                    return jsonify({"detail": "Forbidden: nurse account cannot access patient endpoint."}), 403
+                return redirect(url_for("nurse_dashboard"))
             if api:
                 return jsonify({"detail": "Unauthorized"}), 401
             return redirect(url_for("patient_login"))
@@ -125,6 +138,10 @@ def doctor_required(*, api: bool = False):
             role = _active_role()
             if role == "doctor":
                 return func(*args, **kwargs)
+            if role == "nurse":
+                if api:
+                    return jsonify({"detail": "Forbidden: nurse account cannot access doctor endpoint."}), 403
+                return redirect(url_for("nurse_dashboard"))
             if role == "patient":
                 if api:
                     return jsonify({"detail": "Forbidden: patient account cannot access doctor endpoint."}), 403
@@ -132,6 +149,30 @@ def doctor_required(*, api: bool = False):
             if api:
                 return jsonify({"detail": "Unauthorized"}), 401
             return redirect(url_for("doctor_login"))
+
+        return wrapper
+
+    return decorator
+
+
+def nurse_required(*, api: bool = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            role = _active_role()
+            if role == "nurse":
+                return func(*args, **kwargs)
+            if role == "doctor":
+                if api:
+                    return jsonify({"detail": "Forbidden: doctor account cannot access nurse endpoint."}), 403
+                return redirect(url_for("doctor_dashboard"))
+            if role == "patient":
+                if api:
+                    return jsonify({"detail": "Forbidden: patient account cannot access nurse endpoint."}), 403
+                return redirect(url_for("book_appointment"))
+            if api:
+                return jsonify({"detail": "Unauthorized"}), 401
+            return redirect(url_for("nurse_login"))
 
         return wrapper
 
@@ -146,6 +187,25 @@ def _parse_appointment_time(value: Any) -> Optional[datetime]:
         return datetime.fromisoformat(text)
     except ValueError:
         return None
+
+
+def _parse_booked_at(value: Any) -> Optional[datetime]:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _datetime_sort_value(value: Optional[datetime], *, default: float = float("inf")) -> float:
+    if value is None:
+        return default
+    try:
+        return value.timestamp()
+    except Exception:
+        return default
 
 
 def _appointment_day(value: Optional[datetime]) -> Optional[datetime]:
@@ -409,6 +469,10 @@ def _save_patient_profile_to_db(row: Dict[str, Any], patient_name: str = "") -> 
         "family_history": _safe_db_text(row.get("Family_History")),
         "medical_history": _safe_db_text(row.get("Medical_History")),
         "health_data_submitted_at": _normalize_submission_timestamp(row.get(HEALTH_DATA_SUBMITTED_AT_COLUMN)),
+        "nurse_updated_by": _safe_db_text(row.get("Nurse_Updated_By")),
+        "nurse_notes": _safe_db_text(row.get("Nurse_Notes")),
+        "doctor_reviewed_by": _safe_db_text(row.get("Doctor_Reviewed_By")),
+        "reviewed_at": _safe_db_text(row.get("Reviewed_At")),
     }
     patient_db.upsert_profile(payload)
 
@@ -437,6 +501,10 @@ def _build_csv_row_from_features(patient_id: str, patient_features: Dict[str, An
         "Average_Sleep_Hours": _normalize_average_sleep_hours(patient_features.get("Average_Sleep_Hours")),
         "Medical_History": str(patient_features.get("Medical_History", "")).strip(),
         "Family_History": _yes_no_to_csv_value(patient_features.get("Family_History")),
+        "Nurse_Updated_By": str(patient_features.get("Nurse_Updated_By", "")).strip(),
+        "Nurse_Notes": str(patient_features.get("Nurse_Notes", "")).strip(),
+        "Doctor_Reviewed_By": str(patient_features.get("Doctor_Reviewed_By", "")).strip(),
+        "Reviewed_At": str(patient_features.get("Reviewed_At", "")).strip(),
         HEALTH_DATA_SUBMITTED_AT_COLUMN: _normalize_submission_timestamp(
             patient_features.get(HEALTH_DATA_SUBMITTED_AT_COLUMN) or patient_features.get("health_data_submitted_at")
         ),
@@ -464,6 +532,10 @@ def upsert_new_patient_csv_from_features(
         "Average_Sleep_Hours",
         "Medical_History",
         "Family_History",
+        "Nurse_Updated_By",
+        "Nurse_Notes",
+        "Doctor_Reviewed_By",
+        "Reviewed_At",
         HEALTH_DATA_SUBMITTED_AT_COLUMN,
     ]
     row = _build_csv_row_from_features(patient_id, patient_features)
@@ -647,6 +719,278 @@ def _load_doctor_ids() -> list[str]:
         return []
     doctor_ids = [str(v).strip() for v in df["doctor_id"].tolist() if str(v).strip()]
     return sorted(set(doctor_ids))
+
+
+def _load_nurse_ids() -> list[str]:
+    try:
+        ensure_csv_exists(NURSE_ACCOUNTS_CSV)
+        df = pd.read_csv(NURSE_ACCOUNTS_CSV)
+    except Exception:
+        return []
+    if "nurse_id" not in df.columns:
+        return []
+    nurse_ids = [str(v).strip() for v in df["nurse_id"].tolist() if str(v).strip()]
+    return sorted(set(nurse_ids))
+
+
+def _clear_patient_session() -> None:
+    session.pop("patient_id", None)
+    session.pop("patient_name", None)
+    session.pop("patient_authenticated", None)
+    session.pop("allow_health_details", None)
+    session.pop("health_confirmation", None)
+
+
+def _clear_doctor_session() -> None:
+    session.pop("doctor_id", None)
+    session.pop("doctor_name", None)
+    session.pop("doctor_authenticated", None)
+
+
+def _clear_nurse_session() -> None:
+    session.pop("nurse_id", None)
+    session.pop("nurse_name", None)
+    session.pop("nurse_authenticated", None)
+
+
+def _empty_nurse_record(patient_id: str, patient_name: str = "") -> Dict[str, Any]:
+    return {
+        "patient_id": patient_id,
+        "patient_name": patient_name,
+        "appointment_id": "",
+        "appointment_time": "",
+        "booked_at": "",
+        "queue_status": "No Appointment",
+        "has_live_appointment": False,
+        "age": "",
+        "gender": "",
+        "symptoms": "",
+        "symptom_count": "",
+        "glucose": "",
+        "blood_pressure_systolic": "",
+        "blood_pressure_diastolic": "",
+        "height_cm": "",
+        "weight_kg": "",
+        "calculated_bmi": "",
+        "smoking_habit": "",
+        "alcohol_habit": "",
+        "average_sleep_hours": "",
+        "family_history": "",
+        "medical_history": "",
+        "nurse_updated_by": "",
+        "nurse_notes": "",
+        "doctor_reviewed_by": "",
+        "reviewed_at": "",
+        "updated_at": "",
+    }
+
+
+def _nurse_patient_records() -> list[Dict[str, Any]]:
+    patient_name_lookup = {
+        str(row.get("patient_id", "")).strip(): str(row.get("name", "")).strip()
+        for row in _load_patients_df().to_dict(orient="records")
+        if str(row.get("patient_id", "")).strip()
+    }
+    profile_lookup = {
+        _normalize_patient_id(row.get("patient_id")): dict(row)
+        for row in patient_db.list_profiles()
+        if _normalize_patient_id(row.get("patient_id"))
+    }
+    now = datetime.now()
+    appointment_lookup: Dict[str, Dict[str, Any]] = {}
+    for appointment in patient_db.list_appointments():
+        patient_id = _normalize_patient_id(appointment.get("patient_id"))
+        if not patient_id:
+            continue
+        appointment_time = _parse_appointment_time(appointment.get("appointment_time"))
+        booked_at = _parse_booked_at(appointment.get("booked_at"))
+        is_upcoming = _is_upcoming_appointment_date(appointment_time, reference=now)
+        current = appointment_lookup.get(patient_id)
+        current_time = _parse_appointment_time((current or {}).get("appointment_time"))
+        current_booked = _parse_booked_at((current or {}).get("booked_at"))
+        current_upcoming = _is_upcoming_appointment_date(current_time, reference=now)
+
+        should_replace = current is None
+        if not should_replace and is_upcoming != current_upcoming:
+            should_replace = is_upcoming and not current_upcoming
+        if not should_replace and is_upcoming and current_upcoming:
+            should_replace = _datetime_sort_value(booked_at) < _datetime_sort_value(current_booked)
+        if not should_replace and not is_upcoming and not current_upcoming:
+            should_replace = _datetime_sort_value(booked_at) < _datetime_sort_value(current_booked)
+
+        if should_replace:
+            appointment_lookup[patient_id] = dict(appointment)
+
+    patient_ids = sorted(
+        set(patient_name_lookup.keys()) | set(profile_lookup.keys()) | set(appointment_lookup.keys()),
+        key=lambda value: (0, int(value)) if str(value).isdigit() else (1, str(value)),
+    )
+
+    records: list[Dict[str, Any]] = []
+    for patient_id in patient_ids:
+        profile = dict(profile_lookup.get(patient_id) or _empty_nurse_record(patient_id))
+        appointment = appointment_lookup.get(patient_id) or {}
+        appointment_time = _parse_appointment_time(appointment.get("appointment_time"))
+        booked_at = _parse_booked_at(appointment.get("booked_at"))
+        has_live_appointment = _is_upcoming_appointment_date(appointment_time, reference=now)
+        profile["patient_id"] = patient_id
+        if not str(profile.get("patient_name", "")).strip():
+            profile["patient_name"] = patient_name_lookup.get(patient_id, "")
+        profile["appointment_id"] = str(appointment.get("appointment_id", "")).strip()
+        profile["appointment_time"] = appointment_time.isoformat() if appointment_time else str(appointment.get("appointment_time", "")).strip()
+        profile["booked_at"] = booked_at.isoformat() if booked_at else str(appointment.get("booked_at", "")).strip()
+        profile["has_live_appointment"] = has_live_appointment
+        profile["queue_status"] = "Live Appointment" if has_live_appointment else ("Previous Booking" if appointment else "No Appointment")
+        records.append(profile)
+    records.sort(
+        key=lambda item: (
+            0 if item.get("has_live_appointment") else (1 if item.get("appointment_id") else 2),
+            _datetime_sort_value(_parse_booked_at(item.get("booked_at"))),
+            _datetime_sort_value(_parse_appointment_time(item.get("appointment_time"))),
+            (0, int(str(item.get("patient_id")))) if str(item.get("patient_id")).isdigit() else (1, str(item.get("patient_id"))),
+        )
+    )
+    return records
+
+
+def _nurse_record_payload(form_data: Dict[str, Any], nurse_id: str) -> Dict[str, Any]:
+    patient_id = _normalize_patient_id(form_data.get("patient_id"))
+    age = _to_int(str(form_data.get("age", "")), "Age", 0, 130)
+    symptom_count = _to_int(str(form_data.get("symptom_count", "")), "Symptom Count", 0, 100)
+    glucose = _to_float(str(form_data.get("glucose", "")), "Glucose", 0, 1000)
+    systolic = _to_float(str(form_data.get("blood_pressure_systolic", "")), "Blood Pressure Systolic", 0, 300)
+    diastolic = _to_float(str(form_data.get("blood_pressure_diastolic", "")), "Blood Pressure Diastolic", 0, 250)
+    height_cm = _to_float(str(form_data.get("height_cm", "")), "Height (cm)", 1, 300)
+    weight_kg = _to_float(str(form_data.get("weight_kg", "")), "Weight (kg)", 1, 500)
+    average_sleep_hours = _normalize_average_sleep_hours(form_data.get("average_sleep_hours"), required=True)
+    bmi = _calculate_bmi(height_cm, weight_kg)
+
+    gender = str(form_data.get("gender", "")).strip().lower()
+    smoking_habit = str(form_data.get("smoking_habit", "")).strip().lower()
+    alcohol_habit = str(form_data.get("alcohol_habit", "")).strip().lower()
+    family_history = str(form_data.get("family_history", "")).strip().lower()
+    symptoms = _sanitize_symptoms_text(form_data.get("symptoms", ""))
+    if gender not in {"male", "female", "other"}:
+        raise ValueError("Gender must be one of: male, female, other.")
+    if smoking_habit not in {"yes", "no"}:
+        raise ValueError("Smoking Habit must be yes or no.")
+    if alcohol_habit not in {"yes", "no"}:
+        raise ValueError("Alcohol Habit must be yes or no.")
+    if family_history not in {"yes", "no"}:
+        raise ValueError("Family History must be yes or no.")
+    if not symptoms:
+        raise ValueError("Symptoms are required.")
+
+    blood_pressure_text = f"{int(round(systolic))}/{int(round(diastolic))}"
+    patient_name = _get_patient_name_by_id(patient_id)
+    reviewed_by = _safe_db_text(form_data.get("doctor_reviewed_by"))
+    reviewed_at = _safe_db_text(form_data.get("reviewed_at"))
+    return {
+        "patient_id": patient_id,
+        "patient_name": patient_name,
+        "Age": age,
+        "Gender": gender,
+        "Symptoms": symptoms,
+        "Symptom_Count": symptom_count,
+        "Glucose": glucose,
+        "BloodPressure": blood_pressure_text,
+        "BMI": round(bmi, 2),
+        "Height_cm": height_cm,
+        "Weight_kg": weight_kg,
+        "BMI_Category": patient_db.weight_category_from_bmi(bmi),
+        "Smoking_Habit": smoking_habit,
+        "Alcohol_Habit": alcohol_habit,
+        "Average_Sleep_Hours": average_sleep_hours,
+        "Medical_History": str(form_data.get("medical_history", "")).strip(),
+        "Family_History": family_history,
+        "Nurse_Updated_By": nurse_id,
+        "Nurse_Notes": str(form_data.get("nurse_notes", "")).strip(),
+        "Doctor_Reviewed_By": reviewed_by,
+        "Reviewed_At": reviewed_at,
+        HEALTH_DATA_SUBMITTED_AT_COLUMN: _utc_now_iso(),
+    }
+
+
+def _nurse_patient_features(record: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "Age": record["Age"],
+        "Gender": record["Gender"],
+        "Symptoms": record["Symptoms"],
+        "Symptom_Count": record["Symptom_Count"],
+        "Glucose": record["Glucose"],
+        "BloodPressure": record["BloodPressure"],
+        "BMI": record["BMI"],
+        "Height_cm": record["Height_cm"],
+        "Weight_kg": record["Weight_kg"],
+        "BMI_Category": record["BMI_Category"],
+        "Smoking_Habit": record["Smoking_Habit"],
+        "Alcohol_Habit": record["Alcohol_Habit"],
+        "Average_Sleep_Hours": record["Average_Sleep_Hours"],
+        "Medical_History": record["Medical_History"],
+        "Family_History": record["Family_History"],
+        "Nurse_Updated_By": record["Nurse_Updated_By"],
+        "Nurse_Notes": record["Nurse_Notes"],
+        "Doctor_Reviewed_By": record["Doctor_Reviewed_By"],
+        "Reviewed_At": record["Reviewed_At"],
+        HEALTH_DATA_SUBMITTED_AT_COLUMN: record[HEALTH_DATA_SUBMITTED_AT_COLUMN],
+    }
+
+
+def _build_risk_report(patient_id: str, patient_features: Dict[str, Any]) -> Dict[str, Any]:
+    csv_row = _build_csv_row_from_features(patient_id, patient_features)
+    normalized_features = _build_features_from_new_patient_row(csv_row)
+    result = risk_engine.predict(normalized_features)
+    priority = determine_priority(result.risk_level)
+    payload = result.model_dump()
+    payload.update(
+        {
+            "appointment_priority": priority.priority,
+            "recommended_slot": priority.recommended_slot,
+            "priority_badge_text": priority.badge_text,
+            "priority_badge_color": priority.badge_color,
+        }
+    )
+    return payload
+
+
+def _patient_features_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
+    systolic = _to_float_or_none(profile.get("blood_pressure_systolic"))
+    diastolic = _to_float_or_none(profile.get("blood_pressure_diastolic"))
+    blood_pressure: Any = ""
+    if systolic is not None and diastolic is not None:
+        blood_pressure = f"{int(round(systolic))}/{int(round(diastolic))}"
+    elif systolic is not None:
+        blood_pressure = systolic
+
+    bmi = _to_float_or_none(profile.get("calculated_bmi"))
+    if bmi is None:
+        height_cm = _to_float_or_none(profile.get("height_cm"))
+        weight_kg = _to_float_or_none(profile.get("weight_kg"))
+        if height_cm is not None and weight_kg is not None and height_cm > 0 and weight_kg > 0:
+            bmi = round(_calculate_bmi(height_cm, weight_kg), 2)
+
+    return {
+        "Age": _to_float_or_none(profile.get("age")),
+        "Gender": str(profile.get("gender", "")).strip().lower(),
+        "Symptoms": str(profile.get("symptoms", "")).strip(),
+        "Symptom_Count": _to_float_or_none(profile.get("symptom_count")),
+        "Glucose": _to_float_or_none(profile.get("glucose")),
+        "BloodPressure": blood_pressure,
+        "BMI": bmi,
+        "Height_cm": _to_float_or_none(profile.get("height_cm")),
+        "Weight_kg": _to_float_or_none(profile.get("weight_kg")),
+        "BMI_Category": str(profile.get("weight_category", "")).strip() or patient_db.weight_category_from_bmi(bmi),
+        "Smoking_Habit": str(profile.get("smoking_habit", "")).strip().lower(),
+        "Alcohol_Habit": str(profile.get("alcohol_habit", "")).strip().lower(),
+        "Average_Sleep_Hours": _to_float_or_none(profile.get("average_sleep_hours")),
+        "Medical_History": str(profile.get("medical_history", "")).strip(),
+        "Family_History": str(profile.get("family_history", "")).strip().lower(),
+        "Nurse_Updated_By": str(profile.get("nurse_updated_by", "")).strip(),
+        "Nurse_Notes": str(profile.get("nurse_notes", "")).strip(),
+        "Doctor_Reviewed_By": str(profile.get("doctor_reviewed_by", "")).strip(),
+        "Reviewed_At": str(profile.get("reviewed_at", "")).strip(),
+        HEALTH_DATA_SUBMITTED_AT_COLUMN: _normalize_submission_timestamp(profile.get("health_data_submitted_at")),
+    }
 
 
 DOCTOR_PROFILE_COLUMNS = ["doctor_id", "doctor_name", "specialization", "available_time", "emergency_doctor"]
@@ -2077,9 +2421,8 @@ def patient_signup() -> Any:
         if not errors:
             try:
                 patient_id = _create_patient_account(name, "", password)
-                session.pop("doctor_id", None)
-                session.pop("doctor_name", None)
-                session.pop("doctor_authenticated", None)
+                _clear_doctor_session()
+                _clear_nurse_session()
                 session["patient_id"] = patient_id
                 session["patient_name"] = name
                 session["patient_authenticated"] = False
@@ -2225,9 +2568,7 @@ def patient_login() -> Any:
 
     if request.method == "GET":
         # Force explicit patient re-auth when user opens patient login route.
-        session.pop("patient_id", None)
-        session.pop("patient_name", None)
-        session.pop("patient_authenticated", None)
+        _clear_patient_session()
         if session.get("role") == "patient":
             session.pop("role", None)
 
@@ -2247,9 +2588,8 @@ def patient_login() -> Any:
                     raise ValueError("Invalid patient name or password.")
                 patient_id = str(patient.get("patient_id", "")).strip()
                 # Patient login should not inherit doctor portal access.
-                session.pop("doctor_id", None)
-                session.pop("doctor_name", None)
-                session.pop("doctor_authenticated", None)
+                _clear_doctor_session()
+                _clear_nurse_session()
                 session["patient_id"] = patient_id
                 session["patient_name"] = patient_name
                 session["patient_authenticated"] = True
@@ -2650,9 +2990,7 @@ def doctor_login() -> Any:
 
     if request.method == "GET":
         # Force explicit doctor re-auth when user opens doctor login route.
-        session.pop("doctor_id", None)
-        session.pop("doctor_name", None)
-        session.pop("doctor_authenticated", None)
+        _clear_doctor_session()
         if session.get("role") == "doctor":
             session.pop("role", None)
 
@@ -2669,9 +3007,8 @@ def doctor_login() -> Any:
             try:
                 resolved_doctor_id = doctor_auth_manager.login(doctor_id, "", "", password)
                 # Doctor login should not inherit patient portal access.
-                session.pop("patient_id", None)
-                session.pop("patient_name", None)
-                session.pop("patient_authenticated", None)
+                _clear_patient_session()
+                _clear_nurse_session()
                 session["doctor_id"] = resolved_doctor_id
                 session["doctor_name"] = resolved_doctor_id
                 session["doctor_authenticated"] = True
@@ -2689,6 +3026,152 @@ def doctor_login() -> Any:
                 errors.append(f"Login failed: {exc}")
 
     return render_template("flask_doctor_login.html", errors=errors, form_data=form_data)
+
+
+@app.route("/nurse/signup", methods=["GET", "POST"])
+def nurse_signup() -> Any:
+    errors: list[str] = []
+    form_data = {"nurse_id": ""}
+
+    if request.method == "POST":
+        nurse_id = request.form.get("nurse_id", "").strip()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        form_data["nurse_id"] = nurse_id
+
+        if not nurse_id:
+            errors.append("Nurse ID is required.")
+        if not PASSWORD_POLICY_PATTERN.fullmatch(password):
+            errors.append(PASSWORD_POLICY_MESSAGE)
+        if password != confirm_password:
+            errors.append("Password and Confirm Password must match.")
+
+        if not errors:
+            try:
+                nurse_auth_manager.signup(nurse_id, password)
+                return redirect(url_for("nurse_login"))
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Signup failed: {exc}")
+
+    return render_template("flask_nurse_signup.html", errors=errors, form_data=form_data)
+
+
+@app.route("/nurse/login", methods=["GET", "POST"])
+def nurse_login() -> Any:
+    errors: list[str] = []
+    form_data = {"nurse_id": ""}
+
+    if request.method == "GET":
+        _clear_nurse_session()
+        if session.get("role") == "nurse":
+            session.pop("role", None)
+
+    if request.method == "POST":
+        nurse_id = request.form.get("nurse_id", "").strip()
+        password = request.form.get("password", "").strip()
+        form_data["nurse_id"] = nurse_id
+
+        if not nurse_id:
+            errors.append("Enter Nurse ID.")
+        if not password:
+            errors.append("Password is required.")
+
+        if not errors:
+            try:
+                resolved_nurse_id = nurse_auth_manager.login(nurse_id, password)
+                _clear_patient_session()
+                _clear_doctor_session()
+                session["nurse_id"] = resolved_nurse_id
+                session["nurse_name"] = resolved_nurse_id
+                session["nurse_authenticated"] = True
+                session["role"] = "nurse"
+                return render_template(
+                    "flask_nurse_login.html",
+                    errors=[],
+                    form_data={"nurse_id": ""},
+                    login_success=True,
+                    redirect_url=url_for("nurse_dashboard"),
+                )
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception as exc:  # pragma: no cover - guard
+                errors.append(f"Login failed: {exc}")
+
+    return render_template("flask_nurse_login.html", errors=errors, form_data=form_data)
+
+
+@app.route("/nurse/dashboard")
+@nurse_required()
+def nurse_dashboard() -> Any:
+    nurse_id = session.get("nurse_id")
+    nurse_name = str(session.get("nurse_name", "")).strip() or str(nurse_id)
+    return render_template("flask_nurse_dashboard.html", nurse_id=nurse_id, nurse_name=nurse_name)
+
+
+@app.route("/nurse/appointment-queue")
+@nurse_required()
+def nurse_appointment_queue() -> Any:
+    nurse_id = session.get("nurse_id")
+    nurse_name = str(session.get("nurse_name", "")).strip() or str(nurse_id)
+    return render_template("flask_nurse_queue.html", nurse_id=nurse_id, nurse_name=nurse_name)
+
+
+@app.get("/nurse/patient-records")
+@nurse_required(api=True)
+def nurse_patient_records() -> Any:
+    return jsonify({"patients": _nurse_patient_records()})
+
+
+@app.post("/nurse/patient-records")
+@nurse_required(api=True)
+def nurse_update_patient_record() -> Any:
+    payload = request.get_json(silent=True) or {}
+    nurse_id = str(session.get("nurse_id", "")).strip()
+    patient_id = _normalize_patient_id(payload.get("patient_id"))
+    if not patient_id:
+        return jsonify({"detail": "patient_id is required"}), 400
+    try:
+        record = _nurse_record_payload(payload, nurse_id)
+        patient_features = _nurse_patient_features(record)
+        risk_report = _build_risk_report(patient_id, patient_features)
+        upsert_new_patient_csv_from_features(patient_id, patient_features)
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Could not save nurse record: {exc}"}), 500
+
+    saved_profile = patient_db.get_profile(patient_id)
+    return jsonify({"status": "ok", "patient": saved_profile, "risk_report": risk_report})
+
+
+@app.post("/nurse/predict-risk")
+@nurse_required(api=True)
+def nurse_predict_risk() -> Any:
+    payload = request.get_json(silent=True) or {}
+    nurse_id = str(session.get("nurse_id", "")).strip()
+    patient_id = _normalize_patient_id(payload.get("patient_id"))
+    if not patient_id:
+        return jsonify({"detail": "patient_id is required"}), 400
+
+    try:
+        record = _nurse_record_payload(payload, nurse_id)
+        patient_features = _nurse_patient_features(record)
+        risk_report = _build_risk_report(patient_id, patient_features)
+        return jsonify({"patient_id": patient_id, "risk_report": risk_report})
+    except ValueError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    except Exception as exc:  # pragma: no cover - guard
+        return jsonify({"detail": f"Prediction failed: {exc}"}), 500
+
+
+@app.route("/nurse/logout")
+def nurse_logout() -> Any:
+    _clear_nurse_session()
+    if session.get("role") == "nurse":
+        session.pop("role", None)
+    return redirect(url_for("role_login"))
 
 
 @app.route("/doctor/dashboard")
@@ -2742,18 +3225,65 @@ def doctor_appointments() -> Any:
 @doctor_required(api=True)
 def doctor_patient_database() -> Any:
     current_doctor_id = _normalize_doctor_id(session.get("doctor_id"))
+    all_profiles = patient_db.list_profiles()
+    appointment_lookup: Dict[str, Dict[str, Any]] = {}
+    for appointment in patient_db.list_appointments(doctor_id=current_doctor_id):
+        pid = _normalize_patient_id(appointment.get("patient_id"))
+        if pid and pid not in appointment_lookup:
+            appointment_lookup[pid] = appointment
+
     doctor_patient_ids = {
         _normalize_patient_id(ap.get("patient_id"))
         for ap in patient_db.list_appointments(doctor_id=current_doctor_id)
         if _normalize_doctor_id(ap.get("doctor_id")) == current_doctor_id
     }
-    if not doctor_patient_ids:
-        return jsonify({"patients": []})
 
     patients = []
-    for row in patient_db.list_profiles():
-        if _normalize_patient_id(row.get("patient_id")) in doctor_patient_ids:
-            patients.append(row)
+    source_rows = (
+        [row for row in all_profiles if _normalize_patient_id(row.get("patient_id")) in doctor_patient_ids]
+        if doctor_patient_ids
+        else all_profiles
+    )
+    for row in source_rows:
+        patient = dict(row)
+        appointment = appointment_lookup.get(_normalize_patient_id(patient.get("patient_id")))
+        profile_features = _patient_features_from_profile(patient)
+        appointment_features = dict((appointment or {}).get("patient_features") or {})
+        merged_features = {
+            **appointment_features,
+            **{
+                key: value
+                for key, value in profile_features.items()
+                if value is not None and value != "" and value != []
+            },
+        }
+        patient["patient_features"] = merged_features
+        try:
+            patient["risk_report"] = _build_risk_report(
+                str(patient.get("patient_id", "")).strip(),
+                merged_features,
+            )
+        except Exception:
+            assessment = (appointment or {}).get("risk_assessment") or {}
+            patient["risk_report"] = (
+                {
+                    **assessment,
+                    "appointment_priority": (appointment or {}).get("appointment_priority"),
+                    "recommended_slot": (appointment or {}).get("recommended_slot"),
+                    "priority_badge_text": (appointment or {}).get("priority_badge_text"),
+                    "priority_badge_color": (appointment or {}).get("priority_badge_color"),
+                }
+                if assessment
+                else {}
+            )
+        patients.append(patient)
+    patients.sort(
+        key=lambda item: (
+            -_datetime_sort_value(_parse_appointment_time(item.get("health_data_submitted_at")), default=0.0),
+            -_datetime_sort_value(_parse_appointment_time(item.get("updated_at")), default=0.0),
+            (0, int(str(item.get("patient_id")))) if str(item.get("patient_id")).isdigit() else (1, str(item.get("patient_id"))),
+        )
+    )
     return jsonify({"patients": patients})
 
 

@@ -234,12 +234,113 @@
       color: #3f5579;
       vertical-align: top;
     }
+    tbody tr {
+      cursor: pointer;
+    }
+    tbody tr:hover {
+      background: #f5f9ff;
+    }
+    tbody tr.active {
+      background: #eaf3ff;
+    }
+    .detail-card {
+      margin-top: 16px;
+      border: 1px solid #cfe0f4;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f6faff);
+      box-shadow: 0 10px 22px rgba(35, 72, 124, 0.08);
+      padding: 16px;
+    }
+    .detail-meta {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #d7e5f5;
+      background: #f6fbff;
+      color: #37557b;
+      line-height: 1.6;
+    }
+    .risk-report {
+      margin-top: 12px;
+      border: 1px solid #d3e4f6;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fbfdff, #eff6ff);
+      padding: 14px;
+    }
+    .risk-report-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .risk-report-head h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #173763;
+    }
+    .risk-badge {
+      min-width: 96px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #64748b;
+    }
+    .risk-badge.low { background: #1f8a5b; }
+    .risk-badge.medium { background: #d98616; }
+    .risk-badge.high { background: #cb3b3b; }
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .risk-item {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #d7e6f7;
+      background: rgba(255, 255, 255, 0.94);
+    }
+    .risk-item span {
+      display: block;
+      margin-bottom: 4px;
+      color: #6884aa;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .risk-item strong {
+      color: #173763;
+      line-height: 1.5;
+    }
+    .risk-copy {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #d7e6f7;
+      background: rgba(255, 255, 255, 0.94);
+      color: #39577d;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .risk-factors {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: #3b577b;
+      line-height: 1.7;
+    }
     .muted { color: #6f83a5; }
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .table-wrap { max-height: none; }
+      .risk-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       .stats-grid { grid-template-columns: 1fr; }
@@ -363,6 +464,43 @@
           </table>
         </div>
       </section>
+
+      <section class="detail-card">
+        <div class="title-row">
+          <h2>Selected Patient Risk Report</h2>
+          <span class="record-count" id="selectedPatientLabel">No patient selected</span>
+        </div>
+        <div id="patientDetailMeta" class="detail-meta">Select a patient row to view nurse updates and AI risk report.</div>
+        <section class="risk-report">
+          <div class="risk-report-head">
+            <h3>Risk Report</h3>
+            <div id="detailRiskBadge" class="risk-badge">Waiting</div>
+          </div>
+          <div class="risk-grid">
+            <div class="risk-item">
+              <span>Predicted Disease</span>
+              <strong id="detailDisease">--</strong>
+            </div>
+            <div class="risk-item">
+              <span>Risk Probability</span>
+              <strong id="detailProbability">--</strong>
+            </div>
+            <div class="risk-item">
+              <span>Appointment Priority</span>
+              <strong id="detailPriority">--</strong>
+            </div>
+            <div class="risk-item">
+              <span>Recommended Slot</span>
+              <strong id="detailSlot">--</strong>
+            </div>
+          </div>
+          <div id="detailDoctorNote" class="risk-copy">No risk report available yet for this patient.</div>
+          <div id="detailPatientGuidance" class="risk-copy">Patient guidance will appear here when a report is available.</div>
+          <ul id="detailFactors" class="risk-factors">
+            <li>No contributing factors yet.</li>
+          </ul>
+        </section>
+      </section>
     </main>
   </div>
 
@@ -374,9 +512,19 @@
     const dbSearch = document.getElementById("dbSearch");
     const dbCount = document.getElementById("dbCount");
     let rows = [];
+    let selectedPatientId = "";
 
     function safeText(v) {
       return v == null ? "" : String(v);
+    }
+
+    function escapeHtml(value) {
+      return safeText(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function fmtNumber(v, decimals = 1) {
@@ -411,6 +559,63 @@
       const el = document.getElementById(id);
       if (!el) return;
       el.textContent = safeText(value);
+    }
+
+    function setRiskBadge(level) {
+      const el = document.getElementById("detailRiskBadge");
+      if (!el) return;
+      const text = safeText(level || "Waiting");
+      const normalized = text.toLowerCase();
+      el.textContent = text;
+      el.classList.remove("low", "medium", "high");
+      if (normalized.includes("high")) el.classList.add("high");
+      else if (normalized.includes("medium")) el.classList.add("medium");
+      else if (normalized.includes("low")) el.classList.add("low");
+    }
+
+    function clearDetailCard(message = "No risk report available yet for this patient.") {
+      setText("selectedPatientLabel", "No patient selected");
+      document.getElementById("patientDetailMeta").textContent = "Select a patient row to view nurse updates and AI risk report.";
+      setRiskBadge("Waiting");
+      setText("detailDisease", "--");
+      setText("detailProbability", "--");
+      setText("detailPriority", "--");
+      setText("detailSlot", "--");
+      document.getElementById("detailDoctorNote").textContent = message;
+      document.getElementById("detailPatientGuidance").textContent = "Patient guidance will appear here when a report is available.";
+      document.getElementById("detailFactors").innerHTML = "<li>No contributing factors yet.</li>";
+    }
+
+    function renderDetailCard(patient) {
+      if (!patient) {
+        clearDetailCard();
+        return;
+      }
+      const report = patient.risk_report || {};
+      const probability = Number(report.risk_probability);
+      setText("selectedPatientLabel", `Patient ${safeText(patient.patient_id || "-")}`);
+      document.getElementById("patientDetailMeta").textContent =
+        safeText(patient.updated_at).trim()
+          ? `Last updated: ${safeText(patient.updated_at)}${safeText(patient.nurse_updated_by).trim() ? ` | Nurse: ${safeText(patient.nurse_updated_by)}` : ""}${safeText(patient.doctor_reviewed_by).trim() ? ` | Reviewed by: ${safeText(patient.doctor_reviewed_by)}` : ""}${safeText(patient.reviewed_at).trim() ? ` | Reviewed at: ${safeText(patient.reviewed_at)}` : ""}`
+          : "No nurse-updated timestamp is available for this patient yet.";
+      setRiskBadge(report.risk_level || "Unknown");
+      setText("detailDisease", safeText(report.predicted_class || "--"));
+      setText("detailProbability", Number.isFinite(probability) ? `${(probability * 100).toFixed(1)}%` : "--");
+      setText("detailPriority", safeText(report.appointment_priority || "--"));
+      setText("detailSlot", safeText(report.recommended_slot || "--"));
+      document.getElementById("detailDoctorNote").textContent = safeText(report.doctor_note || "No doctor note generated.");
+      document.getElementById("detailPatientGuidance").textContent = safeText(report.patient_guidance || "No patient guidance generated.");
+      const factors = Array.isArray(report.contributing_factors) ? report.contributing_factors.filter(Boolean) : [];
+      document.getElementById("detailFactors").innerHTML = factors.length
+        ? factors.map((factor) => `<li>${escapeHtml(factor)}</li>`).join("")
+        : "<li>No contributing factors were returned for this patient.</li>";
+    }
+
+    function selectPatient(patientId) {
+      selectedPatientId = safeText(patientId).trim();
+      const patient = rows.find((item) => safeText(item.patient_id).trim() === selectedPatientId) || null;
+      renderDetailCard(patient);
+      renderTable(dbSearch.value);
     }
 
     function updateOverview(appointments) {
@@ -464,8 +669,9 @@
           const bpText = bpSys === "-" && bpDia === "-" ? "-" : `${bpSys}/${bpDia === "-" ? "--" : bpDia}`;
           const updated = parseDate(item.updated_at);
           const updatedText = updated ? updated.toLocaleString() : safeText(item.updated_at || "-");
+          const rowClass = safeText(item.patient_id).trim() === selectedPatientId ? "active" : "";
           return `
-            <tr>
+            <tr class="${rowClass}" data-patient-id="${safeText(item.patient_id)}">
               <td>${safeText(item.patient_id)}</td>
               <td>${safeText(item.patient_name || "-")}</td>
               <td>${fmtNumber(item.age, 0)}</td>
@@ -481,6 +687,12 @@
             </tr>
           `;
         }).join("");
+
+        dbRows.querySelectorAll("tr[data-patient-id]").forEach((row) => {
+          row.addEventListener("click", () => {
+            selectPatient(row.getAttribute("data-patient-id") || "");
+          });
+        });
       }
       dbCount.textContent = `${filtered.length} records`;
     }
@@ -508,13 +720,22 @@
       const appointmentData = await appointmentRes.json();
       rows = Array.isArray(patientData.patients) ? patientData.patients : [];
       updateOverview(Array.isArray(appointmentData.appointments) ? appointmentData.appointments : []);
+      const preferredPatient = rows.find((item) => item && item.risk_report && Object.keys(item.risk_report).length > 0) || rows[0];
+      if (!selectedPatientId && rows.length) {
+        selectedPatientId = safeText(preferredPatient && preferredPatient.patient_id).trim();
+      } else if (selectedPatientId && !rows.some((item) => safeText(item.patient_id).trim() === selectedPatientId)) {
+        selectedPatientId = rows.length ? safeText(preferredPatient && preferredPatient.patient_id).trim() : "";
+      }
       renderTable(dbSearch.value);
+      renderDetailCard(rows.find((item) => safeText(item.patient_id).trim() === selectedPatientId) || null);
     }
 
     dbSearch.addEventListener("input", (e) => renderTable(e.target.value));
+    clearDetailCard();
     fetchPatientDatabase().catch(() => {
       dbRows.innerHTML = '<tr><td colspan="12">Failed to load patient data.</td></tr>';
       dbCount.textContent = "0 records";
+      clearDetailCard("Failed to load patient risk report.");
     });
   </script>
   <script src="{{ url_for('static', filename='page-animations.js') }}"></script>

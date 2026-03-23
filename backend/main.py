@@ -360,6 +360,56 @@ def doctor_predict_risk_portal() -> RedirectResponse:
     return RedirectResponse(url="/portal/doctor/predict-risk", status_code=307)
 
 
+@app.get("/nurse/login", include_in_schema=False)
+def nurse_login_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/login", status_code=302)
+
+
+@app.post("/nurse/login", include_in_schema=False)
+def nurse_login_portal_post() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/login", status_code=307)
+
+
+@app.get("/nurse/signup", include_in_schema=False)
+def nurse_signup_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/signup", status_code=302)
+
+
+@app.post("/nurse/signup", include_in_schema=False)
+def nurse_signup_portal_post() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/signup", status_code=307)
+
+
+@app.get("/nurse/dashboard", include_in_schema=False)
+def nurse_dashboard_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/dashboard", status_code=302)
+
+
+@app.get("/nurse/appointment-queue", include_in_schema=False)
+def nurse_queue_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/appointment-queue", status_code=302)
+
+
+@app.get("/nurse/patient-records", include_in_schema=False)
+def nurse_patient_records_portal_get() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/patient-records", status_code=302)
+
+
+@app.post("/nurse/patient-records", include_in_schema=False)
+def nurse_patient_records_portal_post() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/patient-records", status_code=307)
+
+
+@app.post("/nurse/predict-risk", include_in_schema=False)
+def nurse_predict_risk_portal_post() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/predict-risk", status_code=307)
+
+
+@app.get("/nurse/logout", include_in_schema=False)
+def nurse_logout_portal() -> RedirectResponse:
+    return RedirectResponse(url="/portal/nurse/logout", status_code=302)
+
+
 if __name__ == "__main__":
     import uvicorn
 

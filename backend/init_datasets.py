@@ -7,6 +7,7 @@ from paths import (
     DATASETS_DIR,
     DOCTOR_ACCOUNTS_CSV,
     NEW_PATIENT_CSV,
+    NURSE_ACCOUNTS_CSV,
     PATIENT_ACCOUNTS_CSV,
     PATIENTS_CSV,
 )
@@ -55,6 +56,10 @@ def main() -> None:
     _ensure_csv(
         PATIENT_ACCOUNTS_CSV,
         ["patient_id", "salt_hex", "password_hash", "created_at"],
+    )
+    _ensure_csv(
+        NURSE_ACCOUNTS_CSV,
+        ["nurse_id", "salt_hex", "password_hash", "created_at"],
     )
 
     print(f"Initialized dataset CSVs in: {DATASETS_DIR}")

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nurse Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef5f8;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: #cddfe4;
+      --text: #173f4a;
+      --muted: #5b7981;
+      --accent: #1a8a93;
+      --accent-dark: #146a71;
+      --soft: #e5f3f5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Consolas, "Lucida Console", monospace;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 14%, rgba(89, 194, 200, 0.15), transparent 26%),
+        radial-gradient(circle at 88% 82%, rgba(67, 142, 186, 0.14), transparent 28%),
+        linear-gradient(180deg, #edf5f7, #dcebf0);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(280px, 0.95fr) minmax(420px, 1.25fr);
+      min-height: 100vh;
+    }
+    .sidebar {
+      padding: 16px 12px;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #f7fcff 0%, #eef8f8 100%);
+      box-shadow: 10px 0 24px rgba(44, 109, 109, 0.1);
+    }
+    .brand, .profile {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid #cee6e6;
+      background: linear-gradient(135deg, #dff3f5, #ecf8f8);
+    }
+    .brand { font-weight: 800; color: #197f86; margin-bottom: 10px; }
+    .profile strong { display: block; font-size: 1rem; }
+    .profile span { color: #5f8087; font-size: 0.82rem; }
+    .menu { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+    .menu a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #235c64;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .menu a.active, .menu a:hover { background: #d8eef1; }
+    .patients, .editor {
+      padding: 18px;
+    }
+    .section {
+      height: 100%;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: 0 18px 30px rgba(23, 63, 75, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .section-head {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid #deebed;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(244,250,251,0.92));
+    }
+    .section-head h1, .section-head h2 { margin: 0; }
+    .section-head p { margin: 8px 0 0; color: var(--muted); line-height: 1.6; }
+    .search {
+      margin: 14px 18px 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #cfdfe3;
+      font: inherit;
+      background: #fff;
+    }
+    .patient-list {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 10px;
+      overflow: auto;
+    }
+    .patient-card {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #d2e3e7;
+      background: linear-gradient(180deg, #ffffff, #f5fafb);
+      cursor: pointer;
+    }
+    .patient-card.active {
+      border-color: #9bcdd3;
+      background: linear-gradient(180deg, #def2f4, #edf8f9);
+    }
+    .patient-card .meta {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+    .queue-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 104px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #6b7f86;
+    }
+    .queue-pill.live {
+      background: #1a8a93;
+    }
+    .queue-pill.previous {
+      background: #d98616;
+    }
+    .editor-body {
+      padding: 18px;
+      overflow: auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field.full { grid-column: 1 / -1; }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #587981;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: 14px;
+      border: 1px solid #cfdee2;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+    .field textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: #8fc8cf;
+      box-shadow: 0 0 0 3px rgba(48, 151, 161, 0.14);
+    }
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+    }
+    .secondary {
+      background: var(--soft);
+      color: #1f6068;
+      border: 1px solid #cae3e7;
+    }
+    .status {
+      min-height: 22px;
+      color: #156c52;
+      font-weight: 700;
+    }
+    .status.error { color: #a03232; }
+    .helper {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f5fbfc;
+      border: 1px solid #d9eaed;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .report-card {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid #d3e6ea;
+      background: linear-gradient(180deg, #fafdfe, #edf7f8);
+    }
+    .report-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .report-head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 108px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #537b83;
+    }
+    .risk-badge.low { background: #1f8a5b; }
+    .risk-badge.medium { background: #d98616; }
+    .risk-badge.high { background: #cb3b3b; }
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .report-item {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #d8e8ec;
+    }
+    .report-item span {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #61818a;
+      margin-bottom: 4px;
+    }
+    .report-item strong {
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    .report-copy {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid #d8e8ec;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+    .report-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 240px 1fr; }
+      .editor { grid-column: 1 / -1; }
+      .patients { grid-column: 2; }
+    }
+    @media (max-width: 840px) {
+      .layout { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .report-grid { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .patients, .editor { padding: 14px; }
+    }
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">AIHealth Hub</div>
+      <div class="profile">
+        <strong>{{ nurse_name or nurse_id or "Nurse" }}</strong>
+        <span>Nurse Portal</span>
+      </div>
+      <ul class="menu">
+        <li><a href="{{ url_for('about_page') }}">About</a></li>
+        <li><a href="{{ url_for('nurse_appointment_queue') }}">Appointment Queue</a></li>
+        <li><a class="active" href="{{ url_for('nurse_dashboard') }}">Nurse Dashboard</a></li>
+        <li><a href="{{ url_for('nurse_logout') }}">Logout</a></li>
+      </ul>
+    </aside>
+
+    <section class="patients">
+      <div class="section">
+        <div class="section-head">
+          <h2>Patient Queue</h2>
+          <p>Live appointment bookings appear here automatically, and older bookings stay first in the queue.</p>
+        </div>
+        <input id="patientSearch" class="search" type="search" placeholder="Search by patient ID, name, symptoms..." />
+        <div id="patientList" class="patient-list">
+          <div class="patient-card">Loading patients...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="editor">
+      <div class="section">
+        <div class="section-head">
+          <h1>Nurse Record Editor</h1>
+          <p>Update vitals, calculate the patient risk report, and save the verified nurse record before doctor review.</p>
+        </div>
+        <div class="editor-body">
+          <form id="recordForm">
+            <div class="grid">
+              <div class="field">
+                <label for="patient_id">Patient ID</label>
+                <input id="patient_id" name="patient_id" readonly />
+              </div>
+              <div class="field">
+                <label for="patient_name">Patient Name</label>
+                <input id="patient_name" name="patient_name" readonly />
+              </div>
+              <div class="field">
+                <label for="age">Age</label>
+                <input id="age" name="age" />
+              </div>
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender">
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="symptoms">Symptoms</label>
+                <textarea id="symptoms" name="symptoms" placeholder="Example: fever, cough, dizziness"></textarea>
+              </div>
+              <div class="field">
+                <label for="symptom_count">Symptom Count</label>
+                <input id="symptom_count" name="symptom_count" />
+              </div>
+              <div class="field">
+                <label for="glucose">Glucose</label>
+                <input id="glucose" name="glucose" />
+              </div>
+              <div class="field">
+                <label for="blood_pressure_systolic">BP Systolic</label>
+                <input id="blood_pressure_systolic" name="blood_pressure_systolic" />
+              </div>
+              <div class="field">
+                <label for="blood_pressure_diastolic">BP Diastolic</label>
+                <input id="blood_pressure_diastolic" name="blood_pressure_diastolic" />
+              </div>
+              <div class="field">
+                <label for="height_cm">Height (cm)</label>
+                <input id="height_cm" name="height_cm" />
+              </div>
+              <div class="field">
+                <label for="weight_kg">Weight (kg)</label>
+                <input id="weight_kg" name="weight_kg" />
+              </div>
+              <div class="field">
+                <label for="average_sleep_hours">Average Sleep Hours</label>
+                <input id="average_sleep_hours" name="average_sleep_hours" />
+              </div>
+              <div class="field">
+                <label for="smoking_habit">Smoking Habit</label>
+                <select id="smoking_habit" name="smoking_habit">
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="alcohol_habit">Alcohol Habit</label>
+                <select id="alcohol_habit" name="alcohol_habit">
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="family_history">Family History</label>
+                <select id="family_history" name="family_history">
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="medical_history">Medical History</label>
+                <textarea id="medical_history" name="medical_history"></textarea>
+              </div>
+              <div class="field full">
+                <label for="nurse_notes">Nurse Notes</label>
+                <textarea id="nurse_notes" name="nurse_notes" placeholder="Add verified vitals note, triage note, or patient observation"></textarea>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="secondary" type="button" id="predictBtn">Calculate Risk Report</button>
+              <button class="primary" type="submit">Save Nurse Record</button>
+              <button class="secondary" type="button" id="clearBtn">Clear</button>
+            </div>
+            <div id="formStatus" class="status"></div>
+            <div class="helper" id="recordMeta">Select a patient from the list to begin editing.</div>
+            <section class="report-card">
+              <div class="report-head">
+                <h3>Risk Report</h3>
+                <div id="riskBadge" class="risk-badge">Waiting</div>
+              </div>
+              <div class="report-grid">
+                <div class="report-item">
+                  <span>Predicted Disease</span>
+                  <strong id="reportDisease">--</strong>
+                </div>
+                <div class="report-item">
+                  <span>Risk Probability</span>
+                  <strong id="reportProbability">--</strong>
+                </div>
+                <div class="report-item">
+                  <span>Appointment Priority</span>
+                  <strong id="reportPriority">--</strong>
+                </div>
+                <div class="report-item">
+                  <span>Recommended Slot</span>
+                  <strong id="reportSlot">--</strong>
+                </div>
+              </div>
+              <div id="reportDoctorNote" class="report-copy">Calculate a report to see doctor notes and triage guidance.</div>
+              <div id="reportPatientGuidance" class="report-copy">Patient guidance will appear here after prediction.</div>
+              <ul id="reportFactors" class="report-list">
+                <li>No contributing factors yet.</li>
+              </ul>
+            </section>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const patientsApi = {{ url_for("nurse_patient_records")|tojson }};
+    const saveApi = {{ url_for("nurse_update_patient_record")|tojson }};
+    const predictApi = {{ url_for("nurse_predict_risk")|tojson }};
+    const loginUrl = {{ url_for("nurse_login")|tojson }};
+    const patientList = document.getElementById("patientList");
+    const patientSearch = document.getElementById("patientSearch");
+    const recordForm = document.getElementById("recordForm");
+    const formStatus = document.getElementById("formStatus");
+    const recordMeta = document.getElementById("recordMeta");
+    const clearBtn = document.getElementById("clearBtn");
+    const predictBtn = document.getElementById("predictBtn");
+    const riskBadge = document.getElementById("riskBadge");
+    const reportDisease = document.getElementById("reportDisease");
+    const reportProbability = document.getElementById("reportProbability");
+    const reportPriority = document.getElementById("reportPriority");
+    const reportSlot = document.getElementById("reportSlot");
+    const reportDoctorNote = document.getElementById("reportDoctorNote");
+    const reportPatientGuidance = document.getElementById("reportPatientGuidance");
+    const reportFactors = document.getElementById("reportFactors");
+    const fields = Array.from(recordForm.querySelectorAll("input, select, textarea"));
+    const requestedPatientId = new URLSearchParams(window.location.search).get("patient_id") || "";
+    let records = [];
+    let activePatientId = "";
+    let queueRefreshTimer = null;
+
+    function safeText(value) {
+      return value == null ? "" : String(value);
+    }
+
+    function fieldValue(id, fallback = "") {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : fallback;
+    }
+
+    function formatDateTime(value) {
+      const raw = safeText(value).trim();
+      if (!raw) return "--";
+      const date = new Date(raw);
+      if (Number.isNaN(date.getTime())) return raw;
+      return date.toLocaleString();
+    }
+
+    function queueClass(item) {
+      if (item && item.has_live_appointment) return "live";
+      if (safeText(item && item.appointment_id).trim()) return "previous";
+      return "";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function setRiskBadge(level) {
+      const text = safeText(level, "--");
+      const normalized = text.toLowerCase();
+      riskBadge.textContent = text || "--";
+      riskBadge.classList.remove("low", "medium", "high");
+      if (normalized.includes("high")) riskBadge.classList.add("high");
+      else if (normalized.includes("medium")) riskBadge.classList.add("medium");
+      else if (normalized.includes("low")) riskBadge.classList.add("low");
+    }
+
+    function clearRiskReport(message = "Calculate a report to see doctor notes and triage guidance.") {
+      setRiskBadge("Waiting");
+      reportDisease.textContent = "--";
+      reportProbability.textContent = "--";
+      reportPriority.textContent = "--";
+      reportSlot.textContent = "--";
+      reportDoctorNote.textContent = message;
+      reportPatientGuidance.textContent = "Patient guidance will appear here after prediction.";
+      reportFactors.innerHTML = "<li>No contributing factors yet.</li>";
+    }
+
+    function renderRiskReport(report) {
+      const item = report || {};
+      const probability = Number(item.risk_probability);
+      setRiskBadge(safeText(item.risk_level || "Unknown"));
+      reportDisease.textContent = safeText(item.predicted_class || "--");
+      reportProbability.textContent = Number.isFinite(probability) ? `${(probability * 100).toFixed(1)}%` : "--";
+      reportPriority.textContent = safeText(item.appointment_priority || "--");
+      reportSlot.textContent = safeText(item.recommended_slot || "--");
+      reportDoctorNote.textContent = safeText(item.doctor_note || "No doctor note generated.");
+      reportPatientGuidance.textContent = safeText(item.patient_guidance || "No patient guidance generated.");
+
+      const factors = Array.isArray(item.contributing_factors) ? item.contributing_factors.filter(Boolean) : [];
+      reportFactors.innerHTML = factors.length
+        ? factors.map((factor) => `<li>${escapeHtml(factor)}</li>`).join("")
+        : "<li>No contributing factors were returned for this record.</li>";
+    }
+
+    async function requestRiskReport() {
+      const payload = Object.fromEntries(fields.map((field) => [field.name, field.value]));
+      const res = await fetch(predictApi, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = loginUrl;
+        return null;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to calculate risk report.");
+      return data.risk_report || null;
+    }
+
+    function fillForm(record) {
+      const item = record || {};
+      ["patient_id", "patient_name", "age", "gender", "symptoms", "symptom_count", "glucose",
+       "blood_pressure_systolic", "blood_pressure_diastolic", "height_cm", "weight_kg",
+       "average_sleep_hours", "smoking_habit", "alcohol_habit", "family_history",
+       "medical_history", "nurse_notes"].forEach((key) => {
+        const el = document.getElementById(key);
+        if (el) el.value = safeText(item[key]);
+      });
+      recordMeta.textContent = item.updated_at
+        ? `Last updated: ${safeText(item.updated_at)} | Nurse: ${safeText(item.nurse_updated_by || "not recorded")}${safeText(item.queue_status).trim() ? ` | Queue: ${safeText(item.queue_status)}` : ""}`
+        : (safeText(item.queue_status).trim()
+            ? `This patient record has not been updated by a nurse yet. Queue: ${safeText(item.queue_status)}`
+            : "This patient record has not been updated by a nurse yet.");
+      clearRiskReport("Calculate a report to see the latest risk summary for this patient.");
+    }
+
+    function renderPatients(searchText = "") {
+      const query = safeText(searchText).toLowerCase();
+      const filtered = !query ? records : records.filter((item) =>
+        [item.patient_id, item.patient_name, item.symptoms, item.medical_history]
+          .map(safeText)
+          .join(" ")
+          .toLowerCase()
+          .includes(query)
+      );
+
+      if (!filtered.length) {
+        patientList.innerHTML = '<div class="patient-card">No patient found.</div>';
+        return;
+      }
+
+      patientList.innerHTML = filtered.map((item) => `
+        <article class="patient-card ${item.patient_id === activePatientId ? "active" : ""}" data-patient-id="${safeText(item.patient_id)}">
+          <strong>${safeText(item.patient_name || "Unnamed Patient")}</strong>
+          <div class="meta">
+            <span class="queue-pill ${queueClass(item)}">${safeText(item.queue_status || "No Appointment")}</span><br>
+            Patient ${safeText(item.patient_id)}<br>
+            Booked: ${formatDateTime(item.booked_at)}<br>
+            Appointment: ${formatDateTime(item.appointment_time)}<br>
+            Symptoms: ${safeText(item.symptoms || "Not recorded")}<br>
+            Glucose: ${safeText(item.glucose || "--")} | BP: ${safeText(item.blood_pressure_systolic || "--")}/${safeText(item.blood_pressure_diastolic || "--")}
+          </div>
+        </article>
+      `).join("");
+
+      patientList.querySelectorAll("[data-patient-id]").forEach((card) => {
+        card.addEventListener("click", () => {
+          activePatientId = card.getAttribute("data-patient-id") || "";
+          const record = records.find((item) => safeText(item.patient_id) === activePatientId);
+          fillForm(record);
+          renderPatients(patientSearch.value);
+        });
+      });
+    }
+
+    async function loadPatients(options = {}) {
+      const preserveSelection = options.preserveSelection !== false;
+      const res = await fetch(patientsApi, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+      });
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = loginUrl;
+        return;
+      }
+      if (!res.ok) throw new Error("Failed to load patient records.");
+      const data = await res.json();
+      records = Array.isArray(data.patients) ? data.patients : [];
+      if (!preserveSelection) {
+        activePatientId = "";
+      }
+      if (!activePatientId && requestedPatientId) {
+        const requested = records.find((item) => safeText(item.patient_id) === safeText(requestedPatientId));
+        if (requested) {
+          activePatientId = safeText(requested.patient_id);
+          fillForm(requested);
+        }
+      }
+      if (!activePatientId && records.length) {
+        activePatientId = safeText(records[0].patient_id);
+        fillForm(records[0]);
+      } else if (activePatientId && !records.some((item) => safeText(item.patient_id) === activePatientId)) {
+        activePatientId = records.length ? safeText(records[0].patient_id) : "";
+        if (records.length) fillForm(records[0]);
+      }
+      renderPatients(patientSearch.value);
+    }
+
+    patientSearch.addEventListener("input", (event) => {
+      renderPatients(event.target.value);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      fillForm({ patient_id: activePatientId, patient_name: fieldValue("patient_name") });
+      formStatus.textContent = "";
+      formStatus.classList.remove("error");
+    });
+
+    predictBtn.addEventListener("click", async () => {
+      formStatus.textContent = "";
+      formStatus.classList.remove("error");
+      predictBtn.disabled = true;
+      try {
+        const report = await requestRiskReport();
+        if (report) renderRiskReport(report);
+        formStatus.textContent = "Risk report calculated successfully.";
+      } catch (error) {
+        clearRiskReport("Risk report could not be calculated.");
+        formStatus.textContent = error.message || "Risk calculation failed.";
+        formStatus.classList.add("error");
+      } finally {
+        predictBtn.disabled = false;
+      }
+    });
+
+    recordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      formStatus.textContent = "";
+      formStatus.classList.remove("error");
+      const payload = Object.fromEntries(fields.map((field) => [field.name, field.value]));
+      try {
+        const res = await fetch(saveApi, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to save patient record.");
+        formStatus.textContent = "Patient record saved successfully.";
+        const saved = data.patient || {};
+        const riskReport = data.risk_report || null;
+        activePatientId = safeText(saved.patient_id || payload.patient_id);
+        records = records.map((item) => safeText(item.patient_id) === activePatientId ? { ...item, ...saved } : item);
+        if (!records.some((item) => safeText(item.patient_id) === activePatientId)) {
+          records.unshift(saved);
+        }
+        fillForm(saved);
+        if (riskReport) renderRiskReport(riskReport);
+        renderPatients(patientSearch.value);
+      } catch (error) {
+        formStatus.textContent = error.message || "Save failed.";
+        formStatus.classList.add("error");
+      }
+    });
+
+    clearRiskReport();
+    loadPatients({ preserveSelection: true }).then(() => {
+      queueRefreshTimer = window.setInterval(() => {
+        loadPatients({ preserveSelection: true }).catch(() => {});
+      }, 5000);
+    }).catch((error) => {
+      patientList.innerHTML = `<div class="patient-card">${safeText(error.message || "Failed to load patients.")}</div>`;
+    });
+  </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
+</body>
+</html>

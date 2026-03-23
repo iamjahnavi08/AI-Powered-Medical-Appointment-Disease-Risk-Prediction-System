@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIHealth Hub - Nurse Login</title>
+  <style>
+    :root {
+      --bg-a: #eef6fb;
+      --bg-b: #d8ecf1;
+      --card: rgba(255, 255, 255, 0.9);
+      --line: #c8dde4;
+      --text: #164852;
+      --muted: #58757d;
+      --accent: #1c8a94;
+      --accent-dark: #146870;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 14%, rgba(91, 194, 201, 0.18), transparent 28%),
+        radial-gradient(circle at 86% 82%, rgba(60, 133, 180, 0.18), transparent 30%),
+        linear-gradient(180deg, var(--bg-a), var(--bg-b));
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+    .shell {
+      width: min(1080px, 100%);
+      display: grid;
+      grid-template-columns: 1fr minmax(340px, 420px);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .hero, .card {
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      box-shadow: 0 22px 34px rgba(20, 73, 83, 0.12);
+    }
+    .hero {
+      padding: 30px;
+      background:
+        radial-gradient(circle at top right, rgba(87, 172, 195, 0.16), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 248, 249, 0.92));
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #64848d;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.02; }
+    .hero p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+      max-width: 52ch;
+    }
+    .hero ul { margin: 18px 0 0; padding-left: 18px; color: #365d67; line-height: 1.8; }
+    .card { padding: 26px; }
+    .card h2 { margin: 0; font-size: 2rem; }
+    .hint { margin: 10px 0 16px; color: var(--muted); }
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: 700;
+      color: #23525d;
+    }
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid #cadde2;
+      font: inherit;
+      background: #f8fcfd;
+    }
+    input:focus {
+      outline: none;
+      border-color: #7cc6ce;
+      box-shadow: 0 0 0 3px rgba(54, 154, 166, 0.16);
+    }
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .errors {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #efc3c3;
+      background: #fff1f1;
+      color: #8a2c2c;
+    }
+    .link-row {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .link-row a {
+      color: #1b6f78;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='page-animations.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Nurse Portal</p>
+      <h1>Patient records start here.</h1>
+      <p>Use the nurse portal to verify vitals, update symptoms, maintain glucose and blood pressure readings, and prepare each patient record before doctor review.</p>
+      <ul>
+        <li>Search patient records quickly</li>
+        <li>Update glucose, BP, BMI, sleep, symptoms, and history</li>
+        <li>Hand over cleaner data to the doctor dashboard</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Nurse Login</h2>
+      <p class="hint">Login using your Nurse ID</p>
+
+      {% if errors %}
+      <div class="errors">
+        {% for error in errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post">
+        <label for="nurse_id">Nurse ID</label>
+        <input id="nurse_id" name="nurse_id" value="{{ form_data.nurse_id }}" placeholder="Enter nurse ID" />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter password" />
+
+        <button type="submit">Login</button>
+      </form>
+
+      <div class="link-row">
+        <a href="/nurse/signup">Create nurse account</a>
+        <a href="/login">Back to role login</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const nurseLoginSuccess = {{ "true" if login_success else "false" }};
+    const nurseRedirectUrl = {{ (redirect_url or "")|tojson }};
+    if (nurseLoginSuccess && nurseRedirectUrl) {
+      window.location.href = nurseRedirectUrl;
+    }
+  </script>
+  <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
+</body>
+</html>

@@ -42,6 +42,10 @@ class PatientDatabase:
                     family_history TEXT,
                     medical_history TEXT,
                     health_data_submitted_at TEXT,
+                    nurse_updated_by TEXT,
+                    nurse_notes TEXT,
+                    doctor_reviewed_by TEXT,
+                    reviewed_at TEXT,
                     updated_at TEXT NOT NULL
                 )
                 """
@@ -54,6 +58,14 @@ class PatientDatabase:
                 conn.execute("ALTER TABLE patient_profiles ADD COLUMN health_data_submitted_at TEXT")
             if "average_sleep_hours" not in existing_columns:
                 conn.execute("ALTER TABLE patient_profiles ADD COLUMN average_sleep_hours REAL")
+            if "nurse_updated_by" not in existing_columns:
+                conn.execute("ALTER TABLE patient_profiles ADD COLUMN nurse_updated_by TEXT")
+            if "nurse_notes" not in existing_columns:
+                conn.execute("ALTER TABLE patient_profiles ADD COLUMN nurse_notes TEXT")
+            if "doctor_reviewed_by" not in existing_columns:
+                conn.execute("ALTER TABLE patient_profiles ADD COLUMN doctor_reviewed_by TEXT")
+            if "reviewed_at" not in existing_columns:
+                conn.execute("ALTER TABLE patient_profiles ADD COLUMN reviewed_at TEXT")
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS appointments (
@@ -87,12 +99,16 @@ class PatientDatabase:
                     patient_id, patient_name, age, gender, symptoms, symptom_count, glucose,
                     height_cm, weight_kg, weight_category, calculated_bmi,
                     blood_pressure_systolic, blood_pressure_diastolic, smoking_habit,
-                    alcohol_habit, average_sleep_hours, family_history, medical_history, health_data_submitted_at, updated_at
+                    alcohol_habit, average_sleep_hours, family_history, medical_history,
+                    health_data_submitted_at, nurse_updated_by, nurse_notes,
+                    doctor_reviewed_by, reviewed_at, updated_at
                 ) VALUES (
                     :patient_id, :patient_name, :age, :gender, :symptoms, :symptom_count, :glucose,
                     :height_cm, :weight_kg, :weight_category, :calculated_bmi,
                     :blood_pressure_systolic, :blood_pressure_diastolic, :smoking_habit,
-                    :alcohol_habit, :average_sleep_hours, :family_history, :medical_history, :health_data_submitted_at, :updated_at
+                    :alcohol_habit, :average_sleep_hours, :family_history, :medical_history,
+                    :health_data_submitted_at, :nurse_updated_by, :nurse_notes,
+                    :doctor_reviewed_by, :reviewed_at, :updated_at
                 )
                 ON CONFLICT(patient_id) DO UPDATE SET
                     patient_name=excluded.patient_name,
@@ -113,6 +129,10 @@ class PatientDatabase:
                     family_history=excluded.family_history,
                     medical_history=excluded.medical_history,
                     health_data_submitted_at=excluded.health_data_submitted_at,
+                    nurse_updated_by=excluded.nurse_updated_by,
+                    nurse_notes=excluded.nurse_notes,
+                    doctor_reviewed_by=excluded.doctor_reviewed_by,
+                    reviewed_at=excluded.reviewed_at,
                     updated_at=excluded.updated_at
                 """,
                 {
@@ -135,6 +155,10 @@ class PatientDatabase:
                     "family_history": payload.get("family_history"),
                     "medical_history": payload.get("medical_history"),
                     "health_data_submitted_at": payload.get("health_data_submitted_at") or now,
+                    "nurse_updated_by": payload.get("nurse_updated_by"),
+                    "nurse_notes": payload.get("nurse_notes"),
+                    "doctor_reviewed_by": payload.get("doctor_reviewed_by"),
+                    "reviewed_at": payload.get("reviewed_at"),
                     "updated_at": now,
                 },
             )
@@ -163,6 +187,10 @@ class PatientDatabase:
                     family_history,
                     medical_history,
                     health_data_submitted_at,
+                    nurse_updated_by,
+                    nurse_notes,
+                    doctor_reviewed_by,
+                    reviewed_at,
                     updated_at
                 FROM patient_profiles
                 ORDER BY
@@ -202,6 +230,10 @@ class PatientDatabase:
                     family_history,
                     medical_history,
                     health_data_submitted_at,
+                    nurse_updated_by,
+                    nurse_notes,
+                    doctor_reviewed_by,
+                    reviewed_at,
                     updated_at
                 FROM patient_profiles
                 WHERE patient_id = ?
