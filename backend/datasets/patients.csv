@@ -17,3 +17,5 @@ patient_id,name,unique_code,password,health_details_submitted,created_at
 16,Manu,AADHAAR:987651234567,Janu@1234,1,2026-03-09T16:29:34Z
 17,jahnavi2,AUTO:PATIENT-17,Janu@2002,1,2026-03-11T09:55:20Z
 18,janvi,AUTO:PATIENT-18,Janu@1234,1,2026-03-12T13:51:14Z
+19,janu23,AUTO:PATIENT-19,Janu@12345,0,2026-03-23T07:03:48Z
+20,meghashyam royal,AUTO:PATIENT-20,Megha@772,1,2026-03-23T07:21:59Z

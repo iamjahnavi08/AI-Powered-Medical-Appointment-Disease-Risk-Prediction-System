@@ -3,6 +3,10 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from env_loader import load_project_env
+
+
+load_project_env()
 
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_DIR

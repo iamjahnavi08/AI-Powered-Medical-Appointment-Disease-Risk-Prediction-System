@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import os
 import re
@@ -60,6 +61,25 @@ OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini").strip() or "gp
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 _openai_chat_client: Any = None
 _openai_chat_client_ready = False
+CHAT_GENERAL_PATTERNS = (
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "how are you",
+    "who are you",
+    "what can you do",
+)
+SAFE_MATH_OPERATORS = {
+    ast.Add: lambda a, b: a + b,
+    ast.Sub: lambda a, b: a - b,
+    ast.Mult: lambda a, b: a * b,
+    ast.Div: lambda a, b: a / b,
+    ast.Pow: lambda a, b: a ** b,
+    ast.Mod: lambda a, b: a % b,
+    ast.FloorDiv: lambda a, b: a // b,
+    ast.USub: lambda a: -a,
+    ast.UAdd: lambda a: a,
+}
 
 
 def _is_patient_authenticated() -> bool:
@@ -1267,12 +1287,12 @@ def _patient_chat_openai_reply(
         return None
 
     system_prompt = (
-        "You are a patient support assistant inside a healthcare portal. "
-        "Answer only from the supplied patient context. "
-        "Do not invent appointments, doctor names, medical facts, or measurements that are not present. "
-        "Keep the answer concise, practical, and easy to understand. "
-        "Do not claim to replace a doctor. "
-        "If the question goes beyond the provided portal data, say that clearly."
+        "You are an AI assistant inside a healthcare portal. "
+        "If the patient asks about their own record, appointments, doctors, risk level, or precautions, answer only from the supplied patient context. "
+        "If the patient asks a general question that is not about their portal data, answer it like a normal helpful AI assistant. "
+        "Never invent patient-specific appointments, doctor names, medical facts, or measurements that are not present in the supplied context. "
+        "If a medical question requires diagnosis or urgent care, give a brief safety-minded answer and remind the user to contact a clinician or emergency services when appropriate. "
+        "Keep the answer concise, practical, and easy to understand."
     )
     user_prompt = (
         "Patient portal context:\n"
@@ -1293,6 +1313,199 @@ def _patient_chat_openai_reply(
 
     reply = _extract_openai_output_text(response)
     return reply or None
+
+
+def _is_general_chat_message(message: str) -> bool:
+    normalized = str(message or "").strip().lower()
+    if not normalized:
+        return False
+
+    portal_keywords = (
+        "patient",
+        "profile",
+        "age",
+        "gender",
+        "symptom",
+        "history",
+        "family",
+        "smoking",
+        "alcohol",
+        "sleep",
+        "bp",
+        "blood pressure",
+        "glucose",
+        "sugar",
+        "bmi",
+        "weight",
+        "height",
+        "risk",
+        "prediction",
+        "appointment",
+        "booking",
+        "doctor",
+        "precaution",
+        "report",
+        "record",
+        "portal",
+    )
+    return not any(keyword in normalized for keyword in portal_keywords)
+
+
+def _is_general_greeting(message: str) -> bool:
+    normalized = str(message or "").strip().lower()
+    if not normalized:
+        return False
+    if re.match(r"^(hi|hello|hey)\b", normalized):
+        return True
+    return any(normalized.startswith(pattern) for pattern in CHAT_GENERAL_PATTERNS)
+
+
+def _evaluate_safe_math(node: ast.AST) -> float:
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return float(node.value)
+    if isinstance(node, ast.Num):  # pragma: no cover - compatibility
+        return float(node.n)
+    if isinstance(node, ast.BinOp) and type(node.op) in SAFE_MATH_OPERATORS:
+        left = _evaluate_safe_math(node.left)
+        right = _evaluate_safe_math(node.right)
+        return float(SAFE_MATH_OPERATORS[type(node.op)](left, right))
+    if isinstance(node, ast.UnaryOp) and type(node.op) in SAFE_MATH_OPERATORS:
+        operand = _evaluate_safe_math(node.operand)
+        return float(SAFE_MATH_OPERATORS[type(node.op)](operand))
+    raise ValueError("Unsupported math expression")
+
+
+def _try_math_answer(message: str) -> Optional[str]:
+    text = str(message or "").strip()
+    if not text:
+        return None
+
+    candidate = re.sub(r"^(what is|calculate|solve)\s+", "", text, flags=re.IGNORECASE).strip(" ?=")
+    if not candidate or len(candidate) > 80:
+        return None
+    if not re.fullmatch(r"[\d\s+\-*/%().]+", candidate):
+        return None
+
+    try:
+        parsed = ast.parse(candidate, mode="eval")
+        result = _evaluate_safe_math(parsed.body)
+    except Exception:
+        return None
+
+    if result.is_integer():
+        return f"The answer is {int(result)}."
+    return f"The answer is {result:.4f}".rstrip("0").rstrip(".") + "."
+
+
+def _offline_general_chat_reply(user_message: str, context: Dict[str, Any]) -> str:
+    normalized = str(user_message or "").strip().lower()
+    profile = context.get("profile", {}) if isinstance(context, dict) else {}
+    risk_summary = context.get("risk_summary", {}) if isinstance(context, dict) else {}
+    risk_label = _chat_text(risk_summary.get("risk_level"), "your current risk level")
+    symptoms = _chat_text(profile.get("symptoms"), "not available")
+    bp_sys = _chat_text(profile.get("blood_pressure_systolic"), "")
+    bp_dia = _chat_text(profile.get("blood_pressure_diastolic"), "")
+
+    if _is_general_greeting(normalized):
+        return (
+            "Hello! Ask me any health or general question and I will do my best to answer here. "
+            "I can also help with your patient profile, appointments, risk summary, and doctor precautions."
+        )
+
+    math_answer = _try_math_answer(user_message)
+    if math_answer:
+        return math_answer
+
+    if "time" in normalized and "table" not in normalized:
+        return f"Right now the time is {datetime.now().strftime('%I:%M %p')}."
+    if "date" in normalized or "day today" in normalized or "today" == normalized:
+        return f"Today is {datetime.now().strftime('%d %B %Y')}."
+
+    if "who are you" in normalized:
+        return "I am your AI chatbot inside this portal. You can ask me health questions, simple general questions, and patient-record questions."
+    if "what can you do" in normalized:
+        return "I can answer health questions, explain basic topics, help with simple calculations, and guide you through your patient profile, appointments, and risk summary."
+
+    if any(term in normalized for term in ("salt", "salty", "sodium")):
+        bp_note = ""
+        if bp_sys and bp_dia:
+            bp_note = f" Your portal blood pressure reading is {bp_sys}/{bp_dia} mmHg, so avoiding extra salt is a safer choice."
+        return (
+            "Usually it is better to limit salty foods, especially if you have high blood pressure, kidney issues, swelling, or heart concerns. "
+            "Choose fresh food, avoid packaged snacks, chips, pickles, and instant foods, and drink enough water." + bp_note
+        )
+
+    if any(term in normalized for term in ("food", "diet", "eat", "meal", "nutrition")):
+        return (
+            f"A balanced diet is usually the safest choice: more vegetables, fruits, pulses, whole grains, enough water, and less fried, sugary, and very salty food. "
+            f"Based on your portal, your current risk summary is {risk_label.lower()} and your recorded symptoms are {symptoms}."
+        )
+
+    if any(term in normalized for term in ("fever", "temperature")):
+        return (
+            "For fever, rest, drink plenty of fluids, eat light food, and monitor the temperature. "
+            "Get medical help quickly if the fever is very high, lasts more than a few days, or comes with breathing trouble, confusion, severe weakness, or dehydration."
+        )
+
+    if any(term in normalized for term in ("cough", "cold", "sore throat", "runny nose")):
+        return (
+            "For a mild cough or cold, rest, warm fluids, steam inhalation, and staying hydrated can help. "
+            "Please seek medical care if you have shortness of breath, chest pain, high fever, or symptoms that keep getting worse."
+        )
+
+    if any(term in normalized for term in ("headache", "migraine")):
+        return (
+            "A mild headache often improves with water, food, rest, and sleep. "
+            "Please get urgent care if it is sudden and severe or comes with weakness, confusion, vomiting, fainting, vision changes, or high fever."
+        )
+
+    if any(term in normalized for term in ("stomach pain", "abdomen", "vomit", "vomiting", "diarrhea", "loose motion")):
+        return (
+            "For stomach upset, focus on fluids, simple food, and rest. "
+            "Please get medical help if you have blood in vomit or stool, severe pain, dehydration, or symptoms lasting more than a day or two."
+        )
+
+    if any(term in normalized for term in ("chest pain", "shortness of breath", "breathing trouble", "can't breathe")):
+        return "Chest pain or trouble breathing can be serious. Please seek emergency medical care immediately."
+
+    if any(term in normalized for term in ("sleep", "insomnia", "can't sleep")):
+        return (
+            "Try a fixed sleep time, less screen use before bed, less caffeine late in the day, and a quiet dark room. "
+            "If poor sleep continues for weeks or affects daytime functioning, speak with a doctor."
+        )
+
+    if any(term in normalized for term in ("exercise", "workout", "walking", "fitness")):
+        return (
+            "For most people, starting with light walking and gradually increasing activity is a good approach. "
+            "Stop and seek medical advice if exercise causes chest pain, dizziness, severe breathlessness, or unusual weakness."
+        )
+
+    if "python" in normalized:
+        return "Python is a popular programming language known for simple syntax. People use it for web apps, automation, data science, AI, and scripting."
+    if "artificial intelligence" in normalized or re.search(r"\bai\b", normalized):
+        return "Artificial intelligence is the use of computer systems to perform tasks that usually need human-like reasoning, such as understanding language, finding patterns, and making predictions."
+    if "html" in normalized:
+        return "HTML is the standard markup language used to structure web pages."
+    if "css" in normalized:
+        return "CSS is used to style web pages by controlling colors, layout, spacing, fonts, and visual appearance."
+    if "javascript" in normalized:
+        return "JavaScript is a programming language used to add interaction and dynamic behavior to websites."
+
+    what_is_match = re.match(r"^what is ([a-z0-9 ._-]+)\??$", normalized)
+    if what_is_match:
+        topic = what_is_match.group(1).strip()
+        return f"{topic.title()} is a topic I can help explain. Ask me in a slightly more specific way, like what it is used for, how it works, or why it matters."
+
+    if normalized.endswith("?"):
+        return (
+            "Here is the best quick answer I can give offline: the right answer depends on the exact context, so the safest next step is to focus on the main goal, avoid risky extremes, and choose the simplest clear option first. "
+            "If you make the question a little more specific, I will answer it more directly."
+        )
+
+    return (
+        "I can help with health guidance, basic explanations, simple calculations, and your patient portal details. "
+        "Ask your question in one clear sentence and I will answer as directly as possible."
+    )
 
 
 def _patient_chat_response(patient_id: str, user_message: str) -> Dict[str, Any]:
@@ -1333,12 +1546,18 @@ def _patient_chat_response(patient_id: str, user_message: str) -> Dict[str, Any]
     doctor_keywords = ("doctor", "precaution", "advice", "care", "treatment", "medicine")
     appointment_keywords = ("appointment", "booking", "doctor assigned", "doctor name", "visit")
     vitals_keywords = ("bp", "blood pressure", "glucose", "sugar", "bmi", "weight", "height")
+    is_general_chat = _is_general_chat_message(message)
     doctor_list_requested = (
         ("doctor" in message or "doctors" in message)
         and any(term in message for term in ("list", "consult", "recommend", "suggest", "available", "avail", "condition", "issue", "show", "who"))
     )
 
-    if any(key in message for key in ("name", "age", "gender", "patient detail", "patient details", "profile")):
+    if _is_general_greeting(message):
+        reply = (
+            "Hello! You can ask me about your patient profile, appointments, risk summary, and doctor precautions. "
+            "If OpenAI is configured, I can also answer general questions here in the same chat."
+        )
+    elif any(key in message for key in ("name", "age", "gender", "patient detail", "patient details", "profile")):
         sleep_text = f" Average sleep: {sleep_hours}."
         if sleep_category:
             sleep_text += f" Sleep category: {sleep_category} ({sleep_meaning})."
@@ -1386,6 +1605,11 @@ def _patient_chat_response(patient_id: str, user_message: str) -> Dict[str, Any]
             reply = "I could not find any doctor profiles in the current portal data."
     elif any(key in message for key in doctor_keywords):
         reply = "Doctor precautions based on your current record: " + " ".join(precautions)
+    elif is_general_chat:
+        reply = (
+            "I can answer general questions here once the OpenAI chat service is configured with a valid `OPENAI_API_KEY` in `.env`. "
+            "For now, I can still help with your patient details, appointments, risk summary, and doctor precautions."
+        )
     else:
         reply = (
             f"I can help with your patient details, appointment plan, AI risk summary, and doctor precautions. "
@@ -1437,10 +1661,13 @@ def _patient_chat_response(patient_id: str, user_message: str) -> Dict[str, Any]
         "precautions": precautions,
         "suggested_doctors": suggested_doctors,
         "fallback_reply": reply,
+        "question_scope": "general" if is_general_chat else "patient_portal",
     }
     openai_reply = _patient_chat_openai_reply(user_message=user_message, context=chat_context)
     if openai_reply:
         reply = openai_reply
+    elif is_general_chat:
+        reply = _offline_general_chat_reply(user_message, chat_context)
 
     return {
         "reply": reply,

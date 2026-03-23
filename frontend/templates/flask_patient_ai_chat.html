@@ -32,6 +32,7 @@
       position: fixed;
       inset: 0 auto 0 0;
       width: 252px;
+      z-index: 40;
       padding: 12px 10px;
       background: linear-gradient(180deg, #f7fcff 0%, #eef8f8 100%);
       border-right: 1px solid #d7e7e7;
@@ -122,7 +123,10 @@
       color: #2e9198;
     }
     .page {
-      padding: 18px 18px 22px calc(18px + 252px);
+      position: relative;
+      z-index: 1;
+      margin-left: 252px;
+      padding: 18px 18px 22px;
     }
     .shell {
       max-width: 1380px;
@@ -173,6 +177,42 @@
     .snapshot-value.risk-low { color: #1f8f4e; }
     .snapshot-value.risk-medium { color: #b38a00; }
     .snapshot-value.risk-high { color: #cc3f3f; }
+    .symptom-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .symptom-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef7f8;
+      border: 1px solid #d0e4e7;
+      color: #205863;
+      font-size: 0.92rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .symptom-tag.high-risk {
+      background: linear-gradient(180deg, #ffe1df, #ffd1cc);
+      border-color: #f1a39d;
+      color: #a12d23;
+      box-shadow: 0 8px 16px rgba(181, 61, 49, 0.12);
+    }
+    .symptom-tag.high-risk::before {
+      content: "High Risk";
+      margin-right: 8px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(161, 45, 35, 0.12);
+      color: #92271f;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
     .patient-description {
       margin-top: 18px;
       padding: 14px 16px;
@@ -498,10 +538,14 @@
         position: static;
         width: auto;
         height: auto;
+        z-index: auto;
         box-shadow: none;
         border-right: 0;
       }
-      .page { padding: 14px; }
+      .page {
+        margin-left: 0;
+        padding: 14px;
+      }
       .snapshot-grid { grid-template-columns: 1fr; }
       .bubble { max-width: 100%; }
       .chat-head {
@@ -558,7 +602,7 @@
     <div class="shell">
       <section class="card summary-card">
         <p class="eyebrow">Patient AI Assistant</p>
-        <h1>Ask about your health record</h1>
+        <h1>Ask any question</h1>
 
         <div class="snapshot-grid">
           <div class="snapshot-item">
@@ -618,7 +662,7 @@
           <div>
             <p class="eyebrow">Live Chat - {{ patient_name or "Patient" }}</p>
             <h2>Where should we start?</h2>
-            <p class="subtitle">Ask about your profile, risk summary, observations, suggested doctors, or next appointment. Use a quick prompt below or type your own question.</p>
+            <p class="subtitle">Ask any question here. I can help with health guidance, general topics, and your patient portal details.</p>
           </div>
           <div class="chat-status">Patient {{ patient_id }}</div>
         </div>
@@ -626,7 +670,7 @@
         <div class="chat-console">
           <form class="composer" id="chatForm">
             <div class="composer-shell">
-              <textarea id="chatInput" placeholder="Write anything about your health record, risk level, observations, doctors, or appointments..."></textarea>
+              <textarea id="chatInput" placeholder="Ask any question..."></textarea>
               <div class="composer-answer">
                 <p class="chat-answer-label">Current Answer</p>
                 <div class="chat-stream" id="chatStream">
@@ -634,7 +678,7 @@
                 </div>
               </div>
               <div class="composer-tools">
-                <div class="composer-hint">Quick patient support prompt</div>
+                <div class="composer-hint">Ask anything</div>
                 <button type="submit" id="sendBtn">Ask Now</button>
               </div>
             </div>
@@ -773,6 +817,64 @@
       return text && text !== "--" ? text : fallback;
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function symptomItems(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw || raw === "--") return [];
+      return raw
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function isHighRiskSymptom(symptom) {
+      const text = String(symptom ?? "").trim().toLowerCase();
+      if (!text) return false;
+      const highRiskPatterns = [
+        /\bchest pain\b/,
+        /\bshortness of breath\b/,
+        /\bbreathing (trouble|difficulty|issue)\b/,
+        /\bbreathlessness\b/,
+        /\bsevere headache\b/,
+        /\bdizziness\b/,
+        /\bfaint(ing)?\b/,
+        /\bunconscious(ness)?\b/,
+        /\bseizure(s)?\b/,
+        /\bstroke\b/,
+        /\bparalysis\b/,
+        /\bnumbness\b/,
+        /\bbleeding\b/,
+        /\bblood in (vomit|stool|urine)\b/,
+        /\bhigh fever\b/,
+        /\blow bp\b/,
+        /\blow blood pressure\b/,
+        /\bvery low bp\b/,
+        /\bpalpitation(s)?\b/,
+        /\bheart pain\b/,
+      ];
+      return highRiskPatterns.some((pattern) => pattern.test(text));
+    }
+
+    function renderSymptoms(value) {
+      if (!snapshotSymptoms) return;
+      const items = symptomItems(value);
+      if (items.length === 0) {
+        snapshotSymptoms.textContent = "--";
+        return;
+      }
+      snapshotSymptoms.innerHTML = `<span class="symptom-tags">${items
+        .map((item) => `<span class="symptom-tag${isHighRiskSymptom(item) ? " high-risk" : ""}">${escapeHtml(item)}</span>`)
+        .join("")}</span>`;
+    }
+
     function applyRiskLevelClass(value) {
       if (!snapshotRiskLevel) return;
       snapshotRiskLevel.classList.remove("risk-low", "risk-medium", "risk-high");
@@ -793,7 +895,7 @@
       if (snapshotGender) snapshotGender.textContent = snapshotValue(snapshot.gender, "--");
       if (snapshotRiskLevel) snapshotRiskLevel.textContent = snapshotValue(snapshot.risk_level, "--");
       if (snapshotRecommendedSlot) snapshotRecommendedSlot.textContent = snapshotValue(snapshot.recommended_slot, "--");
-      if (snapshotSymptoms) snapshotSymptoms.textContent = snapshotValue(snapshot.symptoms, "--");
+      renderSymptoms(snapshotValue(snapshot.symptoms, "--"));
       if (snapshotSleepHours) snapshotSleepHours.textContent = snapshotValue(snapshot.average_sleep_hours, "--");
       applyRiskLevelClass(snapshot.risk_level);
     }
@@ -904,7 +1006,7 @@
     renderChatHistory(loadChatHistory());
     resizeComposer();
     if (chatSubtitle) {
-      chatSubtitle.textContent = "Ask about your profile, risk summary, observations, suggested doctors, or next appointment. Use a quick prompt below or type your own question.";
+      chatSubtitle.textContent = "Ask any question here. I can help with health guidance, general topics, and your patient portal details.";
     }
   </script>
   <script src="{{ url_for('static', filename='page-animations.js') }}"></script>
