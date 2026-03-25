@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -33,6 +34,7 @@ GUIDE_DESIGNATION = "Project Guide"
 UNIVERSITY_NAME = "University Name"
 DEPARTMENT_NAME = "Department of Computer Science"
 ACADEMIC_YEAR = "2025-2026"
+REPORT_PREPARED_ON = datetime.now().strftime("%d %B %Y")
 
 
 @dataclass
@@ -84,8 +86,15 @@ class NumberedCanvasDocTemplate(BaseDocTemplate):
 
     def _on_page(self, canvas, doc):
         canvas.saveState()
-        canvas.setFont("Times-Roman", 10)
-        canvas.drawCentredString(A4[0] / 2.0, 1.4 * cm, f"Page {doc.page}")
+        if doc.page > 1:
+            canvas.setStrokeColor(colors.HexColor("#8C96A3"))
+            canvas.setLineWidth(0.4)
+            canvas.line(doc.leftMargin, A4[1] - 1.6 * cm, A4[0] - doc.rightMargin, A4[1] - 1.6 * cm)
+            canvas.setFont("Times-Italic", 9)
+            canvas.drawString(doc.leftMargin, A4[1] - 1.25 * cm, PROJECT_TITLE)
+        canvas.setFont("Times-Roman", 9)
+        canvas.drawString(doc.leftMargin, 1.25 * cm, f"Prepared on {REPORT_PREPARED_ON}")
+        canvas.drawRightString(A4[0] - doc.rightMargin, 1.25 * cm, f"Page {doc.page}")
         canvas.restoreState()
 
 
@@ -223,18 +232,50 @@ def gather_project_facts() -> ProjectFacts:
 def build_styles():
     styles = getSampleStyleSheet()
     styles["Title"].fontName = "Times-Bold"
-    styles["Title"].fontSize = 20
-    styles["Title"].leading = 26
+    styles["Title"].fontSize = 21
+    styles["Title"].leading = 28
     styles["Title"].alignment = TA_CENTER
 
     styles.add(
         ParagraphStyle(
-            name="CoverLine",
+            name="CoverInstitution",
+            fontName="Times-Bold",
+            fontSize=16,
+            leading=20,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor("#183A5A"),
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="CoverDepartment",
             fontName="Times-Roman",
+            fontSize=12,
+            leading=16,
+            alignment=TA_CENTER,
+            spaceAfter=5,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="CoverSubtitle",
+            fontName="Times-Bold",
             fontSize=13,
             leading=18,
             alignment=TA_CENTER,
+            textColor=colors.HexColor("#274C77"),
             spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="CoverMeta",
+            fontName="Times-Roman",
+            fontSize=11,
+            leading=16,
+            alignment=TA_LEFT,
+            spaceAfter=2,
         )
     )
     styles.add(
@@ -259,6 +300,16 @@ def build_styles():
     )
     styles.add(
         ParagraphStyle(
+            name="BodyCenter",
+            fontName="Times-Roman",
+            fontSize=11,
+            leading=16,
+            alignment=TA_CENTER,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
             name="Small",
             fontName="Times-Roman",
             fontSize=10,
@@ -267,16 +318,28 @@ def build_styles():
             spaceAfter=6,
         )
     )
+    styles.add(
+        ParagraphStyle(
+            name="Caption",
+            parent=styles["Small"],
+            alignment=TA_CENTER,
+            fontName="Times-Italic",
+            textColor=colors.HexColor("#4D4D4D"),
+            spaceAfter=8,
+        )
+    )
     styles["Heading1"].fontName = "Times-Bold"
-    styles["Heading1"].fontSize = 15
+    styles["Heading1"].fontSize = 16
     styles["Heading1"].leading = 20
     styles["Heading1"].spaceBefore = 10
     styles["Heading1"].spaceAfter = 8
+    styles["Heading1"].textColor = colors.HexColor("#183A5A")
     styles["Heading2"].fontName = "Times-Bold"
     styles["Heading2"].fontSize = 12
     styles["Heading2"].leading = 16
     styles["Heading2"].spaceBefore = 8
     styles["Heading2"].spaceAfter = 6
+    styles["Heading2"].textColor = colors.HexColor("#274C77")
     return styles
 
 
@@ -285,23 +348,78 @@ def bullet_points(items: Iterable[str], style) -> list[Paragraph]:
 
 
 def styled_table(rows, col_widths=None):
-    table = Table(rows, colWidths=col_widths, hAlign="LEFT")
+    table = Table(rows, colWidths=col_widths, hAlign="LEFT", repeatRows=1)
     table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#DCE6F1")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E6F2")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#102A43")),
                 ("FONTNAME", (0, 0), (-1, 0), "Times-Bold"),
                 ("FONTNAME", (0, 1), (-1, -1), "Times-Roman"),
                 ("FONTSIZE", (0, 0), (-1, -1), 10),
                 ("LEADING", (0, 0), (-1, -1), 13),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("GRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#9FB3C8")),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7F9FC")]),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7FAFC")]),
+                ("LEFTPADDING", (0, 0), (-1, -1), 7),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    return table
+
+
+def divider(width: float = 16.0 * cm, color: str = "#8FA3BF") -> Drawing:
+    drawing = Drawing(width, 8)
+    drawing.add(Line(0, 4, width, 4, strokeColor=colors.HexColor(color), strokeWidth=0.8))
+    return drawing
+
+
+def cover_meta_table(styles):
+    rows = [
+        [Paragraph("<b>Submitted By</b>", styles["CoverMeta"]), Paragraph(STUDENT_NAME, styles["CoverMeta"])],
+        [Paragraph("<b>Roll Number</b>", styles["CoverMeta"]), Paragraph(ROLL_NUMBER, styles["CoverMeta"])],
+        [Paragraph("<b>Guide Name</b>", styles["CoverMeta"]), Paragraph(GUIDE_NAME, styles["CoverMeta"])],
+        [Paragraph("<b>Guide Designation</b>", styles["CoverMeta"]), Paragraph(GUIDE_DESIGNATION, styles["CoverMeta"])],
+        [Paragraph("<b>Academic Year</b>", styles["CoverMeta"]), Paragraph(ACADEMIC_YEAR, styles["CoverMeta"])],
+        [Paragraph("<b>Prepared On</b>", styles["CoverMeta"]), Paragraph(REPORT_PREPARED_ON, styles["CoverMeta"])],
+    ]
+    table = Table(rows, colWidths=[5.2 * cm, 8.8 * cm], hAlign="CENTER")
+    table.setStyle(
+        TableStyle(
+            [
+                ("BOX", (0, 0), (-1, -1), 0.7, colors.HexColor("#A7B7C7")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#C3D0DC")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#EEF4F9")),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 7),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+            ]
+        )
+    )
+    return table
+
+
+def detail_table(rows, col_widths):
+    table = Table(rows, colWidths=col_widths, hAlign="LEFT")
+    table.setStyle(
+        TableStyle(
+            [
+                ("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#A7B7C7")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#C3D0DC")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#F6F9FC")),
+                ("FONTNAME", (0, 0), (0, -1), "Times-Bold"),
+                ("FONTNAME", (1, 0), (1, -1), "Times-Roman"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 7),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
             ]
         )
     )
@@ -385,7 +503,7 @@ def figure_with_caption(image_path: Path, caption: str, styles, width_cm: float 
         scale = max_height / img.drawHeight
         img.drawHeight = max_height
         img.drawWidth = img.drawWidth * scale
-    return [img, Spacer(1, 0.15 * cm), Paragraph(f"<i>{caption}</i>", styles["Small"]), Spacer(1, 0.25 * cm)]
+    return [img, Spacer(1, 0.15 * cm), Paragraph(caption, styles["Caption"]), Spacer(1, 0.25 * cm)]
 
 
 def build_story(facts: ProjectFacts):
@@ -400,42 +518,47 @@ def build_story(facts: ProjectFacts):
 
     story.extend(
         [
-            Spacer(1, 2 * cm),
-            Paragraph(UNIVERSITY_NAME, styles["Title"]),
-            Spacer(1, 0.5 * cm),
-            Paragraph(DEPARTMENT_NAME, styles["CoverLine"]),
-            Spacer(1, 1.1 * cm),
+            Spacer(1, 1.5 * cm),
+            Paragraph(UNIVERSITY_NAME, styles["CoverInstitution"]),
+            Paragraph(DEPARTMENT_NAME, styles["CoverDepartment"]),
+            Spacer(1, 0.3 * cm),
+            divider(8.5 * cm, "#6E86A1"),
+            Spacer(1, 0.8 * cm),
             Table(
                 [[Paragraph(PROJECT_TITLE, styles["Title"])]],
                 colWidths=[15.5 * cm],
                 style=TableStyle(
                     [
-                        ("BOX", (0, 0), (-1, -1), 1.2, colors.black),
-                        ("LEFTPADDING", (0, 0), (-1, -1), 12),
-                        ("RIGHTPADDING", (0, 0), (-1, -1), 12),
-                        ("TOPPADDING", (0, 0), (-1, -1), 18),
-                        ("BOTTOMPADDING", (0, 0), (-1, -1), 18),
+                        ("BOX", (0, 0), (-1, -1), 1.1, colors.HexColor("#6E86A1")),
+                        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F7FAFC")),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 14),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+                        ("TOPPADDING", (0, 0), (-1, -1), 20),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 20),
                     ]
                 ),
                 hAlign="CENTER",
             ),
+            Spacer(1, 0.9 * cm),
+            Paragraph("Project Documentation Report", styles["CoverSubtitle"]),
+            Spacer(1, 0.4 * cm),
+            Paragraph(
+                "Submitted in partial fulfillment of the requirements for academic project evaluation.",
+                styles["BodyCenter"],
+            ),
+            Spacer(1, 0.8 * cm),
+            cover_meta_table(styles),
             Spacer(1, 1.2 * cm),
-            Paragraph("Project Documentation Report", styles["CoverLine"]),
-            Spacer(1, 1.2 * cm),
-            Paragraph(f"<b>Submitted By:</b> {STUDENT_NAME}", styles["CoverLine"]),
-            Paragraph(f"<b>Roll Number:</b> {ROLL_NUMBER}", styles["CoverLine"]),
-            Spacer(1, 0.7 * cm),
-            Paragraph(f"<b>Guided By:</b> {GUIDE_NAME}", styles["CoverLine"]),
-            Paragraph(f"<b>Designation:</b> {GUIDE_DESIGNATION}", styles["CoverLine"]),
-            Spacer(1, 1.3 * cm),
-            Paragraph(f"<b>Academic Year:</b> {ACADEMIC_YEAR}", styles["CoverLine"]),
-            Spacer(1, 2.5 * cm),
-            Paragraph("Submitted in partial fulfillment of the requirements for the degree program.", styles["CoverLine"]),
+            Paragraph(
+                "A complete implementation report covering architecture, data, modules, workflows, testing, and outcomes.",
+                styles["BodyCenter"],
+            ),
             PageBreak(),
         ]
     )
 
     story.append(Paragraph("Declaration by the Student", styles["Heading1"]))
+    story.append(divider())
     story.append(
         Paragraph(
             "I hereby declare that the project work entitled "
@@ -445,11 +568,22 @@ def build_story(facts: ProjectFacts):
             styles["BodyJustify"],
         )
     )
-    story.append(Spacer(1, 1.3 * cm))
-    story.append(Paragraph("Student Signature: ____________________    Date: ____________________", styles["BodyLeft"]))
+    story.append(Spacer(1, 1.4 * cm))
+    story.append(
+        detail_table(
+            [
+                ["Student Signature", "____________________"],
+                ["Name", STUDENT_NAME],
+                ["Roll Number", ROLL_NUMBER],
+                ["Date", "____________________"],
+            ],
+            [5.0 * cm, 9.5 * cm],
+        )
+    )
     story.append(PageBreak())
 
     story.append(Paragraph("Certificate", styles["Heading1"]))
+    story.append(divider())
     story.append(
         Paragraph(
             f'This is to certify that the project report entitled "{PROJECT_TITLE}" has been completed by '
@@ -459,12 +593,21 @@ def build_story(facts: ProjectFacts):
         )
     )
     story.append(Spacer(1, 1.1 * cm))
-    story.append(Paragraph(f"Guide Signature: ____________________    Name: {GUIDE_NAME}", styles["BodyLeft"]))
-    story.append(Spacer(1, 0.6 * cm))
-    story.append(Paragraph("Head of Department Signature: ____________________", styles["BodyLeft"]))
+    story.append(
+        detail_table(
+            [
+                ["Guide Signature", "____________________"],
+                ["Guide Name", GUIDE_NAME],
+                ["Designation", GUIDE_DESIGNATION],
+                ["Head of Department Signature", "____________________"],
+            ],
+            [5.8 * cm, 8.7 * cm],
+        )
+    )
     story.append(PageBreak())
 
     story.append(Paragraph("Acknowledgment", styles["Heading1"]))
+    story.append(divider())
     story.append(
         Paragraph(
             "I express my sincere gratitude to my project guide, faculty members, and department for their "
@@ -477,6 +620,7 @@ def build_story(facts: ProjectFacts):
     story.append(PageBreak())
 
     story.append(Paragraph("Abstract", styles["Heading1"]))
+    story.append(divider())
     story.append(
         Paragraph(
             "The AI-Powered Medical Appointment and Disease Risk Prediction System is a web-based healthcare "
@@ -506,6 +650,7 @@ def build_story(facts: ProjectFacts):
     story.append(PageBreak())
 
     story.append(Paragraph("Table of Contents", styles["Heading1"]))
+    story.append(divider())
     story.append(toc)
     story.append(PageBreak())
 
