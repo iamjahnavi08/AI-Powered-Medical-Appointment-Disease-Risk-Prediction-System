@@ -878,7 +878,18 @@
     </div>
   </div>
 
+  <script id="patientLoginPageData" type="application/json">
+    {{ {"patientLoginSuccess": login_success, "patientRedirectUrl": (redirect_url or "")}|tojson }}
+  </script>
+
   <script>
+    const patientLoginPageDataEl = document.getElementById("patientLoginPageData");
+    let patientLoginPageData = {};
+    try {
+      patientLoginPageData = JSON.parse(patientLoginPageDataEl ? patientLoginPageDataEl.textContent : "{}");
+    } catch (_) {
+      patientLoginPageData = {};
+    }
 
     const sidebarToggle = document.getElementById("sidebarToggle");
     const sidebarLinks = document.querySelectorAll(".sidebar-link");
@@ -959,8 +970,8 @@
       });
     }
 
-    const patientLoginSuccess = {{ "true" if login_success else "false" }};
-    const patientRedirectUrl = {{ (redirect_url or "")|tojson }};
+    const patientLoginSuccess = Boolean(patientLoginPageData.patientLoginSuccess);
+    const patientRedirectUrl = String(patientLoginPageData.patientRedirectUrl || "");
     if (patientLoginSuccess && patientRedirectUrl) {
       sessionStorage.setItem("patient_login_success_popup", "1");
       window.location.href = patientRedirectUrl;

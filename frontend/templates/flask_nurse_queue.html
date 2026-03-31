@@ -212,10 +212,22 @@
     </main>
   </div>
 
+  <script id="nurseQueuePageData" type="application/json">
+    {{ {"patientsApi": url_for("nurse_patient_records"), "loginUrl": url_for("nurse_login"), "dashboardUrl": url_for("nurse_dashboard")}|tojson }}
+  </script>
+
   <script>
-    const patientsApi = {{ url_for("nurse_patient_records")|tojson }};
-    const loginUrl = {{ url_for("nurse_login")|tojson }};
-    const dashboardUrl = {{ url_for("nurse_dashboard")|tojson }};
+    const nurseQueuePageDataEl = document.getElementById("nurseQueuePageData");
+    let nurseQueuePageData = {};
+    try {
+      nurseQueuePageData = JSON.parse(nurseQueuePageDataEl ? nurseQueuePageDataEl.textContent : "{}");
+    } catch (_) {
+      nurseQueuePageData = {};
+    }
+
+    const patientsApi = String(nurseQueuePageData.patientsApi || "");
+    const loginUrl = String(nurseQueuePageData.loginUrl || "");
+    const dashboardUrl = String(nurseQueuePageData.dashboardUrl || "");
     const queueSearch = document.getElementById("queueSearch");
     const queueGrid = document.getElementById("queueGrid");
     const queueCount = document.getElementById("queueCount");

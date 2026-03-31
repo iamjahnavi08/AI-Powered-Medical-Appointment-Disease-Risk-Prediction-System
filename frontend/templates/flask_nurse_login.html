@@ -605,7 +605,19 @@
     </div>
   </footer>
 
+  <script id="nurseLoginPageData" type="application/json">
+    {{ {"nurseLoginSuccess": login_success, "nurseRedirectUrl": (redirect_url or "")}|tojson }}
+  </script>
+
   <script>
+    const nurseLoginPageDataEl = document.getElementById("nurseLoginPageData");
+    let nurseLoginPageData = {};
+    try {
+      nurseLoginPageData = JSON.parse(nurseLoginPageDataEl ? nurseLoginPageDataEl.textContent : "{}");
+    } catch (_) {
+      nurseLoginPageData = {};
+    }
+
     const appDialog = document.getElementById("appDialog");
     const appDialogTitle = document.getElementById("appDialogTitle");
     const appDialogMessage = document.getElementById("appDialogMessage");
@@ -649,8 +661,8 @@
       });
     }
 
-    const nurseLoginSuccess = {{ "true" if login_success else "false" }};
-    const nurseRedirectUrl = {{ (redirect_url or "")|tojson }};
+    const nurseLoginSuccess = Boolean(nurseLoginPageData.nurseLoginSuccess);
+    const nurseRedirectUrl = String(nurseLoginPageData.nurseRedirectUrl || "");
     if (nurseLoginSuccess && nurseRedirectUrl) {
       window.location.href = nurseRedirectUrl;
     }
