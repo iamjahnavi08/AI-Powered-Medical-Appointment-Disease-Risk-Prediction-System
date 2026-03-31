@@ -606,7 +606,7 @@
   </footer>
 
   <script id="nurseLoginPageData" type="application/json">
-    {{ {"nurseLoginSuccess": login_success, "nurseRedirectUrl": (redirect_url or "")}|tojson }}
+    {{ {"nurseLoginSuccess": login_success|default(false), "nurseRedirectUrl": redirect_url|default("", true)}|tojson }}
   </script>
 
   <script>

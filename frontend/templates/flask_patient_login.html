@@ -879,7 +879,7 @@
   </div>
 
   <script id="patientLoginPageData" type="application/json">
-    {{ {"patientLoginSuccess": login_success, "patientRedirectUrl": (redirect_url or "")}|tojson }}
+    {{ {"patientLoginSuccess": login_success|default(false), "patientRedirectUrl": redirect_url|default("", true)}|tojson }}
   </script>
 
   <script>

@@ -770,7 +770,7 @@
   </div>
 
   <script id="doctorLoginPageData" type="application/json">
-    {{ {"doctorLoginSuccess": login_success, "doctorRedirectUrl": (redirect_url or "")}|tojson }}
+    {{ {"doctorLoginSuccess": login_success|default(false), "doctorRedirectUrl": redirect_url|default("", true)}|tojson }}
   </script>
 
   <script>
