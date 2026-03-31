@@ -1382,7 +1382,6 @@
       <li><a class="sidebar-link" data-nav="Book Appointment" href="/patient/book-appointment"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 9h18M5 5h14v16H5z"/></svg></span><span class="sidebar-label">Book Appointment</span></a></li>
       <li><a class="sidebar-link" data-nav="Health Details" href="/patient/health-details"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg></span><span class="sidebar-label">Health Details</span></a></li>
       <li><a class="sidebar-link" data-nav="AI Chat" href="/patient/ai-chat"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M8 10h8"/><path d="M8 14h5"/><path d="M5 19l1.2-3.2A8 8 0 1 1 20 12a8 8 0 0 1-8 8H5z"/></svg></span><span class="sidebar-label">AI Chat</span></a></li>
-      <li><a class="sidebar-link" data-nav="AI Risk Prediction" href="/patient/book-appointment#overallRisk"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="sidebar-label">AI Risk Prediction</span></a></li>
       <li><a class="sidebar-link" data-nav="Profile" href="/patient/booking-confirmation"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg></span><span class="sidebar-label">Profile</span></a></li>
       <li><a class="sidebar-link" data-nav="Logout" href="/patient/logout"><span class="sidebar-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="sidebar-label">Logout</span></a></li>
       {% endif %}
@@ -1431,16 +1430,8 @@
               <input id="featureSymptomCount" type="number" step="1" min="0" />
             </div>
             <div class="feature-row">
-              <label for="featureGlucose">Glucose</label>
-              <input id="featureGlucose" type="number" step="0.1" min="0" />
-            </div>
-            <div class="feature-row">
               <label for="featureHeightCm">Height (cm)</label>
               <input id="featureHeightCm" type="number" step="0.1" min="0" />
-            </div>
-            <div class="feature-row">
-              <label for="featureWeightKg">Weight (kg)</label>
-              <input id="featureWeightKg" type="number" step="0.1" min="0" />
             </div>
             <div class="feature-row">
               <label for="featureWeightCategory">Weight Category</label>
@@ -1449,14 +1440,6 @@
             <div class="feature-row">
               <label for="featureBmiCalculated">Calculated BMI</label>
               <input id="featureBmiCalculated" type="text" readonly />
-            </div>
-            <div class="feature-row">
-              <label for="featureBpSystolic">Blood Pressure (Systolic)</label>
-              <input id="featureBpSystolic" type="number" step="1" min="0" />
-            </div>
-            <div class="feature-row">
-              <label for="featureBpDiastolic">Blood Pressure (Diastolic)</label>
-              <input id="featureBpDiastolic" type="number" step="1" min="0" />
             </div>
             <div class="feature-row">
               <label for="featureSmokingHabit">Smoking Habit</label>
@@ -1485,10 +1468,6 @@
                 <option value="no">no</option>
                 <option value="yes">yes</option>
               </select>
-            </div>
-            <div class="feature-row full">
-              <label for="featureMedicalHistory">Medical History</label>
-              <textarea id="featureMedicalHistory"></textarea>
             </div>
           </div>
         </div>
@@ -1551,70 +1530,6 @@
       </aside>
 
       <section class="wrap">
-        <div class="risk-dashboard">
-          <h2 class="risk-head">Your Risk Assessment Results</h2>
-          <p class="risk-sub">Based on your health metrics</p>
-          <div class="risk-overall" id="overallRisk">Overall Risk Level: Assessing...</div>
-          <div class="triage-box">
-            <div>
-              <div class="triage-title">Appointment Priority Recommendation</div>
-              <div class="triage-meta" id="triageSlot">Recommended Slot: Assessing...</div>
-            </div>
-            <span class="triage-badge green" id="triageBadge">Normal Appointment</span>
-          </div>
-
-          <div class="risk-grid">
-            <div class="risk-item">
-              <svg class="risk-icon cardio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M20.8 5.6a5.4 5.4 0 0 0-7.6 0l-1.2 1.2-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 22l7.6-7.6 1.2-1.2a5.4 5.4 0 0 0 0-7.6z"/>
-              </svg>
-              <div class="risk-topline">
-                <span>Cardiovascular Disease</span>
-                <span class="risk-badge" id="cardioBadge">LOW</span>
-              </div>
-              <div class="risk-value"><span id="cardioValue">0.0%</span> risk</div>
-              <div class="risk-bar"><div class="risk-fill" id="cardioFill"></div></div>
-            </div>
-            <div class="risk-item">
-              <svg class="risk-icon diabetes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 3c1.4 3.4 5.8 5.4 5.8 10a5.8 5.8 0 0 1-11.6 0C6.2 8.4 10.6 6.4 12 3z"/>
-              </svg>
-              <div class="risk-topline">
-                <span>Diabetes</span>
-                <span class="risk-badge" id="diabetesBadge">LOW</span>
-              </div>
-              <div class="risk-value"><span id="diabetesValue">0.0%</span> risk</div>
-              <div class="risk-bar"><div class="risk-fill" id="diabetesFill"></div></div>
-            </div>
-            <div class="risk-item">
-              <svg class="risk-icon hypertension" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M2.5 12h4l2-5 3 10 2.5-7h7"/>
-              </svg>
-              <div class="risk-topline">
-                <span>Hypertension</span>
-                <span class="risk-badge" id="hypertensionBadge">LOW</span>
-              </div>
-              <div class="risk-value"><span id="hypertensionValue">0.0%</span> risk</div>
-              <div class="risk-bar"><div class="risk-fill" id="hypertensionFill"></div></div>
-            </div>
-          </div>
-
-          <div class="recommend-box" id="recommendBox">
-            <h3>Personalized Recommendations</h3>
-            <ul id="recommendList">
-              <li>Risk recommendations will appear after loading your details.</li>
-            </ul>
-          </div>
-          <div class="sleep-notice-box" id="sleepNoticeBox">
-            <strong>Sleep Notice</strong><br>
-            <span id="sleepNoticeText"></span>
-          </div>
-          <div class="notice-box">
-            <strong>Important Notice</strong><br>
-            This risk assessment is informational and does not replace medical diagnosis.
-          </div>
-        </div>
-
         <div class="book-meta">
           <span class="book-meta-tag">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2138,18 +2053,13 @@
       setInputValue("featureGender", normalizedGender);
       setInputValue("featureSymptoms", f.Symptoms);
       setInputValue("featureSymptomCount", symptomCount);
-      setInputValue("featureGlucose", f.Glucose);
       setInputValue("featureHeightCm", heightCm);
-      setInputValue("featureWeightKg", weightKg);
       setInputValue("featureWeightCategory", weightCategory);
       setInputValue("featureBmiCalculated", bmiMetrics.bmi ?? (f.BMI ?? ""));
-      setInputValue("featureBpSystolic", bpSystolic);
-      setInputValue("featureBpDiastolic", bpDiastolic);
       setInputValue("featureSmokingHabit", smokingHabit);
       setInputValue("featureAlcoholHabit", alcoholHabit);
       setInputValue("featureAverageSleepHours", averageSleepHours);
       setInputValue("featureFamilyHistory", familyHistory);
-      setInputValue("featureMedicalHistory", f.Medical_History);
       setHealthDataSubmittedOn(submissionTimestamp);
       syncFeatureSleepValidation();
     }
@@ -2187,7 +2097,6 @@
       const alcoholHabit = features.Alcohol_Habit ?? "";
       const averageSleepHours = features.Average_Sleep_Hours ?? "";
       const familyHistory = features.Family_History ?? "";
-      const medicalHistory = features.Medical_History ?? "";
       const submittedAt = formatSubmissionTimestamp(
         features.Health_Data_Submitted_At ?? features.health_data_submitted_at ?? ""
       );
@@ -2205,8 +2114,7 @@
         `smoking habit: ${escapeHtml(smokingHabit)}`,
         `alcohol habit: ${escapeHtml(alcoholHabit)}`,
         `average sleep hours: ${escapeHtml(averageSleepHours)}`,
-        `family history: ${escapeHtml(familyHistory)}`,
-        `medical history: ${escapeHtml(medicalHistory)}`
+        `family history: ${escapeHtml(familyHistory)}`
       ].join("<br>");
     }
 
@@ -2358,16 +2266,15 @@
       }
       const symptoms = cleanedSymptoms.trim();
       const symptomCount = document.getElementById("featureSymptomCount").value.trim();
-      const glucose = document.getElementById("featureGlucose").value.trim();
+      const glucose = String(base.Glucose ?? "").trim();
       const heightCm = document.getElementById("featureHeightCm").value.trim();
-      const weightKg = document.getElementById("featureWeightKg").value.trim();
-      const systolic = document.getElementById("featureBpSystolic").value.trim();
-      const diastolic = document.getElementById("featureBpDiastolic").value.trim();
+      const weightKg = String(base.Weight_kg ?? base.WeightKg ?? base.Weight ?? "").trim();
+      const systolic = String(base.BloodPressure ?? "").trim();
+      const diastolic = String(base.BP_Diastolic ?? "").trim();
       const smokingHabit = document.getElementById("featureSmokingHabit").value.trim();
       const alcoholHabit = document.getElementById("featureAlcoholHabit").value.trim();
       const averageSleepHours = document.getElementById("featureAverageSleepHours").value.trim();
       const familyHistory = document.getElementById("featureFamilyHistory").value.trim();
-      const medicalHistory = document.getElementById("featureMedicalHistory").value.trim();
       const hasHeightInput = heightCm !== "";
       const hasWeightInput = weightKg !== "";
       const bmiMetrics = calculateBmiMetrics(heightCm, weightKg);
@@ -2397,7 +2304,6 @@
       base.Alcohol_Habit = alcoholHabit === "" ? null : alcoholHabit.toLowerCase();
       base.Average_Sleep_Hours = averageSleepHours === "" ? null : toNumber(averageSleepHours, null);
       base.Family_History = familyHistory === "" ? null : familyHistory.toLowerCase();
-      base.Medical_History = medicalHistory === "" ? null : medicalHistory;
       setInputValue("featureWeightCategory", computedCategory);
       setInputValue("featureBmiCalculated", bmiMetrics.bmi ?? (base.BMI ?? ""));
       return syncSymptomFlags(base);
@@ -2530,6 +2436,9 @@
       const valueEl = document.getElementById(`${name}Value`);
       const badgeEl = document.getElementById(`${name}Badge`);
       const fillEl = document.getElementById(`${name}Fill`);
+      if (!valueEl || !badgeEl || !fillEl) {
+        return "LOW";
+      }
       const level = scoreLevel(percent);
       const color = levelColor(level);
       valueEl.textContent = `${percent.toFixed(1)}%`;
@@ -2591,6 +2500,7 @@
 
     function setOverallBanner(overall) {
       const overallEl = document.getElementById("overallRisk");
+      if (!overallEl) return;
       const overallColor = levelColor(overall);
       const bg = overall === "HIGH" ? "#fff1f2" : overall === "MEDIUM" ? "#fff7ed" : "#eefcf4";
       overallEl.style.borderColor = overallColor;
