@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Patient • Previous records</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="pdb">
+      <div class="pdb-shell">
+        <aside class="pdb-side" id="side">
+          <div class="pdb-topline">
+            <div class="pdb-menu">MENU</div>
+            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">‹</button>
+          </div>
+
+          <div class="pdb-brand">
+            <div class="pdb-logo">+</div>
+            <div>
+              <b>AIHealth Hub</b>
+              <small>HEALTHCARE SYSTEM</small>
+            </div>
+          </div>
+
+          <div class="pdb-user">
+            <div class="pdb-avatar" id="avatar">PT</div>
+            <div>
+              <b id="name">-</b>
+              <small>PATIENT PORTAL</small>
+            </div>
+          </div>
+
+          <nav class="pdb-nav" aria-label="Patient navigation">
+            <a href="/patient">Upcoming Dashboard</a>
+            <a href="/patient/book">Book Appointment</a>
+            <a href="/health-details">Health Details</a>
+            <a href="/patient/risk-analysis">Risk Analysis</a>
+            <a href="/patient/appointments">Profile</a>
+            <a href="/patient/history">Previous records</a>
+          </nav>
+
+          <div class="pdb-divider"></div>
+
+          <div class="pdb-footer">
+            Signed in as <span id="signed_as">-</span>
+            <div class="btns">
+              <a href="/login" id="loginBtn">Login</a>
+              <a href="/register" id="registerBtn">Register</a>
+              <button type="button" data-logout id="logoutBtn">Logout</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="pdb-main">
+          <header class="pdb-header">
+            <h1><span class="grad">Previous</span> records</h1>
+            <div class="welcome">See what changed in your patient details</div>
+          </header>
+
+          <div class="pdb-content">
+            <article class="pdb-card" aria-label="Current health details">
+              <div class="pdb-card-top">
+                <div>
+                  <h2>Current details</h2>
+                  <div class="pdb-meta">LAST UPDATED <b id="current_updated_at">-</b></div>
+                </div>
+              </div>
+              <pre id="current_json" style="white-space:pre-wrap;margin:0;font-family:var(--mono)">Loading…</pre>
+            </article>
+
+            <article class="pdb-card" aria-label="History">
+              <div class="pdb-card-top">
+                <div>
+                  <h2>Change history</h2>
+                  <div class="pdb-meta">SHOWING <b id="history_count">-</b></div>
+                </div>
+              </div>
+              <div id="history_list" class="risk-note" style="margin-top:8px">Loading…</div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth ? App.ensureAuth("patient") : null;
+        if (!user) return;
+        App.wireLogoutButtons && App.wireLogoutButtons();
+
+        function initials(v) {
+          const s = String(v || "").trim();
+          if (!s) return "PT";
+          const parts = s.split(/\s+/).filter(Boolean);
+          if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // Side nav active link
+        const here = window.location.pathname || "/patient";
+        Array.from(document.querySelectorAll(".pdb-nav a")).forEach((a) => {
+          const href = a.getAttribute("href");
+          if (href && href === here) a.classList.add("active");
+          else a.classList.remove("active");
+        });
+
+        document.getElementById("name").textContent = user.full_name || user.email;
+        document.getElementById("signed_as").textContent = user.full_name || user.email;
+        document.getElementById("avatar").textContent = initials(user.full_name || user.email);
+
+        const currentJson = document.getElementById("current_json");
+        const currentUpdatedAt = document.getElementById("current_updated_at");
+        const historyCount = document.getElementById("history_count");
+        const historyList = document.getElementById("history_list");
+
+        function esc(text) {
+          return String(text || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function auditText(value) {
+          if (value == null || value === "") return "-";
+          if (typeof value === "number" && Number.isFinite(value)) return String(value);
+          return String(value);
+        }
+
+        function formatWhen(iso) {
+          if (!iso) return "-";
+          return App.formatLocal ? App.formatLocal(iso) : String(iso);
+        }
+
+        function renderHistory(events) {
+          const rows = Array.isArray(events) ? events : [];
+          historyCount.textContent = `${rows.length} record(s)`;
+          if (!rows.length) {
+            historyList.innerHTML = "No previous records yet. Any future updates by you, a nurse, or a doctor will appear here.";
+            return;
+          }
+
+          historyList.innerHTML = rows
+            .slice(0, 30)
+            .map((ev) => {
+              const when = formatWhen(ev.changed_at);
+              const who = `${auditText(ev.changed_by_role)} • ${auditText(ev.changed_by_email)}`;
+              const changes = Array.isArray(ev.changes) ? ev.changes : [];
+              const list = changes.length
+                ? `<ul style="margin:6px 0 0 16px">${changes
+                    .slice(0, 20)
+                    .map((c) => `<li><b>${esc(c.field)}</b>: ${esc(auditText(c.from))} → ${esc(auditText(c.to))}</li>`)
+                    .join("")}</ul>`
+                : `<div class="muted" style="margin-top:6px">(No field changes recorded)</div>`;
+
+              const before = ev.before && typeof ev.before === "object" ? JSON.stringify(ev.before, null, 2) : "";
+              const after = ev.after && typeof ev.after === "object" ? JSON.stringify(ev.after, null, 2) : "";
+              const snapshots =
+                before || after
+                  ? `
+                    <details style="margin-top:8px">
+                      <summary style="cursor:pointer">Show previous details</summary>
+                      ${before ? `<div class="muted" style="margin-top:8px">Before</div><pre class="ba-pre" style="white-space:pre-wrap;margin:6px 0 0">${esc(before)}</pre>` : ""}
+                      ${after ? `<div class="muted" style="margin-top:10px">After</div><pre class="ba-pre" style="white-space:pre-wrap;margin:6px 0 0">${esc(after)}</pre>` : ""}
+                    </details>
+                  `
+                  : "";
+
+              return `
+                <div class="card" style="padding:14px;margin:10px 0">
+                  <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap">
+                    <div><b>${esc(when)}</b> <span class="muted">• ${esc(who)}</span></div>
+                    <div class="muted">${esc(auditText(ev.source))}</div>
+                  </div>
+                  ${list}
+                  ${snapshots}
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        (async function load() {
+          try {
+            const d = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
+            const details = (d && d.health_details) || null;
+            if (details) {
+              currentJson.textContent = JSON.stringify(details, null, 2);
+              currentUpdatedAt.textContent = formatWhen(details.updated_at || details.submitted_at);
+            } else {
+              currentJson.textContent = "No health details saved yet.";
+              currentUpdatedAt.textContent = "-";
+            }
+          } catch (e) {
+            currentJson.textContent = e && e.message ? e.message : "Failed to load current details.";
+            currentUpdatedAt.textContent = "-";
+          }
+
+          try {
+            const h = await App.apiFetch(`/api/patient/history?email=${encodeURIComponent(user.email)}&limit=50`);
+            renderHistory((h && h.events) || []);
+          } catch (e) {
+            historyCount.textContent = "-";
+            historyList.textContent = e && e.message ? e.message : "Failed to load history.";
+          }
+        })();
+      });
+    </script>
+  </body>
+</html>

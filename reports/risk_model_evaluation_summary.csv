@@ -1,0 +1,2 @@
+Model,Approach,Target,Train_Accuracy,Validation_Accuracy,Validation_Precision,Validation_Recall,Validation_Missed_Cases,Test_Accuracy,Test_Precision,Test_Recall,Test_Missed_Cases
+Logistic Regression,Leakage-Safe Risk Stratification,Risk_Factor_Group,0.9419,0.9434,0.8934,0.9568,793,0.9404,0.8916,0.9546,834

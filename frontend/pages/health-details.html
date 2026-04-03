@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Health Details Form</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_6" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="hd">
+      <div class="center">
+        <div class="hd-top">
+          <div>
+            <p class="hd-kicker">PROFILE SETUP</p>
+            <h1 class="hd-title">Health Details Form</h1>
+            <div class="hd-sub">Fill in the patient health details.</div>
+          </div>
+          <a class="hd-back" href="/patient">Back to patient dashboard</a>
+        </div>
+
+        <div class="hd-card">
+          <div class="hd-note">
+            This system provides risk estimation for decision support only. It does not provide medical diagnosis.
+          </div>
+
+          <form id="f" style="margin-top:14px">
+            <div class="hd-grid-2">
+              <div>
+                <label class="hd-label" for="age">Age</label>
+                <input id="age" type="number" min="0" max="120" required />
+              </div>
+              <div>
+                <label class="hd-label" for="gender">Gender</label>
+                <select id="gender" required>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:14px">
+              <label class="hd-label" for="symptoms">Symptoms</label>
+              <textarea id="symptoms" placeholder="fever, cold" required></textarea>
+            </div>
+
+            <div class="hd-grid-2" style="margin-top:14px">
+              <div>
+                <label class="hd-label" for="symptom_count">Symptom_Count</label>
+                <input id="symptom_count" type="number" min="0" max="100" required />
+              </div>
+              <div>
+                <label class="hd-label" for="glucose">Glucose</label>
+                <input id="glucose" class="readonly" type="number" step="0.1" readonly />
+                <div class="hint">Recorded by nurse/doctor.</div>
+              </div>
+            </div>
+
+            <div class="hd-grid-2 tight" style="margin-top:14px">
+              <div>
+                <label class="hd-label" for="blood_pressure">BloodPressure</label>
+                <input id="blood_pressure" class="readonly" type="text" placeholder="e.g. 120/80" readonly />
+                <div class="hint">Recorded by nurse/doctor.</div>
+              </div>
+              <div>
+                <label class="hd-label" for="height_cm">Height (cm)</label>
+                <input id="height_cm" type="number" min="1" max="300" step="0.1" required />
+              </div>
+            </div>
+
+            <div class="hd-grid-2" style="margin-top:14px">
+              <div>
+                <label class="hd-label" for="weight_kg">Weight (kg)</label>
+                <input id="weight_kg" type="number" min="1" max="500" step="0.1" required />
+              </div>
+              <div>
+                <label class="hd-label" for="bmi">BMI</label>
+                <input id="bmi" class="readonly" type="number" min="0" max="100" step="0.1" readonly />
+                <div class="hint"><b>BMI Category:</b> <span id="bmi_category">-</span></div>
+              </div>
+            </div>
+
+            <div class="hd-grid-2" style="margin-top:14px">
+              <div>
+                <label class="hd-label" for="smoking_habit">Do you have any smoking habit?</label>
+                <select id="smoking_habit" required>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                  <option value="Occasional">Occasional</option>
+                </select>
+              </div>
+              <div>
+                <label class="hd-label" for="alcohol_habit">Do you have any alcohol habit?</label>
+                <select id="alcohol_habit" required>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                  <option value="Occasional">Occasional</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:14px">
+              <label class="hd-label" for="average_sleep_hours">Average Sleep Hours</label>
+              <input id="average_sleep_hours" type="number" min="0" max="24" step="0.5" required />
+            </div>
+
+            <div style="margin-top:14px">
+              <label class="hd-label" for="medical_history">Medical History (Past illnesses, ongoing treatment, allergies)</label>
+              <textarea id="medical_history" placeholder="Example: diabetes, asthma, thyroid medication"></textarea>
+            </div>
+
+            <div style="margin-top:14px">
+              <label class="hd-label" for="family_history_major_chronic_disease">Family history major chronic disease</label>
+              <select id="family_history_major_chronic_disease" required>
+                <option value="">Select...</option>
+                <option value="None">None</option>
+                <option value="Diabetes">Diabetes</option>
+                <option value="Hypertension">Hypertension</option>
+                <option value="Heart Disease">Heart Disease</option>
+                <option value="Stroke">Stroke</option>
+                <option value="Cancer">Cancer</option>
+                <option value="Asthma">Asthma</option>
+                <option value="Thyroid">Thyroid</option>
+                <option value="Kidney Disease">Kidney Disease</option>
+                <option value="Other">Other</option>
+              </select>
+              <div id="family_history_other_wrap" style="display:none; margin-top:10px">
+                <label class="hd-label" for="family_history_other">Please specify</label>
+                <input id="family_history_other" type="text" maxlength="100" />
+              </div>
+            </div>
+
+            <div class="hd-actions">
+              <button class="btn primary" type="submit">Save health details</button>
+              <span id="msg" class="hd-msg"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        // Wait until /static/app.js (defer) is loaded so App is defined.
+        if (!window.App || !App.ensureAuth) return;
+        const user = App.ensureAuth("patient");
+        if (!user) return;
+        App.consumeFlashAndToast && App.consumeFlashAndToast();
+
+        const msg = document.getElementById("msg");
+        const bmiCategoryEl = document.getElementById("bmi_category");
+
+        const familyHistorySelect = document.getElementById("family_history_major_chronic_disease");
+        const familyHistoryOtherWrap = document.getElementById("family_history_other_wrap");
+        const familyHistoryOther = document.getElementById("family_history_other");
+
+        let symptomCountTouched = false;
+
+        function setSymptomCount() {
+          if (symptomCountTouched) return;
+          const raw = (document.getElementById("symptoms").value || "").trim();
+          const count = raw
+            ? raw
+                .split(/[,\n]/g)
+                .map((s) => s.trim())
+                .filter(Boolean).length
+            : 0;
+          document.getElementById("symptom_count").value = count;
+        }
+
+        function bmiCategory(bmi) {
+          if (!Number.isFinite(bmi) || bmi <= 0) return "-";
+          if (bmi < 18.5) return "Underweight";
+          if (bmi < 25) return "Normal weight";
+          if (bmi < 30) return "Overweight";
+          if (bmi < 35) return "Obesity (Class I)";
+          if (bmi < 40) return "Obesity (Class II)";
+          return "Obesity (Class III)";
+        }
+
+        function calcBmi() {
+          const h = Number.parseFloat(document.getElementById("height_cm").value);
+          const w = Number.parseFloat(document.getElementById("weight_kg").value);
+          if (!Number.isFinite(h) || !Number.isFinite(w) || h <= 0 || w <= 0) {
+            document.getElementById("bmi").value = "";
+            bmiCategoryEl.textContent = "-";
+            return;
+          }
+          const hm = h / 100;
+          const bmi = w / (hm * hm);
+          if (!Number.isFinite(bmi)) return;
+          const rounded = Math.round(bmi * 10) / 10;
+          document.getElementById("bmi").value = rounded.toFixed(1);
+          bmiCategoryEl.textContent = bmiCategory(rounded);
+        }
+
+        function updateFamilyHistoryUI() {
+          const showOther = familyHistorySelect.value === "Other";
+          familyHistoryOtherWrap.style.display = showOther ? "block" : "none";
+          if (!showOther) familyHistoryOther.value = "";
+        }
+
+        document.getElementById("symptoms").addEventListener("input", setSymptomCount);
+        document.getElementById("symptom_count").addEventListener("input", () => {
+          symptomCountTouched = true;
+        });
+
+        ["input", "change", "keyup"].forEach((evt) => {
+          document.getElementById("height_cm").addEventListener(evt, calcBmi);
+          document.getElementById("weight_kg").addEventListener(evt, calcBmi);
+        });
+
+        familyHistorySelect.addEventListener("change", updateFamilyHistoryUI);
+        updateFamilyHistoryUI();
+
+        async function load() {
+          try {
+            const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
+            const d = data.health_details || {};
+
+            ["age","gender","symptoms","height_cm","weight_kg","bmi","smoking_habit","alcohol_habit","average_sleep_hours","medical_history","glucose","blood_pressure"].forEach((k) => {
+              const el = document.getElementById(k);
+              if (el && d[k] != null) el.value = d[k];
+            });
+
+            if (d.symptom_count != null) {
+              document.getElementById("symptom_count").value = d.symptom_count;
+              symptomCountTouched = true;
+            } else {
+              setSymptomCount();
+            }
+
+            const savedFam = (d.family_history_major_chronic_disease || "").trim();
+            const opts = Array.from(familyHistorySelect.options).map((o) => o.value).filter(Boolean);
+            if (savedFam && opts.includes(savedFam)) {
+              familyHistorySelect.value = savedFam;
+            } else if (savedFam) {
+              familyHistorySelect.value = "Other";
+              familyHistoryOther.value = savedFam.slice(0, 100);
+            }
+            updateFamilyHistoryUI();
+
+            calcBmi();
+          } catch {}
+        }
+        load();
+
+        document.getElementById("f").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          msg.textContent = "Saving...";
+          const symptoms = document.getElementById("symptoms").value || "";
+          try {
+            const fam = familyHistorySelect.value;
+            const famFinal =
+              fam === "Other"
+                ? (familyHistoryOther.value || "Other").trim().slice(0, 100)
+                : fam;
+
+            const payload = {
+              email: user.email,
+              age: Number(document.getElementById("age").value),
+              gender: document.getElementById("gender").value,
+              symptoms,
+              symptom_count: Number(document.getElementById("symptom_count").value || 0),
+              height_cm: Number(document.getElementById("height_cm").value),
+              weight_kg: Number(document.getElementById("weight_kg").value),
+              bmi: Number(document.getElementById("bmi").value),
+              smoking_habit: document.getElementById("smoking_habit").value,
+              alcohol_habit: document.getElementById("alcohol_habit").value,
+              average_sleep_hours: Number(document.getElementById("average_sleep_hours").value),
+              medical_history: document.getElementById("medical_history").value || null,
+              family_history_major_chronic_disease: famFinal,
+            };
+
+            const data = await App.apiFetch("/auth/health-details", { method: "POST", body: JSON.stringify(payload) });
+            App.setAuthUser(data.user);
+            window.location.href = data.redirect_to || "/patient";
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Save failed.";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

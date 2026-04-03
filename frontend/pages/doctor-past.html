@@ -1,0 +1,454 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doctor • AI Health Hub</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">AH</div>
+          <div class="title">
+            <b><span class="ai">AI</span> Health Hub</b>
+            <small data-user-role>DOCTOR PORTAL</small>
+          </div>
+        </div>
+
+        <div class="profile-chip">
+          <div class="row">
+            <div class="avatar" data-user-initials>DR</div>
+            <div class="meta">
+              <b data-user-name>Doctor</b>
+              <small data-user-email>doctor@example.com</small>
+            </div>
+          </div>
+        </div>
+        <div class="nav" style="margin-top:14px">
+          <a href="/doctor">Upcoming <span>→</span></a>
+          <a class="active" href="/doctor/past">Past <span>→</span></a>
+          <a href="/doctor/patients">Patient database <span>→</span></a>
+          <a href="/doctor/past#ai-risk-analytics">AI risk analytics <span>→</span></a>
+          <a href="/doctor/leave">Leave <span>→</span></a>
+          <button type="button" data-logout>Logout <span>→</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="ddash-head card" aria-label="Doctor decision support dashboard">
+          <div class="ddash-head-top">
+            <div>
+              <p class="ddash-kicker">Doctor decision support</p>
+              <h1 class="ddash-title">Dashboard</h1>
+              <p class="ddash-sub">
+                Hi <span data-user-name></span>, welcome. Review past appointments and outcomes.
+              </p>
+            </div>
+
+            <div class="ddash-controls" aria-label="Dashboard controls">
+              <div class="ddash-tabs" role="tablist" aria-label="Dashboard tabs">
+                <a class="tab" href="/doctor" role="tab" aria-selected="false">Upcoming</a>
+                <a class="tab active" href="/doctor/past" role="tab" aria-selected="true">Past</a>
+              </div>
+              <div class="ddash-field">
+                <label for="themeSelect">Theme</label>
+                <select id="themeSelect">
+                  <option value="light" selected>Light Mode</option>
+                  <option value="dark">Dark Mode</option>
+                </select>
+              </div>
+              <button class="btn danger" type="button" data-logout>Logout</button>
+            </div>
+          </div>
+
+          <div class="ddash-kpis" aria-label="Key metrics">
+            <div class="kpi-card">
+              <div class="kpi-label">Total patients</div>
+              <div class="kpi-value" id="kpiPatients">-</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Total appointments</div>
+              <div class="kpi-value" id="kpiAppointments">-</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">High risk</div>
+              <div class="kpi-value danger" id="kpiHigh">-</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Medium risk</div>
+              <div class="kpi-value warn" id="kpiMedium">-</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Low risk</div>
+              <div class="kpi-value ok" id="kpiLow">-</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Today''s visits</div>
+              <div class="kpi-value" id="kpiToday">-</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ddash-grid" aria-label="Past dashboard grid">
+          <div class="card ddash-panel">
+            <div class="ddash-panel-head">
+              <h2>Past appointments</h2>
+              <div class="ddash-filters" aria-label="Filters">
+                <div class="ddash-field">
+                  <label for="riskFilter">Risk level</label>
+                  <select id="riskFilter">
+                    <option value="all" selected>All</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                    <option value="unknown">Unknown</option>
+                  </select>
+                </div>
+                <div class="ddash-field">
+                  <label for="dateFilter">Appointment date</label>
+                  <select id="dateFilter">
+                    <option value="all" selected>All dates</option>
+                    <option value="today">Today</option>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="ddash-table-wrap" role="region" aria-label="Past appointments table" tabindex="0">
+              <table class="ddash-table">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Appointment date &amp; time</th>
+                    <th>Predicted risk level</th>
+                    <th>Appointment status</th>
+                    <th>Booking priority</th>
+                  </tr>
+                </thead>
+                <tbody id="pastBody">
+                  <tr>
+                    <td colspan="5" class="muted">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card ddash-panel">
+            <div class="ddash-panel-head">
+              <h2>Patient summary insights</h2>
+            </div>
+
+            <div class="ddash-insights">
+              <div class="insight">
+                <h3>Recent high-risk visits</h3>
+                <ul id="insightHigh" class="list">
+                  <li class="muted">Loading…</li>
+                </ul>
+              </div>
+              <div class="insight">
+                <h3>Visits today</h3>
+                <ul id="insightToday" class="list">
+                  <li class="muted">Loading…</li>
+                </ul>
+              </div>
+              <div class="insight wide">
+                <h3>Recently completed/canceled</h3>
+                <ul id="insightRecent" class="list">
+                  <li class="muted">Loading…</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card ra" id="ai-risk-analytics" aria-label="AI Risk Analytics">
+          <div class="ra-head">
+            <h2>AI Risk Analytics</h2>
+          </div>
+
+          <div class="ra-grid">
+            <div class="ra-left">
+              <div class="ra-block">
+                <div class="ra-kicker">Risk distribution</div>
+
+                <div class="ra-row">
+                  <div class="ra-name">High Risk</div>
+                  <div class="ra-bar"><div class="ra-fill high" id="raHighFill"></div></div>
+                  <div class="ra-pct" id="raHighPct">0%</div>
+                </div>
+                <div class="ra-row">
+                  <div class="ra-name">Medium Risk</div>
+                  <div class="ra-bar"><div class="ra-fill med" id="raMedFill"></div></div>
+                  <div class="ra-pct" id="raMedPct">0%</div>
+                </div>
+                <div class="ra-row">
+                  <div class="ra-name">Low Risk</div>
+                  <div class="ra-bar"><div class="ra-fill low" id="raLowFill"></div></div>
+                  <div class="ra-pct" id="raLowPct">0%</div>
+                </div>
+              </div>
+
+              <div class="ra-block">
+                <div class="ra-kicker">Recent risk prediction trends</div>
+                <div class="ra-trend">
+                  <div class="ra-trend-empty">No trend data available</div>
+                </div>
+              </div>
+
+              <div class="ra-note">
+                <span class="pill" id="raNote">No appointment data available yet.</span>
+              </div>
+            </div>
+
+            <div class="ra-right">
+              <div class="ra-card">
+                <div class="ra-donut" id="raDonut" role="img" aria-label="Risk donut chart">
+                  <div class="ra-donut-center" id="raDonutCenter">NO DATA</div>
+                </div>
+
+                <div class="ra-legend" aria-label="Legend">
+                  <span class="ra-chip"><span class="dot high"></span> High</span>
+                  <span class="ra-chip"><span class="dot med"></span> Medium</span>
+                  <span class="ra-chip"><span class="dot low"></span> Low</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth("doctor");
+        if (!user) return;
+        App.hydrateShellUser();
+        App.wireLogoutButtons();
+
+        const riskFilter = document.getElementById("riskFilter");
+        const dateFilter = document.getElementById("dateFilter");
+        const themeSelect = document.getElementById("themeSelect");
+        const pastBody = document.getElementById("pastBody");
+
+        function esc(text) {
+          return (text || "")
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function initials(nameOrEmail) {
+          const value = (nameOrEmail || "").toString().trim();
+          if (!value) return "U";
+          const parts = value.split(/\s+/).filter(Boolean);
+          if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        function normalizeRisk(level) {
+          const p = (level || "").toString().trim().toLowerCase();
+          if (p === "high" || p.includes("high")) return "high";
+          if (p === "medium" || p.includes("medium") || p.includes("moderate")) return "medium";
+          if (p === "low" || p.includes("low")) return "low";
+          return "unknown";
+        }
+
+        function inPastWindow(iso, windowKey) {
+          if (!iso) return windowKey === "all";
+          if (windowKey === "all") return true;
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return true;
+
+          const now = new Date();
+          const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          end.setDate(end.getDate() + 1); // include today
+          const start = new Date(end);
+
+          if (windowKey === "today") {
+            start.setDate(start.getDate() - 1);
+            return d >= start && d < end;
+          }
+          if (windowKey === "7d") start.setDate(start.getDate() - 7);
+          if (windowKey === "30d") start.setDate(start.getDate() - 30);
+          return d >= start && d < end;
+        }
+
+        function badge(label, kind) {
+          const k = kind || "neutral";
+          return `<span class="ddash-badge ${k}">${esc(label)}</span>`;
+        }
+
+        function renderRows(items) {
+          if (!items.length) {
+            pastBody.innerHTML = `<tr><td colspan="5" class="muted">No past appointments found.</td></tr>`;
+            return;
+          }
+          pastBody.innerHTML = items
+            .map((a) => {
+              const r = normalizeRisk(a.predicted_risk_level);
+              const riskLabel = r === "unknown" ? "Unknown" : r[0].toUpperCase() + r.slice(1);
+              const statusLower = (a.status || "").toString().toLowerCase();
+              const statusKind = statusLower.includes("confirm") || statusLower.includes("complete") ? "ok" : statusLower.includes("cancel") ? "danger" : "neutral";
+              const riskKind = r === "high" ? "danger" : r === "medium" ? "warn" : r === "low" ? "ok" : "neutral";
+              const displayName = a.patient_name || a.patient_email || "-";
+              return `
+                <tr>
+                  <td>
+                    <div class="ddash-person">
+                      <div class="ddash-avatar">${esc(initials(displayName))}</div>
+                      <div>
+                        <div class="ddash-name">${esc(displayName)}</div>
+                        <div class="ddash-meta">${esc(a.patient_email || "")}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>${esc(App.formatLocal(a.scheduled_for))}</td>
+                  <td>${badge(riskLabel, riskKind)}</td>
+                  <td>${badge(a.status || "Completed", statusKind)}</td>
+                  <td class="muted">${esc(a.booking_priority || a.priority || "-")}</td>
+                </tr>
+              `;
+            })
+            .join("");
+        }
+
+        function setKpis(appts) {
+          const patientSet = new Set(appts.map((a) => (a.patient_email || "").toLowerCase()).filter(Boolean));
+          const high = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "high").length;
+          const medium = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "medium").length;
+          const low = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "low").length;
+          const today = appts.filter((a) => inPastWindow(a.scheduled_for, "today")).length;
+
+          document.getElementById("kpiPatients").textContent = String(patientSet.size);
+          document.getElementById("kpiAppointments").textContent = String(appts.length);
+          document.getElementById("kpiHigh").textContent = String(high);
+          document.getElementById("kpiMedium").textContent = String(medium);
+          document.getElementById("kpiLow").textContent = String(low);
+          document.getElementById("kpiToday").textContent = String(today);
+        }
+
+        function setInsights(appts) {
+          const byHigh = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "high").slice(0, 5);
+          const byToday = appts.filter((a) => inPastWindow(a.scheduled_for, "today")).slice(0, 5);
+          const byRecent = [...appts]
+            .sort((a, b) => new Date(b.scheduled_for || 0) - new Date(a.scheduled_for || 0))
+            .slice(0, 6);
+
+          function fillList(id, items, fallback) {
+            const ul = document.getElementById(id);
+            if (!items.length) {
+              ul.innerHTML = `<li class="muted">${esc(fallback)}</li>`;
+              return;
+            }
+            ul.innerHTML = items
+              .map((a) => `<li><b>${esc(a.patient_name || a.patient_email || "-")}</b> <span class="muted">• ${esc(App.formatLocal(a.scheduled_for))}</span></li>`)
+              .join("");
+          }
+
+          fillList("insightHigh", byHigh, "No high-risk visits.");
+          fillList("insightToday", byToday, "No visits today.");
+          fillList("insightRecent", byRecent, "No recent past visits.");
+        }
+
+        function setRiskAnalytics(appts) {
+          const total = appts.length;
+          const high = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "high").length;
+          const med = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "medium").length;
+          const low = appts.filter((a) => normalizeRisk(a.predicted_risk_level) === "low").length;
+
+          const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
+          const highPct = pct(high);
+          const medPct = pct(med);
+          const lowPct = pct(low);
+
+          document.getElementById("raHighPct").textContent = `${highPct}%`;
+          document.getElementById("raMedPct").textContent = `${medPct}%`;
+          document.getElementById("raLowPct").textContent = `${lowPct}%`;
+          document.getElementById("raHighFill").style.width = `${highPct}%`;
+          document.getElementById("raMedFill").style.width = `${medPct}%`;
+          document.getElementById("raLowFill").style.width = `${lowPct}%`;
+
+          const donut = document.getElementById("raDonut");
+          const center = document.getElementById("raDonutCenter");
+          const note = document.getElementById("raNote");
+
+          if (!total) {
+            donut.style.background = "conic-gradient(rgba(207,224,255,.9) 0 360deg)";
+            center.textContent = "NO DATA";
+            note.textContent = "No appointment data available yet.";
+            return;
+          }
+
+          const highDeg = (high / total) * 360;
+          const medDeg = (med / total) * 360;
+          const lowDeg = Math.max(0, 360 - highDeg - medDeg);
+          donut.style.background = `conic-gradient(
+            rgba(239,68,68,.95) 0 ${highDeg}deg,
+            rgba(245,158,11,.95) ${highDeg}deg ${highDeg + medDeg}deg,
+            rgba(34,197,94,.95) ${highDeg + medDeg}deg ${highDeg + medDeg + lowDeg}deg
+          )`;
+          center.textContent = `${total} appts`;
+          note.textContent = `Showing distribution for ${total} past appointment${total === 1 ? "" : "s"}.`;
+        }
+
+        function applyTheme(theme) {
+          const t = (theme || "light").toString().toLowerCase();
+          document.documentElement.setAttribute("data-theme", t);
+          try { localStorage.setItem("aiHealthHubTheme", t); } catch {}
+          themeSelect.value = t;
+        }
+        themeSelect.addEventListener("change", () => applyTheme(themeSelect.value));
+        const savedTheme = (function () {
+          try { return localStorage.getItem("aiHealthHubTheme"); } catch { return null; }
+        })();
+        applyTheme(savedTheme || "light");
+
+        let rawPast = [];
+        function applyFilters() {
+          const riskKey = (riskFilter.value || "all").toLowerCase();
+          const dateKey = (dateFilter.value || "all").toLowerCase();
+          const filtered = rawPast
+            .filter((a) => {
+              if (a.doctor_email && (a.doctor_email || "").toLowerCase() !== (user.email || "").toLowerCase()) return false;
+              const r = normalizeRisk(a.predicted_risk_level);
+              if (riskKey !== "all" && r !== riskKey) return false;
+              if (!inPastWindow(a.scheduled_for, dateKey)) return false;
+              return true;
+            })
+            .sort((a, b) => new Date(b.scheduled_for) - new Date(a.scheduled_for));
+
+          setKpis(filtered);
+          setInsights(filtered);
+          setRiskAnalytics(filtered);
+          renderRows(filtered);
+        }
+
+        riskFilter.addEventListener("change", applyFilters);
+        dateFilter.addEventListener("change", applyFilters);
+
+        (async function () {
+          try {
+            const data = await App.apiFetch("/appointments/dashboard");
+            rawPast = Array.isArray(data && data.past) ? data.past : [];
+            applyFilters();
+          } catch (e) {
+            pastBody.innerHTML = `<tr><td colspan="5" class="muted">${esc(e && e.message ? e.message : "Failed to load appointments.")}</td></tr>`;
+            document.getElementById("insightHigh").innerHTML = `<li class="muted">Failed to load.</li>`;
+            document.getElementById("insightToday").innerHTML = `<li class="muted">Failed to load.</li>`;
+            document.getElementById("insightRecent").innerHTML = `<li class="muted">Failed to load.</li>`;
+          }
+        })();
+      });
+    </script>
+  </body>
+</html>

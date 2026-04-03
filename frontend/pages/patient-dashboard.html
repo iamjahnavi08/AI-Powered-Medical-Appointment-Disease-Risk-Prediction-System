@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Patient dashboard</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_6" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="pdb">
+      <div class="pdb-shell">
+        <aside class="pdb-side" id="side">
+          <div class="pdb-topline">
+            <div class="pdb-menu">MENU</div>
+            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">‹</button>
+          </div>
+
+          <div class="pdb-brand">
+            <div class="pdb-logo">+</div>
+            <div>
+              <b>AIHealth Hub</b>
+              <small>HEALTHCARE SYSTEM</small>
+            </div>
+          </div>
+
+          <div class="pdb-user">
+            <div class="pdb-avatar" id="avatar">PT</div>
+            <div>
+              <b id="name">-</b>
+              <small>PATIENT PORTAL</small>
+            </div>
+          </div>
+
+          <nav class="pdb-nav" aria-label="Patient navigation">
+            <a href="/patient">Upcoming Dashboard</a>
+            <a href="/patient/book">Book Appointment</a>
+            <a href="/health-details">Health Details</a>
+            <a href="/patient/risk-analysis">Risk Analysis</a>
+            <a href="/patient/appointments">Profile</a>
+            <a href="/patient/history">Previous records</a>
+          </nav>
+
+          <div class="pdb-divider"></div>
+
+          <div class="pdb-footer">
+            Signed in as <span id="signed_as">-</span>
+            <div class="btns">
+              <a href="/login" id="loginBtn">Login</a>
+              <a href="/register" id="registerBtn">Register</a>
+              <button type="button" data-logout id="logoutBtn">Logout</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="pdb-main">
+          <header class="pdb-header">
+            <h1><span class="grad">AIHealth</span> Hub</h1>
+            <div class="welcome">Hi <span id="welcome_name">-</span>, welcome</div>
+          </header>
+
+          <div class="pdb-content">
+            <article class="pdb-card" aria-label="Patient details">
+              <div class="pdb-card-top">
+                <div>
+                  <h2>Patient Details Card</h2>
+                  <div class="pdb-meta">PATIENT ID: <b id="patient_id">-</b></div>
+                  <div class="pdb-meta">HEALTH DATA SUBMITTED ON <b id="submitted_at">-</b></div>
+                </div>
+                <button class="pdb-edit" id="edit" type="button">Edit</button>
+              </div>
+
+              <div class="pdb-section-title">Patient Features</div>
+
+              <div class="pdb-grid">
+                <div>
+                  <label class="label" for="age">AGE</label>
+                  <input id="age" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="gender">GENDER</label>
+                  <select id="gender" class="pdb-readonly" disabled>
+                    <option>Female</option>
+                    <option>Male</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div class="full">
+                  <label class="label" for="symptoms">SYMPTOMS</label>
+                  <textarea id="symptoms" class="pdb-readonly" readonly></textarea>
+                </div>
+
+                <div>
+                  <label class="label" for="symptom_count">SYMPTOMS COUNT</label>
+                  <input id="symptom_count" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="glucose">GLUCOSE</label>
+                  <input id="glucose" class="pdb-readonly" readonly />
+                  <div class="pdb-hint">Recorded by nurse/doctor</div>
+                </div>
+
+                <div>
+                  <label class="label" for="height_cm">HEIGHT (CM)</label>
+                  <input id="height_cm" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="weight_kg">WEIGHT (KG)</label>
+                  <input id="weight_kg" class="pdb-readonly" readonly />
+                </div>
+
+                <div>
+                  <label class="label" for="weight_category">WEIGHT CATEGORY</label>
+                  <input id="weight_category" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="bmi">CALCULATED BMI</label>
+                  <input id="bmi" class="pdb-readonly" readonly />
+                </div>
+
+                <div>
+                  <label class="label" for="bp_sys">BLOOD PRESSURE (SYSTOLIC)</label>
+                  <input id="bp_sys" class="pdb-readonly" readonly />
+                  <div class="pdb-hint">Recorded by nurse/doctor</div>
+                </div>
+                <div>
+                  <label class="label" for="bp_dia">BLOOD PRESSURE (DIASTOLIC)</label>
+                  <input id="bp_dia" class="pdb-readonly" readonly />
+                  <div class="pdb-hint">Recorded by nurse/doctor</div>
+                </div>
+
+                <div>
+                  <label class="label" for="smoking_habit">SMOKING HABIT</label>
+                  <input id="smoking_habit" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="alcohol_habit">ALCOHOL HABIT</label>
+                  <input id="alcohol_habit" class="pdb-readonly" readonly />
+                </div>
+
+                <div>
+                  <label class="label" for="average_sleep_hours">AVERAGE SLEEP HOURS</label>
+                  <input id="average_sleep_hours" class="pdb-readonly" readonly />
+                </div>
+                <div>
+                  <label class="label" for="family_history_major_chronic_disease">FAMILY HISTORY</label>
+                  <input id="family_history_major_chronic_disease" class="pdb-readonly" readonly />
+                </div>
+              </div>
+            </article>
+
+            <aside class="pdb-card risk" aria-label="Risk analysis">
+              <div class="pdb-card-top">
+                <div>
+                  <h2>Risk analysis</h2>
+                  <div class="pdb-meta">BASED ON AGE + SYMPTOMS <b id="risk_score">-</b></div>
+                </div>
+              </div>
+
+              <div style="margin-top:10px">
+                <span class="risk-badge low" id="risk_badge">Low</span>
+              </div>
+
+              <div class="pdb-section-title" style="margin-top:12px">What we found</div>
+              <ul class="risk-list" id="risk_triggers">
+                <li>Enter health details to see analysis.</li>
+              </ul>
+
+              <div class="pdb-section-title" style="margin-top:12px">Recommendation</div>
+              <div class="pdb-hint" id="risk_advice">-</div>
+
+              <div class="risk-note" id="risk_note">-</div>
+
+              <div class="risk-actions">
+                <a href="/health-details">Update details</a>
+                <a href="/patient/book">Book visit</a>
+              </div>
+
+              <div id="risk_reco" class="reco" aria-live="polite"></div>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        // app.js is loaded with `defer`, so wait for DOMContentLoaded to ensure `App` exists.
+        if (!window.App) return;
+
+        App.wireLogoutButtons();
+        App.consumeFlashAndToast && App.consumeFlashAndToast();
+
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        function initials(v) {
+          const s = String(v || "").trim();
+          if (!s) return "PT";
+          const parts = s.split(/\s+/).filter(Boolean);
+          if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        function bmiCategory(bmi) {
+          if (!Number.isFinite(bmi) || bmi <= 0) return "";
+          if (bmi < 18.5) return "Underweight";
+          if (bmi < 25) return "Normal";
+          if (bmi < 30) return "Overweight";
+          return "Obesity";
+        }
+
+        function parseBp(value) {
+          const raw = String(value || "").trim();
+          const m = raw.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+          if (!m) return { sys: "", dia: "" };
+          return { sys: m[1], dia: m[2] };
+        }
+
+        function escapeHtml(text) {
+          return String(text || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function normalizeSymptomsText(symptomsText) {
+          return String(symptomsText || "")
+            .split(/[,;\n]/g)
+            .map((s) => s.trim().toLowerCase())
+            .filter(Boolean);
+        }
+
+        function buildRecommendations(symptomsText, quick) {
+          const s = normalizeSymptomsText(symptomsText);
+          if (!s.length) {
+            return `
+              <div class="reco-title">Precautions & advice</div>
+              <div class="reco-sub">Add symptoms to get helpful tips.</div>
+            `;
+          }
+
+          const has = (k) => s.some((x) => x.includes(k));
+
+          const ideas = [];
+          const possible = [];
+
+          if (has("fever")) {
+            possible.push("Viral infection / flu-like illness", "Early bacterial infection (if persistent, needs clinical check)");
+            ideas.push("Rest, fluids, light meals", "Monitor temperature and hydration");
+          }
+          if (has("cough")) {
+            possible.push("Common cold / viral URI", "Allergy/irritant cough");
+            ideas.push("Warm fluids and humidified air", "Avoid smoke/dust; monitor breathing");
+          }
+          if (has("sore throat")) {
+            possible.push("Viral sore throat", "Possible strep if severe + fever");
+            ideas.push("Warm salt-water gargles", "Soft foods; stay hydrated");
+          }
+          if (has("headache")) {
+            possible.push("Tension headache", "Dehydration-related headache");
+            ideas.push("Hydration, sleep, reduce screen strain", "Seek care if severe headache with fever/neck stiffness/confusion");
+          }
+          if (has("fatigue") || has("extreme fatigue")) {
+            possible.push("Viral illness / recovery", "Low sleep / stress");
+            ideas.push("Rest, sleep hygiene, hydration", "If fatigue is severe or worsening, consider clinical evaluation");
+          }
+          if (has("vomiting") || has("nausea")) {
+            possible.push("Gastroenteritis", "Food-related upset");
+            ideas.push("Small sips of oral rehydration solution", "Avoid heavy/oily foods; monitor dehydration");
+          }
+          if (has("abdominal pain")) {
+            possible.push("Gastritis / indigestion", "Gastroenteritis");
+            ideas.push("Light meals; hydration", "Seek care if pain is severe, persistent, or localized");
+          }
+          if (has("dizziness")) {
+            possible.push("Dehydration", "Low blood pressure / low blood sugar");
+            ideas.push("Sit/lie down; hydrate", "Move slowly when standing; avoid driving if very dizzy");
+          }
+
+          const risk = quick && quick.risk_level ? String(quick.risk_level) : "";
+          const booking = quick && quick.booking_priority ? String(quick.booking_priority) : "";
+
+          const nextSteps = [];
+          if (risk.toLowerCase() === "high") {
+            nextSteps.push("High risk: consider prompt medical evaluation and monitor symptoms closely.");
+          } else if (risk.toLowerCase() === "medium") {
+            nextSteps.push("Medium risk: book a medical review soon and monitor symptoms.");
+          } else if (risk) {
+            nextSteps.push("Low risk: follow simple self-care and monitor. Book if symptoms persist or worsen.");
+          }
+          if (booking) nextSteps.push(booking);
+
+          // Calm, non-alarming guidance (avoid listing the user's symptom back).
+          nextSteps.push("Drink water, rest, and avoid heavy activity while you’re unwell.");
+          nextSteps.push("If symptoms suddenly worsen, or you feel unsafe, reach out to a clinician for guidance.");
+
+          const uniq = (arr) => Array.from(new Set(arr)).slice(0, 6);
+          const possibleUniq = uniq(possible);
+          const ideasUniq = uniq(ideas);
+          const stepsUniq = uniq(nextSteps);
+
+          function li(items) {
+            return items.map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+          }
+
+          const definitions = [
+            "Precautions = small steps to keep symptoms from getting worse.",
+            "Advice = simple guidance to help you decide what to do next.",
+          ];
+          const help = [
+            "If you have trouble breathing, fainting, severe dehydration, or symptoms worsen quickly.",
+            "If fever lasts more than 3 days, or you cannot keep fluids down.",
+            "If you’re pregnant, elderly, or have chronic conditions—get help sooner.",
+          ];
+
+          return `
+            <div class="reco-title">Precautions & advice</div>
+            <div class="reco-sub">Friendly guidance based on symptoms (not a diagnosis).</div>
+            <div class="reco-block"><div class="reco-h">What this means</div><ul>${li(definitions)}</ul></div>
+            ${stepsUniq.length ? `<div class="reco-block"><div class="reco-h">What you can do now</div><ul>${li(stepsUniq)}</ul></div>` : ""}
+            ${ideasUniq.length ? `<div class="reco-block"><div class="reco-h">Self-care tips</div><ul>${li(ideasUniq)}</ul></div>` : ""}
+            ${possibleUniq.length ? `<div class="reco-block"><div class="reco-h">Possible causes</div><ul>${li(possibleUniq)}</ul></div>` : ""}
+            <div class="reco-block"><div class="reco-h">When to get medical help</div><ul>${li(help)}</ul></div>
+          `;
+        }
+
+        document.getElementById("edit").addEventListener("click", () => {
+          const u = App.getAuthUser ? App.getAuthUser() : null;
+          if (!u || !u.email) {
+            window.location.href = "/login";
+            return;
+          }
+          window.location.href = "/health-details";
+        });
+
+        document.getElementById("collapse").addEventListener("click", () => {
+          const side = document.getElementById("side");
+          side.classList.toggle("collapsed");
+          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "›" : "‹";
+        });
+
+        // Highlight active nav item based on current path.
+        (function setActiveNav() {
+          const here = window.location.pathname || "/patient";
+          document.querySelectorAll(".pdb-nav a").forEach((a) => {
+            const href = a.getAttribute("href") || "";
+            if (href === here) a.classList.add("active");
+            else a.classList.remove("active");
+          });
+        })();
+
+        const user = App.getAuthUser ? App.getAuthUser() : null;
+        if (!user || !user.email) {
+          // Not logged in: keep blanks, show login/register.
+          loginBtn.style.display = "";
+          registerBtn.style.display = "";
+          logoutBtn.style.display = "none";
+          document.getElementById("name").textContent = "-";
+          document.getElementById("signed_as").textContent = "-";
+          document.getElementById("welcome_name").textContent = "-";
+          document.getElementById("avatar").textContent = "PT";
+          document.getElementById("patient_id").textContent = "-";
+          document.getElementById("submitted_at").textContent = "-";
+          return;
+        }
+
+        if (user.role && user.role !== "patient") {
+          window.location.href = "/";
+          return;
+        }
+
+        // Logged in: hide login/register, show logout.
+        loginBtn.style.display = "none";
+        registerBtn.style.display = "none";
+        logoutBtn.style.display = "";
+
+        document.getElementById("name").textContent = user.full_name || user.email;
+        document.getElementById("signed_as").textContent = user.full_name || user.email;
+        document.getElementById("welcome_name").textContent = (user.full_name || "there").split(" ")[0];
+        document.getElementById("avatar").textContent = initials(user.full_name || user.email);
+        document.getElementById("patient_id").textContent = user.id != null ? String(user.id) : "-";
+
+        (async function loadDetails() {
+          try {
+            const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
+            if (!data || !data.health_details) {
+              App.flash && App.flash("Please submit your Health Details to continue.", "info");
+              window.location.href = "/health-details";
+              return;
+            }
+            const d = data.health_details || {};
+
+            document.getElementById("age").value = d.age ?? "";
+            if (d.gender) {
+              const gender = String(d.gender);
+              const genderSel = document.getElementById("gender");
+              genderSel.value = genderSel.querySelector(`option[value="${gender}"]`) ? gender : genderSel.value;
+            }
+            document.getElementById("symptoms").value = d.symptoms ?? "";
+            document.getElementById("symptom_count").value = d.symptom_count ?? "";
+            document.getElementById("glucose").value = d.glucose ?? "";
+
+            document.getElementById("height_cm").value = d.height_cm ?? "";
+            document.getElementById("weight_kg").value = d.weight_kg ?? "";
+
+            const bmiVal = Number.parseFloat(d.bmi);
+            document.getElementById("bmi").value = Number.isFinite(bmiVal) ? bmiVal.toFixed(1) : (d.bmi ?? "");
+            document.getElementById("weight_category").value = Number.isFinite(bmiVal) ? bmiCategory(bmiVal) : "";
+
+            const bp = parseBp(d.blood_pressure);
+            document.getElementById("bp_sys").value = bp.sys;
+            document.getElementById("bp_dia").value = bp.dia;
+
+            document.getElementById("smoking_habit").value = d.smoking_habit ?? "";
+            document.getElementById("alcohol_habit").value = d.alcohol_habit ?? "";
+            document.getElementById("average_sleep_hours").value = d.average_sleep_hours ?? "";
+            document.getElementById("family_history_major_chronic_disease").value = d.family_history_major_chronic_disease ?? "";
+
+            document.getElementById("submitted_at").textContent = d.submitted_at ? App.formatLocal(d.submitted_at) : "-";
+
+            // Quick risk analysis (age + symptoms only).
+            const age = Number.parseInt(String(d.age ?? ""), 10);
+            const symptoms = String(d.symptoms ?? "");
+            if (Number.isFinite(age) && age >= 0) {
+              try {
+                const risk = await App.apiFetch(
+                  `/risk/quick?age=${encodeURIComponent(String(age))}&symptoms=${encodeURIComponent(symptoms)}`
+                );
+                const level = String(risk.risk_level || "Low");
+                const badge = document.getElementById("risk_badge");
+                const score = typeof risk.score === "number" ? risk.score : "-";
+                document.getElementById("risk_score").textContent = `SCORE: ${score}`;
+
+                badge.textContent = level;
+                badge.classList.remove("low", "moderate", "high", "critical");
+                const cls = level.toLowerCase();
+                badge.classList.add(
+                  cls === "critical"
+                    ? "critical"
+                    : cls === "high"
+                      ? "high"
+                      : cls === "medium" || cls === "moderate"
+                        ? "moderate"
+                        : "low"
+                );
+
+                const triggersEl = document.getElementById("risk_triggers");
+                const triggers = Array.isArray(risk.triggers) ? risk.triggers : [];
+                triggersEl.innerHTML = "";
+                if (triggers.length === 0) {
+                  triggersEl.innerHTML = "<li>No specific triggers detected.</li>";
+                } else {
+                  triggers.slice(0, 6).forEach((t) => {
+                    const li = document.createElement("li");
+                    li.textContent = String(t);
+                    triggersEl.appendChild(li);
+                  });
+                }
+                document.getElementById("risk_advice").textContent = String(risk.advice || "-");
+                document.getElementById("risk_note").textContent = String(risk.note || "");
+                document.getElementById("risk_reco").innerHTML = buildRecommendations(symptoms, risk);
+              } catch (e) {
+                document.getElementById("risk_advice").textContent = "Unable to load risk analysis.";
+                document.getElementById("risk_reco").innerHTML = buildRecommendations(symptoms, null);
+              }
+            } else {
+              document.getElementById("risk_advice").textContent = "Add your age and symptoms to see analysis.";
+              document.getElementById("risk_reco").innerHTML = buildRecommendations(symptoms, null);
+            }
+          } catch (e) {
+            document.getElementById("submitted_at").textContent = "-";
+          }
+        })();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,168 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Health Hub</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="portal portal-hub">
+      <div class="center">
+        <div class="portal-top">
+          <div>
+            <p class="portal-kicker">WELCOME TO</p>
+            <h1 class="portal-title"><span class="ai">AI</span> Health Hub</h1>
+            <p class="portal-tagline">Login starts from the menu.</p>
+          </div>
+
+          <div class="portal-menu">
+            <button class="portal-menu-btn" id="menuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">
+              <div class="portal-menu-icon" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <span class="sr-only" style="position:absolute;left:-9999px">Menu</span>
+            </button>
+
+            <div class="portal-menu-panel" id="menuPanel" role="menu" aria-label="Login menu">
+              <div class="group">
+                <div class="label">Login as</div>
+                <button type="button" data-login="patient">Patient <span>→</span></button>
+                <button type="button" data-login="nurse">Nurse <span>→</span></button>
+                <button type="button" data-login="doctor">Doctor <span>→</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="portal-hero" aria-label="Quick access">
+          <p class="hero-kicker">QUICK ACCESS</p>
+          <h2>Click the three-line button in the top corner to choose how you want to log in.</h2>
+          <p>
+            Open the menu and select patient, nurse, or doctor, then continue to the correct login or
+            register page for that role.
+          </p>
+
+          <div class="hero-visual" aria-hidden="true">
+            <svg class="hero-beat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" fill="none" role="img" aria-label="Heartbeat line">
+              <defs>
+                <linearGradient id="beat" x1="0" y1="0" x2="520" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#0EA5A4" />
+                  <stop offset="1" stop-color="#1E6BFF" />
+                </linearGradient>
+              </defs>
+              <path class="ecg" d="M4 72h70l14-22 18 50 22-72 26 98 18-54 16 18h90l16-18 18 54 26-98 22 72 18-50 14 22h82" stroke="url(#beat)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="hero-avatars">
+              <img class="hero-avatar" src="/static/img/doctor.svg" alt="" />
+              <img class="hero-avatar" src="/static/img/patient.svg" alt="" />
+            </div>
+          </div>
+        </section>
+
+        <section class="portal-cards" aria-label="Role cards">
+          <article class="portal-card">
+            <p class="mini">PATIENT</p>
+            <img class="card-illus" src="/static/img/patient.svg" alt="" aria-hidden="true" />
+            <h3>Manage your own health profile</h3>
+            <p>Update health details, calculate BMI automatically, and run your personal risk check.</p>
+          </article>
+
+          <article class="portal-card">
+            <p class="mini">NURSE</p>
+            <img class="card-illus" src="/static/img/nurse.svg" alt="" aria-hidden="true" />
+            <h3>Open the triage workspace</h3>
+            <p>Review queue status, intake priorities, and next operational steps for patient handling.</p>
+          </article>
+
+          <article class="portal-card">
+            <p class="mini">DOCTOR</p>
+            <img class="card-illus" src="/static/img/doctor.svg" alt="" aria-hidden="true" />
+            <h3>Review the clinical dashboard</h3>
+            <p>See higher-risk cases first and act on appointment urgency with a dedicated doctor view.</p>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        const saved = window.App && App.getAuthUser ? App.getAuthUser() : null;
+        if (saved && saved.email) {
+          window.location.href = saved.dashboard_path || "/";
+          return;
+        }
+
+        const menuBtn = document.getElementById("menuBtn");
+        const menuPanel = document.getElementById("menuPanel");
+
+        function closeMenu() {
+          menuPanel.classList.remove("open");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+        function toggleMenu() {
+          const open = menuPanel.classList.toggle("open");
+          menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        menuBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleMenu();
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!menuPanel.classList.contains("open")) return;
+          if (menuPanel.contains(e.target) || menuBtn.contains(e.target)) return;
+          closeMenu();
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeMenu();
+        });
+
+        menuPanel.querySelectorAll("[data-login]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const role = btn.getAttribute("data-login");
+            if (window.App && App.setSelectedRole) App.setSelectedRole(role);
+            window.location.href = "/login";
+          });
+        });
+
+        // Subtle parallax for background decorations.
+        const root = document.querySelector(".portal");
+        if (root && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          let targetX = 0;
+          let targetY = 0;
+          let currentX = 0;
+          let currentY = 0;
+          let raf = 0;
+
+          function tick() {
+            currentX += (targetX - currentX) * 0.08;
+            currentY += (targetY - currentY) * 0.08;
+            root.style.setProperty("--px", currentX.toFixed(4));
+            root.style.setProperty("--py", currentY.toFixed(4));
+            raf = requestAnimationFrame(tick);
+          }
+
+          window.addEventListener(
+            "mousemove",
+            (e) => {
+              const x = (e.clientX / window.innerWidth) * 2 - 1;
+              const y = (e.clientY / window.innerHeight) * 2 - 1;
+              targetX = x;
+              targetY = y;
+              root.style.setProperty("--mx", `${((e.clientX / window.innerWidth) * 100).toFixed(2)}%`);
+              root.style.setProperty("--my", `${((e.clientY / window.innerHeight) * 100).toFixed(2)}%`);
+              if (!raf) raf = requestAnimationFrame(tick);
+            },
+            { passive: true }
+          );
+        }
+
+      })();
+    </script>
+  </body>
+</html>
+

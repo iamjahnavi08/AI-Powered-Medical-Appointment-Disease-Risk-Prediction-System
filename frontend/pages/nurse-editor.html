@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nurse Record Editor</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="nre">
+      <div class="nre-center">
+        <header class="nre-head">
+          <div>
+            <h1 class="nre-title">Nurse Record Editor</h1>
+            <div class="nre-sub">
+              Open a patient from the appointment queue, then update vitals and generate the risk prediction on this separate page.
+            </div>
+          </div>
+          <div class="nre-actions">
+            <a class="nre-btn" href="/nurse">Back to Patient Queue</a>
+            <select id="themeSelect" class="nre-select" aria-label="Theme">
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+            </select>
+            <button class="nre-btn danger" id="logoutBtn" type="button">Logout</button>
+          </div>
+        </header>
+
+        <div class="nre-grid">
+          <section class="nre-card" aria-label="Patient workspace">
+            <div class="nre-card-head">
+              <div class="nre-kicker">PATIENT INPUT</div>
+              <div class="nre-hint" id="loadedHint">Load a patient from the queue.</div>
+            </div>
+
+            <div class="nre-load">
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="load_email">Patient email</label>
+                  <input id="load_email" class="nre-inp" type="email" placeholder="name@example.com" />
+                </div>
+                <div class="nre-field">
+                  <label>&nbsp;</label>
+                  <button class="nre-btn" id="loadBtn" type="button">Load patient</button>
+                </div>
+              </div>
+              <div class="nre-mini">Open from the nurse portal queue, or paste the email here.</div>
+            </div>
+
+            <div class="nre-tabs" role="tablist" aria-label="Patient tabs">
+              <button class="nre-tab active" id="tabInput" type="button" role="tab" aria-selected="true" aria-controls="panelInput">Vitals & symptoms</button>
+              <button class="nre-tab" id="tabDetails" type="button" role="tab" aria-selected="false" aria-controls="panelDetails">Patient details</button>
+            </div>
+
+            <div id="panelInput" class="nre-tabpanel" role="tabpanel" aria-labelledby="tabInput">
+              <form id="f" class="nre-form">
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="patient_id">Patient ID</label>
+                  <input id="patient_id" class="nre-inp" type="text" value="-" readonly />
+                </div>
+                <div class="nre-field">
+                  <label for="patient_name">Patient name</label>
+                  <input id="patient_name" class="nre-inp" type="text" value="-" readonly />
+                </div>
+              </div>
+
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="age">Age</label>
+                  <input id="age" class="nre-inp" type="number" min="0" max="120" value="38" required />
+                </div>
+                <div class="nre-field">
+                  <label for="gender">Gender</label>
+                  <select id="gender" class="nre-inp" required>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="nre-field">
+                <label for="symptoms">Symptoms</label>
+                <textarea id="symptoms" class="nre-inp" rows="3" placeholder="fever, cough" required></textarea>
+                <div class="nre-mini">Tip: separate with commas.</div>
+              </div>
+
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="symptom_count">Symptom count</label>
+                  <input id="symptom_count" class="nre-inp" type="number" min="0" value="0" readonly />
+                </div>
+                <div class="nre-field">
+                  <label for="glucose">Glucose</label>
+                  <input id="glucose" class="nre-inp" type="number" min="0" step="0.1" placeholder="Enter measured value" required />
+                </div>
+              </div>
+
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="glucose_type">Glucose type</label>
+                  <select id="glucose_type" class="nre-inp" required>
+                    <option value="fasting">fasting</option>
+                    <option value="random">random</option>
+                  </select>
+                </div>
+                <div class="nre-field">
+                  <label for="bmi">BMI</label>
+                  <input id="bmi" class="nre-inp" type="number" min="0" step="0.1" placeholder="Auto-calculated from height/weight" readonly required />
+                </div>
+              </div>
+
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="systolic_bp">BP systolic</label>
+                  <input id="systolic_bp" class="nre-inp" type="number" min="0" step="0.1" placeholder="e.g. 120" required />
+                </div>
+                <div class="nre-field">
+                  <label for="diastolic_bp">BP diastolic</label>
+                  <input id="diastolic_bp" class="nre-inp" type="number" min="0" step="0.1" placeholder="e.g. 80" required />
+                </div>
+              </div>
+
+              <div class="nre-row2">
+                <div class="nre-field">
+                  <label for="height_cm">Height (cm)</label>
+                  <input id="height_cm" class="nre-inp" type="number" min="1" step="0.1" placeholder="e.g. 170" required />
+                </div>
+                <div class="nre-field">
+                  <label for="weight_kg">Weight (kg)</label>
+                  <input id="weight_kg" class="nre-inp" type="number" min="1" step="0.1" placeholder="e.g. 70" required />
+                </div>
+              </div>
+
+              <div class="nre-actions-row">
+                <button class="nre-primary" type="submit">Generate risk</button>
+                <button class="nre-btn" id="saveBtn" type="button">Save to record</button>
+                <div class="nre-msg" id="msg"></div>
+              </div>
+            </form>
+            </div>
+
+            <div id="panelDetails" class="nre-tabpanel" role="tabpanel" aria-labelledby="tabDetails" style="display:none">
+              <div class="nre-details">
+                <div class="nre-details-card">
+                  <div class="nre-mini-k">Patient</div>
+                  <div class="nre-details-grid">
+                    <div><span class="muted">Name</span><b id="d_name">-</b></div>
+                    <div><span class="muted">Email</span><b id="d_email">-</b></div>
+                    <div><span class="muted">Phone</span><b id="d_phone">-</b></div>
+                    <div><span class="muted">ID</span><b id="d_id">-</b></div>
+                  </div>
+                </div>
+
+                <div class="nre-details-card">
+                  <div class="nre-mini-k">Latest Health Details</div>
+                  <div class="nre-details-grid">
+                    <div><span class="muted">Age</span><b id="d_age">-</b></div>
+                    <div><span class="muted">Gender</span><b id="d_gender">-</b></div>
+                    <div><span class="muted">Symptoms</span><b id="d_symptoms">-</b></div>
+                    <div><span class="muted">Submitted</span><b id="d_submitted">-</b></div>
+                  </div>
+                  <div class="nre-note">This panel is read-only for quick reference.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="nre-card" aria-label="Risk assessment">
+            <div class="nre-card-head">
+              <div class="nre-kicker">RISK ASSESSMENT</div>
+              <div class="nre-h2">Patient Risk Assessment Results</div>
+              <div class="nre-hint">Uses the trained ML model + clinical safety rules (overall risk takes the higher of the two).</div>
+            </div>
+
+            <div class="nre-banner" id="overallBanner">Overall Risk Level: Waiting</div>
+            <div class="nre-note" id="riskSources" style="margin-top:10px">
+              Model: — • Clinical: — • Final: —
+            </div>
+
+            <div class="nre-pri">
+              <div>
+                <div class="nre-pri-h">Appointment Priority Recommendation</div>
+                <div class="nre-pri-sub"><span class="muted">Recommended Slot:</span> <span id="slotText">Waiting</span></div>
+              </div>
+              <span class="nre-pill" id="priPill">—</span>
+            </div>
+
+            <div class="nre-mini-grid">
+              <div class="nre-mini-card">
+                <div class="nre-mini-k">Blood pressure</div>
+                <div class="nre-mini-v" id="bpCat">—</div>
+              </div>
+              <div class="nre-mini-card">
+                <div class="nre-mini-k">Glucose</div>
+                <div class="nre-mini-v" id="gluCat">—</div>
+              </div>
+              <div class="nre-mini-card">
+                <div class="nre-mini-k">BMI</div>
+                <div class="nre-mini-v" id="bmiCat">—</div>
+              </div>
+            </div>
+
+            <div class="nre-details-card" style="margin-top:14px">
+              <div class="nre-mini-k">Nurse triage (rule-based)</div>
+              <div id="rulesEmpty" class="nre-note">Run “Generate risk” to see triage rules.</div>
+              <div id="rulesBody" style="display:none">
+                <div class="nre-details-grid" style="margin-top:10px">
+                  <div><span class="muted">Triage</span><b id="r_triage">—</b></div>
+                  <div><span class="muted">Recommended slot</span><b id="r_slot">—</b></div>
+                  <div><span class="muted">Priority</span><b id="r_priority">—</b></div>
+                  <div><span class="muted">Tags</span><b id="r_tags">—</b></div>
+                </div>
+                <div style="margin-top:10px">
+                  <div class="nre-mini-k">Emergency alerts</div>
+                  <div class="nre-note" id="r_alerts">—</div>
+                </div>
+                <div style="margin-top:10px">
+                  <div class="nre-mini-k">Validation</div>
+                  <div class="nre-note" id="r_validation">—</div>
+                </div>
+                <div style="margin-top:10px">
+                  <div class="nre-mini-k">Workflow notes</div>
+                  <div class="nre-note" id="r_comment">—</div>
+                </div>
+                <div style="margin-top:10px">
+                  <div class="nre-mini-k">Basic suggestions (not a prescription)</div>
+                  <div class="nre-note" id="r_suggestions">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="nre-bars" id="bars">
+              <div class="nre-empty">Run “Generate risk” to see results.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth ? App.ensureAuth("nurse") : null;
+        if (!user) return;
+        App.wireLogoutButtons && App.wireLogoutButtons();
+
+        // Theme toggle
+        const themeSelect = document.getElementById("themeSelect");
+        const LS_THEME = "theme";
+        const savedTheme = (localStorage.getItem(LS_THEME) || "light").trim();
+        document.documentElement.dataset.theme = savedTheme;
+        themeSelect.value = savedTheme === "dark" ? "dark" : "light";
+        themeSelect.addEventListener("change", () => {
+          const v = themeSelect.value === "dark" ? "dark" : "light";
+          document.documentElement.dataset.theme = v;
+          localStorage.setItem(LS_THEME, v);
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          App.clearAuthUser && App.clearAuthUser();
+          window.location.href = "/";
+        });
+
+        const msg = document.getElementById("msg");
+        const bars = document.getElementById("bars");
+        let loadedEmail = "";
+
+        function esc(s) {
+          return String(s || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        function symptomList() {
+          return String(document.getElementById("symptoms").value || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+
+        function syncSymptomCount() {
+          document.getElementById("symptom_count").value = String(symptomList().length);
+        }
+        document.getElementById("symptoms").addEventListener("input", syncSymptomCount);
+        syncSymptomCount();
+
+        function computeBmi() {
+          const h = Number(document.getElementById("height_cm").value);
+          const w = Number(document.getElementById("weight_kg").value);
+          if (!Number.isFinite(h) || !Number.isFinite(w) || h <= 0 || w <= 0) {
+            document.getElementById("bmi").value = "";
+            return null;
+          }
+          const m = h / 100;
+          const bmi = w / (m * m);
+          const rounded = Math.round(bmi * 10) / 10;
+          document.getElementById("bmi").value = String(rounded);
+          return rounded;
+        }
+        document.getElementById("height_cm").addEventListener("input", computeBmi);
+        document.getElementById("weight_kg").addEventListener("input", computeBmi);
+
+        function setOverall(level) {
+          const text = String(level || "Waiting").toUpperCase();
+          const el = document.getElementById("overallBanner");
+          el.textContent = `Overall Risk Level: ${text}`;
+          el.dataset.level = text.toLowerCase();
+        }
+
+        function setRiskSources(modelGroup, clinicalGroup, finalGroup) {
+          const el = document.getElementById("riskSources");
+          if (!el) return;
+          const m = modelGroup ? String(modelGroup) : "—";
+          const c = clinicalGroup ? String(clinicalGroup) : "—";
+          const f = finalGroup ? String(finalGroup) : "—";
+          el.textContent = `Model: ${m} • Clinical: ${c} • Final: ${f}`;
+        }
+
+        function setPriority(bookingPriority, riskGroup) {
+          const slotText = document.getElementById("slotText");
+          slotText.textContent = bookingPriority ? "Next available date" : "Waiting";
+          const pill = document.getElementById("priPill");
+          const g = String(riskGroup || "").toLowerCase();
+          if (!bookingPriority) {
+            pill.textContent = "—";
+            pill.dataset.kind = "neutral";
+            return;
+          }
+          if (g === "critical" || g === "high") {
+            pill.textContent = "Urgent appointment";
+            pill.dataset.kind = "urgent";
+          } else if (g === "moderate" || g === "medium") {
+            pill.textContent = "Priority appointment";
+            pill.dataset.kind = "priority";
+          } else {
+            pill.textContent = "Normal appointment";
+            pill.dataset.kind = "normal";
+          }
+        }
+
+        function setClinicalCats(assessment) {
+          const bp = (assessment && assessment.blood_pressure && assessment.blood_pressure.clinical_category) || "—";
+          const glu = (assessment && assessment.glucose && assessment.glucose.clinical_category) || "—";
+          const bmi = (assessment && assessment.bmi && assessment.bmi.clinical_category) || "—";
+          document.getElementById("bpCat").textContent = bp;
+          document.getElementById("gluCat").textContent = glu;
+          document.getElementById("bmiCat").textContent = bmi;
+        }
+
+        function renderBars(prob) {
+          const entries = prob && typeof prob === "object" ? Object.entries(prob) : [];
+          if (!entries.length) {
+            bars.innerHTML = `<div class="nre-empty">No probability data.</div>`;
+            return;
+          }
+          const order = ["Low", "Moderate", "High", "Critical"];
+          entries.sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
+          bars.innerHTML = entries
+            .map(([k, v]) => {
+              const pct = Math.max(0, Math.min(100, Math.round(Number(v) * 100)));
+              return `
+                <div class="nre-barcard">
+                  <div class="nre-bar-top">
+                    <div class="nre-bar-name">${esc(k)}</div>
+                    <div class="nre-bar-pct">${pct}%</div>
+                  </div>
+                  <div class="nre-track"><div class="nre-fill" style="width:${pct}%"></div></div>
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        function normalizeFinalGroup(value) {
+          const raw = String(value || "").trim();
+          if (!raw) return "";
+          const low = raw.toLowerCase();
+          if (low === "medium") return "Moderate";
+          if (low === "critical") return "Critical";
+          if (low === "high") return "High";
+          if (low === "moderate") return "Moderate";
+          if (low === "low") return "Low";
+          return raw;
+        }
+
+        function finalProbabilityObject(finalGroup) {
+          const normalized = normalizeFinalGroup(finalGroup);
+          const out = { Low: 0, Moderate: 0, High: 0, Critical: 0 };
+          if (normalized && Object.prototype.hasOwnProperty.call(out, normalized)) out[normalized] = 1;
+          return out;
+        }
+
+        function renderRules(rules) {
+          const empty = document.getElementById("rulesEmpty");
+          const body = document.getElementById("rulesBody");
+          if (!rules) {
+            if (empty) empty.style.display = "block";
+            if (body) body.style.display = "none";
+            return;
+          }
+          if (empty) empty.style.display = "none";
+          if (body) body.style.display = "block";
+
+          const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value == null || value === "" ? "—" : String(value);
+          };
+
+          setText("r_triage", rules.triage_level);
+          setText("r_slot", rules.appointment_recommendation);
+          setText("r_priority", rules.priority);
+          setText(
+            "r_tags",
+            Array.isArray(rules.tags) && rules.tags.length ? rules.tags.join(", ") : "—",
+          );
+
+          const alerts = Array.isArray(rules.emergency_alerts) ? rules.emergency_alerts : [];
+          setText("r_alerts", alerts.length ? alerts.join(" • ") : "—");
+
+          const verr = Array.isArray(rules.validation_errors) ? rules.validation_errors : [];
+          if (rules.valid === false || verr.length) {
+            setText("r_validation", (verr.length ? verr.join(" • ") : "Needs correction before saving."));
+          } else {
+            setText("r_validation", "OK");
+          }
+
+          setText("r_comment", rules.nurse_comment);
+          const sug = Array.isArray(rules.suggestions) ? rules.suggestions : [];
+          setText("r_suggestions", sug.length ? sug.join(" • ") : "—");
+        }
+
+        function setTab(which) {
+          const input = which === "input";
+          document.getElementById("tabInput").classList.toggle("active", input);
+          document.getElementById("tabDetails").classList.toggle("active", !input);
+          document.getElementById("tabInput").setAttribute("aria-selected", input ? "true" : "false");
+          document.getElementById("tabDetails").setAttribute("aria-selected", input ? "false" : "true");
+          document.getElementById("panelInput").style.display = input ? "" : "none";
+          document.getElementById("panelDetails").style.display = input ? "none" : "";
+        }
+        document.getElementById("tabInput").addEventListener("click", () => setTab("input"));
+        document.getElementById("tabDetails").addEventListener("click", () => setTab("details"));
+
+        function setLoadedDefaults() {
+          loadedEmail = "";
+          document.getElementById("patient_id").value = "-";
+          document.getElementById("patient_name").value = "-";
+          document.getElementById("loadedHint").textContent = "Load a patient from the queue.";
+          document.getElementById("d_name").textContent = "-";
+          document.getElementById("d_email").textContent = "-";
+          document.getElementById("d_phone").textContent = "-";
+          document.getElementById("d_id").textContent = "-";
+          document.getElementById("d_age").textContent = "-";
+          document.getElementById("d_gender").textContent = "-";
+          document.getElementById("d_symptoms").textContent = "-";
+          document.getElementById("d_submitted").textContent = "-";
+        }
+
+        async function loadPatient(emailRaw) {
+          const email = String(emailRaw || "").trim();
+          if (!email) return false;
+          document.getElementById("load_email").value = email;
+
+          try {
+            const u = await App.apiFetch(`/auth/user?email=${encodeURIComponent(email)}`);
+            if (u && u.user) {
+              document.getElementById("patient_id").value = u.user.id != null ? String(u.user.id) : "-";
+              document.getElementById("patient_name").value = u.user.full_name || u.user.email || "-";
+              document.getElementById("loadedHint").textContent = `Loaded: ${u.user.email || email}`;
+              loadedEmail = String(u.user.email || email).trim().toLowerCase();
+              document.getElementById("d_name").textContent = u.user.full_name || "-";
+              document.getElementById("d_email").textContent = u.user.email || email;
+              document.getElementById("d_phone").textContent = u.user.phone || "-";
+              document.getElementById("d_id").textContent = u.user.id != null ? String(u.user.id) : "-";
+            } else {
+              document.getElementById("loadedHint").textContent = "Patient not found.";
+            }
+          } catch {
+            document.getElementById("loadedHint").textContent = "Patient not found.";
+            return false;
+          }
+
+          try {
+            const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(email)}`);
+            const d = (data && data.health_details) || {};
+            if (d.age != null) document.getElementById("age").value = String(d.age);
+            if (d.gender) document.getElementById("gender").value = String(d.gender);
+            if (d.symptoms) document.getElementById("symptoms").value = String(d.symptoms);
+            syncSymptomCount();
+            if (d.height_cm != null) document.getElementById("height_cm").value = String(d.height_cm);
+            if (d.weight_kg != null) document.getElementById("weight_kg").value = String(d.weight_kg);
+            computeBmi();
+            document.getElementById("d_age").textContent = d.age != null ? String(d.age) : "-";
+            document.getElementById("d_gender").textContent = d.gender != null ? String(d.gender) : "-";
+            document.getElementById("d_symptoms").textContent = d.symptoms ? String(d.symptoms) : "-";
+            document.getElementById("d_submitted").textContent = d.submitted_at && App.formatLocal ? App.formatLocal(d.submitted_at) : (d.submitted_at || "-");
+          } catch {
+            // no health details is OK
+          }
+          return true;
+        }
+
+        function getQueryPatientEmail() {
+          const qs = new URLSearchParams(window.location.search);
+          return (qs.get("patient_email") || qs.get("email") || qs.get("patient") || "").trim();
+        }
+
+        document.getElementById("loadBtn").addEventListener("click", async () => {
+          msg.textContent = "Loading…";
+          setLoadedDefaults();
+          const ok = await loadPatient(document.getElementById("load_email").value);
+          msg.textContent = ok ? "Loaded." : "Patient not found.";
+        });
+
+        (async function initLoad() {
+          setLoadedDefaults();
+          const fromQuery = getQueryPatientEmail();
+          if (!fromQuery) return;
+          await loadPatient(fromQuery);
+        })();
+
+        document.getElementById("saveBtn").addEventListener("click", async () => {
+          if (!loadedEmail) {
+            msg.textContent = "Load a patient first.";
+            return;
+          }
+          msg.textContent = "Saving…";
+          const bmiVal = computeBmi();
+          if (!bmiVal) {
+            msg.textContent = "Enter height and weight to calculate BMI.";
+            return;
+          }
+
+          const payload = {
+            patient_email: loadedEmail,
+            updated_by_email: user.email || "nurse",
+            updated_by_role: "nurse",
+            age: Number(document.getElementById("age").value),
+            gender: document.getElementById("gender").value,
+            symptoms: symptomList(),
+            height_cm: Number(document.getElementById("height_cm").value),
+            weight_kg: Number(document.getElementById("weight_kg").value),
+            bmi: bmiVal,
+            glucose: Number(document.getElementById("glucose").value),
+            glucose_type: document.getElementById("glucose_type").value,
+            systolic_bp: Number(document.getElementById("systolic_bp").value),
+            diastolic_bp: Number(document.getElementById("diastolic_bp").value),
+          };
+
+          try {
+            const res = await App.apiFetch("/api/patient/health-details/update", {
+              method: "POST",
+              body: JSON.stringify(payload),
+            });
+            const fields = Array.isArray(res.changed_fields) ? res.changed_fields : [];
+            msg.textContent = fields.length ? `Saved. Updated: ${fields.join(", ")}` : "Saved (no changes).";
+            await loadPatient(loadedEmail);
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Save failed.";
+          }
+        });
+
+        document.getElementById("f").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          msg.textContent = "Generating…";
+          bars.innerHTML = `<div class="nre-empty">Working…</div>`;
+          const bmiVal = computeBmi();
+          if (!bmiVal) {
+            msg.textContent = "Enter height and weight to calculate BMI.";
+            bars.innerHTML = `<div class="nre-empty">Waiting for height/weight.</div>`;
+            return;
+          }
+          const payload = {
+            age: Number(document.getElementById("age").value),
+            gender: document.getElementById("gender").value,
+            symptoms: symptomList(),
+            glucose: Number(document.getElementById("glucose").value),
+            glucose_type: document.getElementById("glucose_type").value,
+            systolic_bp: Number(document.getElementById("systolic_bp").value),
+            diastolic_bp: Number(document.getElementById("diastolic_bp").value),
+            bmi: bmiVal,
+          };
+          try {
+            const res = await App.apiFetch("/predict-risk", { method: "POST", body: JSON.stringify(payload) });
+            setOverall(res.risk_group || "Waiting");
+            setRiskSources(res.model_risk_group, res.clinical_risk_group, res.risk_group);
+            setPriority(res.booking_priority, res.risk_group);
+            setClinicalCats(res.clinical_assessment);
+            // Make the UI show ONE consistent outcome: the FINAL (combined) risk group.
+            renderBars(finalProbabilityObject(res.risk_group));
+            renderRules(res.nurse_rules);
+            msg.textContent = "Done.";
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Failed.";
+            setOverall("Waiting");
+            setRiskSources(null, null, null);
+            setPriority("", "");
+            setClinicalCats(null);
+            bars.innerHTML = `<div class="nre-empty">Unable to generate results.</div>`;
+            renderRules(null);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

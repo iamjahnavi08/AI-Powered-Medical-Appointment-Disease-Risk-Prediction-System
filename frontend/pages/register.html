@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create account</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_9" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="auth">
+      <div class="center">
+        <div class="auth-grid">
+          <section class="auth-hero" aria-label="Create account">
+            <div class="auth-brandline"><span class="ai">AI</span>HEALTH HUB</div>
+            <h1 class="auth-portal-title" id="heroPortal">Patient Portal</h1>
+            <div class="auth-portal-sub" id="heroPortalSub">Secure access for your healthcare workflow</div>
+            <p id="heroDesc">Create your account to continue with health details and appointment booking.</p>
+            <ul id="heroBullets">
+              <li>Fast signup with email and password</li>
+              <li>Secure password hash stored server-side</li>
+              <li>Complete the health details form after signup</li>
+            </ul>
+            <div class="auth-photo" aria-hidden="true"></div>
+            <p style="margin-top:16px"><a href="/">Choose a different role</a></p>
+          </section>
+
+          <section class="auth-card" aria-label="Register form">
+            <a class="auth-back" href="/">Back to role selection</a>
+            <div class="auth-kicker" id="cardKicker">CREATE ACCOUNT</div>
+            <div class="auth-title" id="cardTitle">Create Account</div>
+            <div class="auth-sub" id="cardSub">Create a new account to continue.</div>
+            <div class="auth-pill" id="cardPill">Patient portal</div>
+
+            <form id="f">
+              <div class="auth-field">
+                <label class="label" for="full_name">Full name</label>
+                <input id="full_name" type="text" required autocomplete="name" />
+              </div>
+              <div class="auth-field">
+                <label class="label" for="email">Email address</label>
+                <input id="email" type="email" required autocomplete="email" placeholder="name@example.com" />
+              </div>
+              <div class="auth-field">
+                <label class="label" for="phone">Phone number</label>
+                <input id="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="e.g. +91 9876543210" />
+              </div>
+              <div class="auth-field">
+                <label class="label" for="password">Password</label>
+                <input id="password" type="password" required autocomplete="new-password" minlength="8" />
+                <div class="help" style="margin-top:8px">
+                  Use 8+ characters with uppercase, lowercase, number, and a special character.
+                </div>
+              </div>
+              <div class="auth-field">
+                <label class="label" for="confirm_password">Confirm password</label>
+                <input id="confirm_password" type="password" required autocomplete="new-password" />
+              </div>
+              <input id="role" type="hidden" value="patient" />
+              <button class="auth-btn" type="submit">Create account</button>
+              <div class="auth-msg" id="msg"></div>
+            </form>
+
+            <div class="auth-foot">
+              Already have an account? <a href="/login">Login here.</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" aria-label="Site footer">
+      <div class="site-footer-bar">© 2026 AIHealth Hub | Powered by AI Healthcare System | Contact: support@aihealthhub.com</div>
+    </footer>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App || !App.apiFetch) return;
+
+        const msg = document.getElementById("msg");
+        const roleEl = document.getElementById("role");
+        const savedRole = App.getSelectedRole ? App.getSelectedRole() : "";
+        const role = (savedRole || "patient").trim().toLowerCase();
+        roleEl.value = role;
+
+        const roleTitle = role.charAt(0).toUpperCase() + role.slice(1);
+        document.title = `Create ${roleTitle} account`;
+        document.getElementById("heroPortal").textContent = `${roleTitle} Portal`;
+        document.getElementById("cardPill").textContent = `${roleTitle} portal`;
+
+        const themes = {
+          patient: { a: "#1E6BFF", b: "#0EA5A4", c: "#FFCEE3", blob1: "rgba(255, 206, 227, .72)", blob2: "rgba(184, 219, 255, .88)" },
+          nurse: { a: "#2563EB", b: "#14B8A6", c: "#E9E2FF", blob1: "rgba(216, 255, 242, .72)", blob2: "rgba(233, 226, 255, .86)" },
+          doctor: { a: "#0B3B8C", b: "#22C55E", c: "#DFF4FF", blob1: "rgba(223, 244, 255, .85)", blob2: "rgba(255, 186, 150, .58)" },
+        };
+        const t = themes[role] || themes.patient;
+        document.documentElement.style.setProperty("--auth-a", t.a);
+        document.documentElement.style.setProperty("--auth-b", t.b);
+        document.documentElement.style.setProperty("--auth-c", t.c);
+        document.documentElement.style.setProperty("--auth-blob1", t.blob1);
+        document.documentElement.style.setProperty("--auth-blob2", t.blob2);
+        document.documentElement.style.setProperty("--auth-photo", "url('/static/img/clinic-photo.svg')");
+
+        // Role-specific icon removed (per UI request).
+
+        document.getElementById("f").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          msg.textContent = "Creating...";
+
+          const pw = document.getElementById("password").value;
+          const confirm = document.getElementById("confirm_password").value;
+          if (pw !== confirm) {
+            msg.textContent = "Passwords do not match.";
+            return;
+          }
+          const strong =
+            pw.length >= 8 &&
+            pw.length <= 128 &&
+            !/\s/.test(pw) &&
+            /[a-z]/.test(pw) &&
+            /[A-Z]/.test(pw) &&
+            /\d/.test(pw) &&
+            /[^A-Za-z0-9]/.test(pw);
+          if (!strong) {
+            msg.textContent = "Password must be 8+ chars with uppercase, lowercase, number, and special character (no spaces).";
+            return;
+          }
+          try {
+            const data = await App.apiFetch("/auth/register", {
+              method: "POST",
+              body: JSON.stringify({
+                full_name: document.getElementById("full_name").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                password: pw,
+                role: roleEl.value,
+              }),
+            });
+            App.setAuthUser(data.user);
+            App.setCsrfToken && App.setCsrfToken(data.csrf_token);
+            App.flash && App.flash("Account created successfully.", "success", "register");
+            window.location.href = data.redirect_to || "/";
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Registration failed.";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

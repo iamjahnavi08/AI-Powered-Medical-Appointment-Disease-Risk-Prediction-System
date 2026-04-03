@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nurse Portal</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_6" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">🩺</div>
+          <div class="title">
+            <b>Healthcare Risk</b>
+            <small data-user-role>NURSE PORTAL</small>
+          </div>
+        </div>
+
+        <div class="profile-chip">
+          <div class="row">
+            <div class="avatar" data-user-initials>NR</div>
+            <div class="meta">
+              <b data-user-name>Nurse</b>
+              <small data-user-email>nurse@example.com</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav" style="margin-top:14px">
+          <a href="/nurse">Dashboard <span>→</span></a>
+          <a href="/nurse/editor">Record editor <span>→</span></a>
+          <button class="btn danger" type="button" data-logout>Logout</button>
+        </div>
+      </aside>
+
+      <div class="main">
+        <main class="ba nursep">
+      <div class="ba-center">
+        <header class="ba-top">
+          <div>
+            <h1 class="ba-h1">Nurse Portal</h1>
+            <div class="ba-sub">Patient queue • vitals review • risk assessment</div>
+          </div>
+
+          <div class="ba-actions">
+            <a class="ba-btn" href="/nurse/editor" style="text-decoration:none">Open record editor</a>
+            <select id="themeSelect" class="ba-select" aria-label="Theme">
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+            </select>
+          </div>
+        </header>
+
+        <section class="ba-section" aria-label="Nurse workspace">
+          <div class="nq-head">
+            <h2 class="ba-h2" id="tabHeading" style="margin:0">Patient queue</h2>
+            <div class="nq-tools">
+              <div class="nq-tabs" role="tablist" aria-label="Queue tabs">
+                <button class="nq-tab active" id="tabQueue" type="button" role="tab" aria-selected="true">Patient queue</button>
+                <button class="nq-tab" id="tabBooked" type="button" role="tab" aria-selected="false">Booked appointments</button>
+                <button class="nq-tab" id="tabData" type="button" role="tab" aria-selected="false">Patient data</button>
+              </div>
+              <input id="q" class="nq-search" type="search" placeholder="Search patient name/email…" />
+              <button class="ba-btn" id="refreshBtn" type="button">Refresh</button>
+            </div>
+          </div>
+          <div class="ba-sub" id="tabSub" style="margin-top:8px">
+            Upcoming pending/confirmed appointments that need vitals review.
+          </div>
+          <div class="ba-panel">
+            <div class="ba-empty" id="queueEmpty">Loading…</div>
+            <div class="ba-list" id="queueList" style="display:none"></div>
+            <div class="ba-empty" id="bookedEmpty" style="display:none">Loading…</div>
+            <div class="ba-list" id="bookedList" style="display:none"></div>
+            <div class="ba-empty" id="dataEmpty" style="display:none">Loading…</div>
+            <div class="nq-dir" id="dataList" style="display:none"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="ba-modal" id="modal" aria-hidden="true">
+        <div class="ba-modal-card" role="dialog" aria-modal="true" aria-label="Details">
+          <div class="ba-modal-top">
+            <b>Details</b>
+            <button type="button" class="ba-x" id="closeModal">✕</button>
+          </div>
+          <pre class="ba-pre" id="modalPre">{}</pre>
+        </div>
+      </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth ? App.ensureAuth("nurse") : null;
+        if (!user) return;
+
+        App.hydrateShellUser && App.hydrateShellUser();
+        App.wireLogoutButtons && App.wireLogoutButtons();
+        App.setActiveNav && App.setActiveNav();
+        App.consumeFlashAndToast && App.consumeFlashAndToast();
+
+        // Theme toggle
+        const themeSelect = document.getElementById("themeSelect");
+        const LS_THEME = "theme";
+        const savedTheme = (localStorage.getItem(LS_THEME) || "light").trim();
+        document.documentElement.dataset.theme = savedTheme;
+        themeSelect.value = savedTheme === "dark" ? "dark" : "light";
+        themeSelect.addEventListener("change", () => {
+          const v = themeSelect.value === "dark" ? "dark" : "light";
+          document.documentElement.dataset.theme = v;
+          localStorage.setItem(LS_THEME, v);
+        });
+
+        const modal = document.getElementById("modal");
+        const modalPre = document.getElementById("modalPre");
+        function openModal(obj) {
+          if (typeof obj === "string") modalPre.textContent = obj;
+          else modalPre.textContent = JSON.stringify(obj || {}, null, 2);
+          modal.style.display = "grid";
+          modal.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+        }
+        document.getElementById("closeModal").addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeModal();
+        });
+
+        function formatDayTime(iso) {
+          if (!iso) return { day: "-", time: "-" };
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return { day: iso, time: "-" };
+          const day = d.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+          const time = d
+            .toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true })
+            .replace(/\s*(am|pm)\b/i, (m) => m.toUpperCase());
+          return { day, time };
+        }
+
+        function statusChip(status) {
+          const s = String(status || "Pending");
+          const el = document.createElement("span");
+          el.className = "ba-status pending";
+          el.textContent = s;
+          if (s.toLowerCase() === "completed") el.className = "ba-status done";
+          return el;
+        }
+
+        function riskChip(level) {
+          const s = String(level || "").trim();
+          if (!s) return null;
+          const el = document.createElement("span");
+          el.className = "nq-risk";
+          el.textContent = s.toUpperCase();
+          el.dataset.level = s.toLowerCase();
+          return el;
+        }
+
+        function auditText(value) {
+          if (value == null || value === "") return "-";
+          if (typeof value === "number" && Number.isFinite(value)) return String(value);
+          return String(value);
+        }
+
+        async function openHistory(patientEmail) {
+          const email = String(patientEmail || "").trim();
+          if (!email) return;
+          openModal("Loading history…");
+          try {
+            const data = await App.apiFetch(`/api/patient/history?email=${encodeURIComponent(email)}&limit=30`);
+            const events = (data && data.events) || [];
+            if (!Array.isArray(events) || events.length === 0) {
+              openModal(`Patient: ${email}\n\nNo change history yet.`);
+              return;
+            }
+            const lines = [`Patient: ${email}`, `Changes: ${events.length}`, ""];
+            events.slice(0, 10).forEach((ev, idx) => {
+              const when = ev.changed_at ? (App.formatLocal ? App.formatLocal(ev.changed_at) : String(ev.changed_at)) : "-";
+              const who = `${ev.changed_by_role || "-"} • ${ev.changed_by_email || "-"}`;
+              lines.push(`${when} — ${who}`);
+              const changes = Array.isArray(ev.changes) ? ev.changes : [];
+              if (!changes.length) lines.push("  (no field changes recorded)");
+              changes.slice(0, 20).forEach((c) => {
+                lines.push(`  - ${c.field}: ${auditText(c.from)} -> ${auditText(c.to)}`);
+              });
+              if (idx === 0 && ev.before && typeof ev.before === "object") {
+                lines.push("");
+                lines.push("Previous details (before latest change):");
+                lines.push(JSON.stringify(ev.before, null, 2));
+              }
+              lines.push("");
+            });
+            openModal(lines.join("\n"));
+          } catch (e) {
+            openModal(`Patient: ${email}\n\nFailed to load history: ${e && e.message ? e.message : "error"}`);
+          }
+        }
+
+        function queueItem(appt) {
+          const dt = formatDayTime(appt.scheduled_for);
+          const doctor = appt.doctor_email ? `Dr. ${appt.doctor_email}` : "Doctor: -";
+          const type = appt.appointment_type ? `(${appt.appointment_type})` : "";
+          const triage = (appt && appt.nurse_triage) || null;
+          const triagePriority = triage && triage.priority ? String(triage.priority) : (appt.booking_priority ? `Priority: ${appt.booking_priority}` : "");
+          const triageSlot = triage && triage.appointment_recommendation ? `Recommended: ${triage.appointment_recommendation}` : "";
+          const patientLine = appt.patient_name ? `${appt.patient_name} • ${appt.patient_email}` : (appt.patient_email || "");
+
+          const wrap = document.createElement("div");
+          wrap.className = "ba-item";
+          wrap.innerHTML = `
+            <div class="ba-icon">📋</div>
+            <div class="ba-col">
+              <div class="ba-day">${dt.day}</div>
+              <div class="ba-time">${dt.time}</div>
+            </div>
+            <div class="ba-col grow">
+              <div class="ba-doc">${doctor} <span class="ba-muted">${type}</span></div>
+              <div class="ba-muted">${patientLine}</div>
+              <div class="ba-muted">${triagePriority}</div>
+              <div class="ba-muted">${triageSlot}</div>
+            </div>
+            <div class="ba-col" data-chips></div>
+            <div class="ba-col">
+              <a class="ba-open" href="/nurse/editor?patient_email=${encodeURIComponent(appt.patient_email || "")}">Open record</a>
+              <button class="ba-view ba-hist" type="button">History</button>
+              <button class="ba-view ba-json" type="button">View</button>
+            </div>
+          `;
+          const chips = wrap.querySelector("[data-chips]");
+          chips.appendChild(statusChip(appt.status));
+          const rc = riskChip((triage && triage.triage_level) ? triage.triage_level : appt.predicted_risk_level);
+          if (rc) chips.appendChild(rc);
+          wrap.querySelector(".ba-json").addEventListener("click", () => openModal(appt));
+          wrap.querySelector(".ba-hist").addEventListener("click", () => openHistory(appt.patient_email || ""));
+          return wrap;
+        }
+
+        let latestUpcoming = [];
+        let latestBooked = [];
+        let latestPatients = [];
+        let activeTab = "queue";
+
+        function setTab(which) {
+          activeTab = which === "booked" ? "booked" : which === "data" ? "data" : "queue";
+          document.getElementById("tabQueue").classList.toggle("active", activeTab === "queue");
+          document.getElementById("tabBooked").classList.toggle("active", activeTab === "booked");
+          document.getElementById("tabData").classList.toggle("active", activeTab === "data");
+          document.getElementById("tabQueue").setAttribute("aria-selected", activeTab === "queue" ? "true" : "false");
+          document.getElementById("tabBooked").setAttribute("aria-selected", activeTab === "booked" ? "true" : "false");
+          document.getElementById("tabData").setAttribute("aria-selected", activeTab === "data" ? "true" : "false");
+          document.getElementById("tabHeading").textContent =
+            activeTab === "booked" ? "Booked appointments" : activeTab === "data" ? "Patient data" : "Patient queue";
+          document.getElementById("tabSub").textContent =
+            activeTab === "booked"
+              ? "Past appointments history (read-only review)."
+              : activeTab === "data"
+                ? "Patient directory for quickly opening a record."
+                : "Upcoming pending/confirmed appointments that need vitals review.";
+          document.getElementById("queueEmpty").style.display = activeTab === "queue" ? "block" : "none";
+          document.getElementById("queueList").style.display = "none";
+          document.getElementById("bookedEmpty").style.display = activeTab === "booked" ? "block" : "none";
+          document.getElementById("bookedList").style.display = "none";
+          document.getElementById("dataEmpty").style.display = activeTab === "data" ? "block" : "none";
+          document.getElementById("dataList").style.display = "none";
+          applyQueueFilter();
+        }
+        document.getElementById("tabQueue").addEventListener("click", () => setTab("queue"));
+        document.getElementById("tabBooked").addEventListener("click", () => setTab("booked"));
+        document.getElementById("tabData").addEventListener("click", () => setTab("data"));
+
+        async function loadQueue() {
+          const queueEmpty = document.getElementById("queueEmpty");
+          const queueList = document.getElementById("queueList");
+          const bookedEmpty = document.getElementById("bookedEmpty");
+          const bookedList = document.getElementById("bookedList");
+          const dataEmpty = document.getElementById("dataEmpty");
+          const dataList = document.getElementById("dataList");
+          queueEmpty.textContent = "Loading…";
+          bookedEmpty.textContent = "Loading…";
+          dataEmpty.textContent = "Loading…";
+          if (activeTab === "queue") queueEmpty.style.display = "block";
+          if (activeTab === "booked") bookedEmpty.style.display = "block";
+          if (activeTab === "data") dataEmpty.style.display = "block";
+          queueList.style.display = "none";
+          bookedList.style.display = "none";
+          dataList.style.display = "none";
+          queueList.innerHTML = "";
+          bookedList.innerHTML = "";
+          dataList.innerHTML = "";
+          try {
+            const snap = await App.apiFetch("/appointments/dashboard");
+            const upcoming = (snap && snap.upcoming) || [];
+            const past = (snap && snap.past) || [];
+            latestUpcoming = Array.isArray(upcoming) ? upcoming : [];
+            // Keep tabs non-overlapping:
+            // - Patient queue = upcoming
+            // - Booked appointments = past
+            latestBooked = Array.isArray(past) ? past : [];
+            applyQueueFilter();
+          } catch (e) {
+            queueEmpty.textContent = e && e.message ? e.message : "Unable to load queue.";
+            bookedEmpty.textContent = queueEmpty.textContent;
+            dataEmpty.textContent = queueEmpty.textContent;
+          }
+        }
+
+        async function loadPatients() {
+          const dataEmpty = document.getElementById("dataEmpty");
+          dataEmpty.textContent = "Loading…";
+          try {
+            const data = await App.apiFetch("/portal/directory");
+            const patients = (data && data.patients) || [];
+            latestPatients = Array.isArray(patients) ? patients : [];
+            applyQueueFilter();
+          } catch (e) {
+            dataEmpty.textContent = e && e.message ? e.message : "Unable to load patient data.";
+          }
+        }
+
+        function applyQueueFilter() {
+          const queueEmpty = document.getElementById("queueEmpty");
+          const queueList = document.getElementById("queueList");
+          const bookedEmpty = document.getElementById("bookedEmpty");
+          const bookedList = document.getElementById("bookedList");
+          const dataEmpty = document.getElementById("dataEmpty");
+          const dataList = document.getElementById("dataList");
+          const q = String(document.getElementById("q").value || "").trim().toLowerCase();
+          const filtered =
+            activeTab === "data"
+              ? (latestPatients || []).filter((p) => {
+                  const name = String(p.full_name || "").toLowerCase();
+                  const email = String(p.email || "").toLowerCase();
+                  return !q || name.includes(q) || email.includes(q);
+                })
+              : (activeTab === "booked" ? (latestBooked || []) : (latestUpcoming || [])).filter((a) => {
+                  const name = String(a.patient_name || "").toLowerCase();
+                  const email = String(a.patient_email || "").toLowerCase();
+                  return !q || name.includes(q) || email.includes(q);
+                });
+
+          queueList.innerHTML = "";
+          bookedList.innerHTML = "";
+          dataList.innerHTML = "";
+          if (!filtered.length) {
+            if (activeTab === "queue") {
+              queueEmpty.textContent = "No patients in the queue right now.";
+              queueEmpty.style.display = "block";
+              queueList.style.display = "none";
+            } else {
+              if (activeTab === "booked") {
+                bookedEmpty.textContent = "No booked appointments found.";
+                bookedEmpty.style.display = "block";
+                bookedList.style.display = "none";
+              } else {
+                dataEmpty.textContent = "No patient data found.";
+                dataEmpty.style.display = "block";
+                dataList.style.display = "none";
+              }
+            }
+            return;
+          }
+          if (activeTab === "queue") {
+            queueEmpty.style.display = "none";
+            queueList.style.display = "grid";
+            filtered.slice(0, 12).forEach((a) => queueList.appendChild(queueItem(a)));
+          } else if (activeTab === "booked") {
+            bookedEmpty.style.display = "none";
+            bookedList.style.display = "grid";
+            filtered
+              .sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for))
+              .slice(0, 16)
+              .forEach((a) => bookedList.appendChild(queueItem(a)));
+          } else {
+            dataEmpty.style.display = "none";
+            dataList.style.display = "grid";
+              filtered.slice(0, 12).forEach((p) => {
+                const row = document.createElement("div");
+                row.className = "nq-row";
+                row.innerHTML = `
+                  <div class="nq-row-main">
+                    <b>${p.full_name || "-"}</b>
+                    <div class="ba-muted">${p.email || ""}</div>
+                  </div>
+                  <a class="ba-open" href="/nurse/editor?patient_email=${encodeURIComponent(p.email || "")}">Open</a>
+                  <button class="ba-view" type="button">History</button>
+                `;
+                row.querySelector(".ba-view").addEventListener("click", () => openHistory(p.email || ""));
+                dataList.appendChild(row);
+              });
+            }
+          }
+
+        document.getElementById("q").addEventListener("input", applyQueueFilter);
+        document.getElementById("refreshBtn").addEventListener("click", loadQueue);
+
+        loadQueue();
+        loadPatients();
+      });
+    </script>
+  </body>
+</html>

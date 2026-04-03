@@ -1,0 +1,4 @@
+Patient_ID,Age,Gender,Symptoms,Symptom_Count,Disease,Risk_Factor_Group,Glucose,Glucose_Type,SystolicBP,DiastolicBP,BMI
+1,47,Female,"fatigue, shortness of breath, cough, dizziness",4,,High,145.0,fasting,148,96,31.2
+2,29,Male,"headache, sneezing",2,,Low,92.0,fasting,118,76,23.4
+3,58,Male,"chest pain, shortness of breath, dizziness",3,,High,52.0,random,190,124,33.4

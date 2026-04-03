@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5A"/>
+      <stop offset=".55" stop-color="#0F6F8A"/>
+      <stop offset="1" stop-color="#1E6BFF"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="25%" cy="30%" r="65%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="75%" cy="55%" r="70%">
+      <stop offset="0" stop-color="#FFCEE3" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#FFCEE3" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#0C1B33" flood-opacity=".25"/>
+    </filter>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8F1FF"/>
+      <stop offset="1" stop-color="#BFE7FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0EA5A4"/>
+      <stop offset="1" stop-color="#1E6BFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Backdrop -->
+  <rect width="1400" height="800" rx="44" fill="url(#bg)"/>
+  <circle cx="340" cy="220" r="320" fill="url(#glow1)" filter="url(#soft)"/>
+  <circle cx="1060" cy="430" r="380" fill="url(#glow2)" filter="url(#soft)"/>
+
+  <!-- Subtle plus marks -->
+  <g opacity=".22" fill="#FFFFFF">
+    <path d="M160 520h22v-22h18v22h22v18h-22v22h-18v-22h-22z"/>
+    <path d="M1220 160h22v-22h18v22h22v18h-22v22h-18v-22h-22z"/>
+    <path d="M1180 620h18v-18h16v18h18v16h-18v18h-16v-18h-18z"/>
+  </g>
+
+  <!-- "Photo" scene: monitor + clinician silhouette -->
+  <g filter="url(#shadow)">
+    <rect x="170" y="230" width="720" height="430" rx="30" fill="#0A1630" opacity=".55"/>
+    <rect x="200" y="260" width="520" height="330" rx="22" fill="url(#screen)"/>
+    <rect x="735" y="280" width="125" height="130" rx="20" fill="#0A1630" opacity=".55"/>
+
+    <!-- Screen grid + charts -->
+    <g opacity=".22" stroke="#0B2A5A" stroke-width="2">
+      <path d="M240 310h440"/>
+      <path d="M240 350h440"/>
+      <path d="M240 390h440"/>
+      <path d="M240 430h440"/>
+      <path d="M240 470h440"/>
+      <path d="M310 285v290"/>
+      <path d="M380 285v290"/>
+      <path d="M450 285v290"/>
+      <path d="M520 285v290"/>
+      <path d="M590 285v290"/>
+      <path d="M660 285v290"/>
+    </g>
+    <path d="M240 520c60-30 85-10 130-40s70-80 120-30 70 25 110-5 55-10 90-45" fill="none" stroke="url(#accent)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>
+    <path d="M240 520c60-30 85-10 130-40s70-80 120-30 70 25 110-5 55-10 90-45" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/>
+
+    <!-- Clinician silhouette -->
+    <g transform="translate(735 430)">
+      <path d="M190 190c-40 18-82 20-120 6-18-7-34-18-46-33-13-16-20-36-20-57 0-34 20-64 50-80 12-6 24-10 37-12 8-2 17-3 26-3 44 0 84 22 104 56 11 18 17 39 17 61 0 22-6 43-17 61-10 17-25 30-41 41z" fill="#09122A" opacity=".65"/>
+      <circle cx="110" cy="68" r="44" fill="#0B1733" opacity=".85"/>
+      <path d="M48 206c20-66 53-98 112-98s92 32 112 98c-52 28-115 33-169 20-22-5-41-12-55-20z" fill="#0B1733" opacity=".88"/>
+      <path d="M76 150c22 28 52 43 90 43s68-15 90-43" fill="none" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Vignette -->
+  <rect width="1400" height="800" rx="44" fill="#000" opacity=".06"/>
+</svg>

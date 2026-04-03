@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Booking Appointments</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="ba">
+      <div class="ba-center">
+        <header class="ba-top">
+          <div>
+            <h1 class="ba-h1">Booking Appointments</h1>
+            <div class="ba-sub">Track appointments and personal health profile</div>
+          </div>
+
+          <div class="ba-actions">
+            <a class="ba-btn" href="/patient" style="text-decoration:none">Back to dashboard</a>
+            <select id="themeSelect" class="ba-select" aria-label="Theme">
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+            </select>
+            <button class="ba-btn danger" id="logoutBtn" type="button">Logout</button>
+          </div>
+        </header>
+
+        <section class="ba-cards" aria-label="Profile summary">
+          <article class="ba-card">
+            <div class="ba-profile">
+              <div class="ba-avatar" id="avatar">P</div>
+              <div class="ba-profile-meta">
+                <div class="ba-row"><b>Name:</b> <span id="name">-</span></div>
+                <div class="ba-row"><b>Age:</b> <span id="age">-</span></div>
+                <div class="ba-row"><b>Gender:</b> <span id="gender">-</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="ba-card">
+            <div class="ba-kv">
+              <div class="ba-row"><b>Symptoms:</b> <span id="symptoms">-</span></div>
+              <div class="ba-row"><b>Symptom Count:</b> <span id="symptom_count">-</span></div>
+              <div class="ba-row"><b>Blood Pressure:</b> <span id="blood_pressure">-</span></div>
+              <div class="ba-row"><b>Glucose:</b> <span id="glucose">-</span></div>
+              <div class="ba-row"><b>Height:</b> <span id="height_cm">-</span></div>
+              <div class="ba-row"><b>Average Sleep:</b> <span id="average_sleep_hours">-</span></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="ba-section" aria-label="Upcoming appointments">
+          <h2 class="ba-h2">Upcoming Appointments</h2>
+          <div class="ba-panel" id="upcomingPanel">
+            <div class="ba-empty" id="upcomingEmpty">No upcoming appointments.</div>
+            <div class="ba-list" id="upcomingList" style="display: none"></div>
+          </div>
+        </section>
+
+        <section class="ba-section" aria-label="Past appointments">
+          <h2 class="ba-h2">Past Appointments</h2>
+          <div class="ba-panel">
+            <div class="ba-list" id="pastList"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="ba-modal" id="modal" aria-hidden="true">
+        <div class="ba-modal-card" role="dialog" aria-modal="true" aria-label="Details">
+          <div class="ba-modal-top">
+            <b>Appointment details</b>
+            <button type="button" class="ba-x" id="closeModal">✕</button>
+          </div>
+          <pre class="ba-pre" id="modalPre">{}</pre>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.getAuthUser ? App.getAuthUser() : null;
+        if (!user || !user.email) {
+          window.location.href = "/login";
+          return;
+        }
+        if (user.role && user.role !== "patient") {
+          window.location.href = "/";
+          return;
+        }
+
+        // Theme toggle
+        const themeSelect = document.getElementById("themeSelect");
+        const LS_THEME = "theme";
+        const savedTheme = (localStorage.getItem(LS_THEME) || "light").trim();
+        document.documentElement.dataset.theme = savedTheme;
+        themeSelect.value = savedTheme === "dark" ? "dark" : "light";
+        themeSelect.addEventListener("change", () => {
+          const v = themeSelect.value === "dark" ? "dark" : "light";
+          document.documentElement.dataset.theme = v;
+          localStorage.setItem(LS_THEME, v);
+        });
+
+        function initials(v) {
+          const s = String(v || "").trim();
+          if (!s) return "P";
+          const parts = s.split(/\s+/).filter(Boolean);
+          if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        document.getElementById("avatar").textContent = initials(user.full_name || user.email);
+        document.getElementById("name").textContent = user.full_name || user.email;
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          if (App.clearAuthUser) App.clearAuthUser();
+          window.location.href = "/";
+        });
+
+        // Modal for view details
+        const modal = document.getElementById("modal");
+        const modalPre = document.getElementById("modalPre");
+        function openModal(payload) {
+          modalPre.textContent = JSON.stringify(payload || {}, null, 2);
+          modal.style.display = "grid";
+          modal.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+        }
+        document.getElementById("closeModal").addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeModal();
+        });
+
+        async function loadProfile() {
+          try {
+            const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
+            const d = data.health_details || {};
+            document.getElementById("age").textContent = d.age ?? "-";
+            document.getElementById("gender").textContent = d.gender ?? "-";
+            document.getElementById("symptoms").textContent = d.symptoms ?? "-";
+            document.getElementById("symptom_count").textContent = d.symptom_count ?? "-";
+            document.getElementById("blood_pressure").textContent = d.blood_pressure ?? "-";
+            document.getElementById("glucose").textContent = d.glucose != null ? `${d.glucose}` : "-";
+            document.getElementById("height_cm").textContent = d.height_cm != null ? `${d.height_cm} cm` : "-";
+            document.getElementById("average_sleep_hours").textContent =
+              d.average_sleep_hours != null ? `${d.average_sleep_hours} hours` : "-";
+          } catch {
+            // keep defaults
+          }
+        }
+
+        function formatDayTime(iso) {
+          if (!iso) return { day: "-", time: "-" };
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return { day: iso, time: "-" };
+          const day = d.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+          const time = d
+            .toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true })
+            .replace(/\s*(am|pm)\b/i, (m) => m.toUpperCase());
+          return { day, time };
+        }
+
+        function apptItem(appt, opts) {
+          const canCancel = !!(opts && opts.canCancel);
+          const dt = formatDayTime(appt.scheduled_for);
+          const status = appt.status || "Pending";
+          const doctor = appt.doctor_email ? `Dr. ${appt.doctor_email}` : "Doctor: -";
+          const type = appt.appointment_type ? `(${appt.appointment_type})` : "";
+          const patient = appt.patient_name ? `Patient: ${appt.patient_name}` : `Patient: ${appt.patient_email || ""}`;
+
+          const wrap = document.createElement("div");
+          wrap.className = "ba-item";
+          wrap.innerHTML = `
+            <div class="ba-icon">📅</div>
+            <div class="ba-col">
+              <div class="ba-day">${dt.day}</div>
+              <div class="ba-time">${dt.time}</div>
+            </div>
+            <div class="ba-col grow">
+              <div class="ba-doc">${doctor} <span class="ba-muted">${type}</span></div>
+              <div class="ba-muted">${patient}</div>
+            </div>
+            <div class="ba-col">
+              <span class="ba-status ${status.toLowerCase() === "completed" ? "done" : "pending"}">${status}</span>
+            </div>
+            <div class="ba-col">
+              <button class="ba-view" type="button">View Details</button>
+              ${canCancel ? `<button class="ba-cancel" type="button">Cancel</button>` : ``}
+            </div>
+          `;
+          wrap.querySelector(".ba-view").addEventListener("click", () => openModal(appt));
+          const cancelBtn = wrap.querySelector(".ba-cancel");
+          if (cancelBtn) {
+            cancelBtn.addEventListener("click", async () => {
+              const ok = window.confirm("Cancel this appointment?");
+              if (!ok) return;
+              try {
+                await App.apiFetch("/appointments/cancel", {
+                  method: "POST",
+                  body: JSON.stringify({ patient_email: user.email, appointment_id: appt.id }),
+                });
+                await loadAppointments();
+              } catch (e) {
+                window.alert(e && e.message ? e.message : "Unable to cancel appointment.");
+              }
+            });
+          }
+          return wrap;
+        }
+
+        async function loadAppointments() {
+          const upcomingList = document.getElementById("upcomingList");
+          const upcomingEmpty = document.getElementById("upcomingEmpty");
+          const pastList = document.getElementById("pastList");
+          upcomingList.innerHTML = "";
+          pastList.innerHTML = "";
+          upcomingEmpty.style.display = "block";
+          upcomingList.style.display = "none";
+
+          try {
+            const appts = await App.apiFetch(`/appointments?patient_email=${encodeURIComponent(user.email)}`);
+            const now = new Date();
+            const upcoming = [];
+            const past = [];
+            (appts || []).forEach((a) => {
+              const d = new Date(a.scheduled_for);
+              if (!Number.isNaN(d.getTime()) && d >= now && (a.status === "Pending" || a.status === "Confirmed" || !a.status)) {
+                upcoming.push(a);
+              } else {
+                past.push(a);
+              }
+            });
+            upcoming.sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for));
+            past.sort((a, b) => new Date(b.scheduled_for) - new Date(a.scheduled_for));
+
+            if (upcoming.length) {
+              upcomingEmpty.style.display = "none";
+              upcomingList.style.display = "grid";
+              upcoming.slice(0, 10).forEach((a) => upcomingList.appendChild(apptItem(a, { canCancel: true })));
+            }
+            if (past.length) {
+              past.slice(0, 10).forEach((a) => pastList.appendChild(apptItem(a, { canCancel: false })));
+            } else {
+              const empty = document.createElement("div");
+              empty.className = "ba-empty";
+              empty.textContent = "No past appointments.";
+              pastList.appendChild(empty);
+            }
+          } catch {
+            upcomingEmpty.textContent = "Unable to load appointments.";
+            const empty = document.createElement("div");
+            empty.className = "ba-empty";
+            empty.textContent = "Unable to load appointments.";
+            pastList.appendChild(empty);
+          }
+        }
+
+        loadProfile();
+        loadAppointments();
+      });
+    </script>
+  </body>
+</html>

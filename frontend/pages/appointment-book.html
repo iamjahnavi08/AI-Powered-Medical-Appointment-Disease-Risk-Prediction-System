@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book appointment</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <main class="pdb">
+      <div class="pdb-shell">
+        <aside class="pdb-side" id="side">
+          <div class="pdb-topline">
+            <div class="pdb-menu">MENU</div>
+            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">‹</button>
+          </div>
+
+          <div class="pdb-brand">
+            <div class="pdb-logo">+</div>
+            <div>
+              <b>AIHealth Hub</b>
+              <small>HEALTHCARE SYSTEM</small>
+            </div>
+          </div>
+
+          <div class="pdb-user">
+            <div class="pdb-avatar" id="avatar">PT</div>
+            <div>
+              <b id="name">-</b>
+              <small>PATIENT PORTAL</small>
+            </div>
+          </div>
+
+          <nav class="pdb-nav" aria-label="Patient navigation">
+            <a href="/patient">Upcoming Dashboard</a>
+            <a class="active" href="/patient/book">Book Appointment</a>
+            <a href="/health-details">Health Details</a>
+          </nav>
+
+          <div class="pdb-divider"></div>
+
+          <div class="pdb-footer">
+            Signed in as <span id="signed_as">-</span>
+            <div class="btns">
+              <a href="/login" id="loginBtn">Login</a>
+              <a href="/register" id="registerBtn">Register</a>
+              <button type="button" data-logout id="logoutBtn">Logout</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="pdb-main">
+          <header class="pdb-header">
+            <h1><span class="grad">AIHealth</span> Hub</h1>
+            <div class="welcome">Book an appointment</div>
+          </header>
+
+          <div class="book-wrap">
+            <section class="book-header" aria-label="Book new appointment header">
+              <h2>Book New Appointment</h2>
+              <p>Fill in your details to schedule an appointment with a healthcare professional.</p>
+            </section>
+
+            <article class="pdb-card book-card" aria-label="Book appointment form">
+              <form id="bookForm">
+                <div class="book-grid-3">
+                  <div>
+                    <label class="label" for="patient_name">PATIENT NAME *</label>
+                    <input id="patient_name" class="book-input pdb-readonly" readonly />
+                  </div>
+                  <button class="book-edit-mini" id="editProfile" type="button">Edit</button>
+                  <div>
+                    <label class="label" for="contact_info">PHONE NUMBER *</label>
+                    <input id="contact_info" class="book-input" type="tel" inputmode="tel" placeholder="Phone number (required)" required />
+                  </div>
+                </div>
+
+                <div style="margin-top: 14px">
+                  <label class="label" for="doctor_email">SELECT DOCTOR</label>
+                  <select id="doctor_email" class="book-select">
+                    <option value="">Select doctor</option>
+                  </select>
+                  <div id="leaveMsg" class="leave-msg" style="display:none"></div>
+                </div>
+
+                <div style="margin-top: 14px">
+                  <label class="label" for="appointment_type">APPOINTMENT TYPE *</label>
+                  <select id="appointment_type" class="book-select" required>
+                    <option value="">Choose appointment type</option>
+                    <option value="General Checkup">General Checkup</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Lab Review">Lab Review</option>
+                    <option value="Specialist Consult">Specialist Consult</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="book-grid-2" style="margin-top: 14px">
+                  <div>
+                    <label class="label" for="appt_date">APPOINTMENT DATE</label>
+                    <input id="appt_date" class="book-input" type="date" required />
+                  </div>
+                  <div>
+                    <label class="label" for="appt_time">APPOINTMENT TIME</label>
+                    <input id="appt_time" class="book-input" type="time" required />
+                  </div>
+                </div>
+
+                <div style="margin-top: 14px">
+                  <label class="label" for="notes">NOTES (OPTIONAL)</label>
+                  <textarea id="notes" class="book-textarea" placeholder="Any extra info for the clinic"></textarea>
+                </div>
+
+                <button class="book-btn" type="submit">Book Appointment</button>
+                <div class="auth-msg" id="msg"></div>
+
+              </form>
+            </article>
+
+            <article class="pdb-card" aria-label="Your appointments" style="display:none">
+              <div class="pdb-card-top">
+                <div><h2>Your appointments</h2></div>
+              </div>
+              <div id="appts" class="pdb-hint" style="margin-top: 10px">Loading…</div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.getAuthUser ? App.getAuthUser() : null;
+
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        function initials(v) {
+          const s = String(v || "").trim();
+          if (!s) return "PT";
+          const parts = s.split(/\s+/).filter(Boolean);
+          if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        document.getElementById("collapse").addEventListener("click", () => {
+          const side = document.getElementById("side");
+          side.classList.toggle("collapsed");
+          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "›" : "‹";
+        });
+
+        if (!user || !user.email) {
+          loginBtn.style.display = "";
+          registerBtn.style.display = "";
+          logoutBtn.style.display = "none";
+          window.location.href = "/login";
+          return;
+        }
+        if (user.role && user.role !== "patient") {
+          window.location.href = "/";
+          return;
+        }
+
+        loginBtn.style.display = "none";
+        registerBtn.style.display = "none";
+        logoutBtn.style.display = "";
+        App.wireLogoutButtons();
+
+        document.getElementById("name").textContent = user.full_name || user.email;
+        document.getElementById("signed_as").textContent = user.full_name || user.email;
+        document.getElementById("avatar").textContent = initials(user.full_name || user.email);
+        document.getElementById("patient_name").value = user.full_name || user.email;
+
+        function buildContactInfo(u) {
+          const phone = u && u.phone && String(u.phone).trim() ? String(u.phone).trim() : "";
+          const email = u && u.email ? String(u.email).trim() : "";
+          if (phone && email) return `${phone} • ${email}`;
+          return phone || email || "";
+        }
+
+        // Prefill phone when available; otherwise require user input.
+        document.getElementById("contact_info").value = user.phone ? String(user.phone).trim() : "";
+
+        // Refresh user profile from backend to get latest phone (for older sessions).
+        (async function refreshUser() {
+          try {
+            const fresh = await App.apiFetch(`/auth/user?email=${encodeURIComponent(user.email)}`);
+            if (fresh && fresh.user) {
+              const merged = { ...user, ...fresh.user };
+              if (App.setAuthUser) App.setAuthUser(merged);
+              document.getElementById("contact_info").value = merged.phone ? String(merged.phone).trim() : "";
+            }
+          } catch {}
+        })();
+
+        document.getElementById("editProfile").addEventListener("click", () => {
+          window.location.href = "/health-details";
+        });
+
+        async function loadDoctors() {
+          try {
+            const directory = await App.apiFetch("/portal/directory");
+            const doctors = (directory && directory.doctors) || [];
+            const select = document.getElementById("doctor_email");
+            doctors.sort((a, b) => {
+              const ae = a.emergency_doctor ? 1 : 0;
+              const be = b.emergency_doctor ? 1 : 0;
+              if (be !== ae) return be - ae;
+              return String(a.full_name || "").localeCompare(String(b.full_name || ""));
+            });
+            doctors.forEach((d) => {
+              const opt = document.createElement("option");
+              opt.value = d.email;
+              const emergency = d.emergency_doctor ? " • Emergency" : "";
+              const spec = d.specialization ? ` • ${d.specialization}` : "";
+              opt.textContent = `${d.full_name} (${d.email})${spec}${emergency}`;
+              select.appendChild(opt);
+            });
+          } catch {}
+        }
+        loadDoctors();
+
+        async function loadPatientDetails() {
+          const el = document.getElementById("patient_details");
+          if (!el) return;
+          el.textContent = "Loading…";
+          try {
+            const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
+            const d = data.health_details || {};
+            const bp = String(d.blood_pressure || "").trim() || "-/-";
+            const submitted = d.submitted_at ? (App.formatLocal ? App.formatLocal(d.submitted_at) : d.submitted_at) : "-";
+            const pid = user.id != null ? String(user.id) : "-";
+            el.textContent =
+              `patient id: ${pid}\n` +
+              `health data submitted on: ${submitted}\n` +
+              `age: ${d.age ?? "-"}\n` +
+              `gender: ${d.gender ?? "-"}\n` +
+              `symptoms: ${d.symptoms ?? "-"}\n` +
+              `symptom_count: ${d.symptom_count ?? "-"}\n` +
+              `glucose: ${d.glucose ?? "-"}\n` +
+              `blood pressure: ${bp}\n` +
+              `bmi: ${d.bmi ?? "-"}\n` +
+              `smoking habit: ${d.smoking_habit ?? "-"}\n` +
+              `alcohol habit: ${d.alcohol_habit ?? "-"}\n` +
+              `average sleep hours: ${d.average_sleep_hours ?? "-"}\n` +
+              `family history: ${d.family_history_major_chronic_disease ?? "-"}\n` +
+              `medical history: ${d.medical_history ?? "-"}`;
+          } catch (e) {
+            el.textContent = "No health details saved yet.";
+          }
+        }
+        loadPatientDetails();
+
+        async function loadAppointments() {
+          const el = document.getElementById("appts");
+          el.textContent = "Loading…";
+          try {
+            const data = await App.apiFetch(`/appointments?patient_email=${encodeURIComponent(user.email)}`);
+            if (!data || data.length === 0) {
+              el.textContent = "No appointments yet.";
+              return;
+            }
+            el.innerHTML = data
+              .slice(0, 10)
+              .map((a) => {
+                const when = App.formatLocal ? App.formatLocal(a.scheduled_for) : a.scheduled_for;
+                const status = a.status || "Pending";
+                const reason = a.reason || a.appointment_type || "";
+                return `<div class="pill" style="margin:6px 0"><span class="dot"></span>${when} • ${status} • ${reason}</div>`;
+              })
+              .join("");
+          } catch (err) {
+            el.textContent = err && err.message ? err.message : "Failed to load appointments.";
+          }
+        }
+        // loadAppointments(); // hidden in UI
+
+        function toIsoZ(dateValue, timeValue) {
+          // date: YYYY-MM-DD, time: HH:mm
+          const v = `${dateValue}T${timeValue}:00`;
+          const d = new Date(v);
+          if (Number.isNaN(d.getTime())) return "";
+          return d.toISOString();
+        }
+
+        let lastLeaveAlertKey = "";
+        async function checkDoctorLeave() {
+          const doctorEmail = document.getElementById("doctor_email").value;
+          const dateValue = document.getElementById("appt_date").value;
+          const timeValue = document.getElementById("appt_time").value;
+          const msgEl = document.getElementById("leaveMsg");
+
+          msgEl.style.display = "none";
+          msgEl.textContent = "";
+
+          if (!doctorEmail || !dateValue || !timeValue) return { on_leave: false };
+          const scheduledForIso = toIsoZ(dateValue, timeValue);
+          if (!scheduledForIso) return { on_leave: false };
+
+          try {
+            const res = await App.apiFetch(
+              `/api/doctor/leave/check?doctor_email=${encodeURIComponent(doctorEmail)}&scheduled_for=${encodeURIComponent(scheduledForIso)}`
+            );
+            if (res && res.on_leave) {
+              const day = (res.leave && res.leave.leave_date) ? res.leave.leave_date : "";
+              const em = Array.isArray(res.emergency_doctors) ? res.emergency_doctors : [];
+              const emergencyText = em.length
+                ? ` Emergency doctors: ${em.slice(0, 3).map((d) => d.doctor_name || d.full_name || d.email).join(", ")}.`
+                : "";
+              msgEl.textContent = `Doctor is on leave${day ? ` on ${day}` : ""}. Please pick another doctor or time.${emergencyText}`;
+              msgEl.style.display = "block";
+              const key = `${doctorEmail}|${day}`;
+              if (key && key !== lastLeaveAlertKey) {
+                lastLeaveAlertKey = key;
+                window.alert(msgEl.textContent);
+              }
+            }
+            return res || { on_leave: false };
+          } catch {
+            return { on_leave: false };
+          }
+        }
+
+        document.getElementById("doctor_email").addEventListener("change", checkDoctorLeave);
+        document.getElementById("appt_date").addEventListener("change", checkDoctorLeave);
+        document.getElementById("appt_time").addEventListener("change", checkDoctorLeave);
+
+        document.getElementById("bookForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const msg = document.getElementById("msg");
+          msg.textContent = "Booking...";
+          try {
+            const scheduledForIso = toIsoZ(
+              document.getElementById("appt_date").value,
+              document.getElementById("appt_time").value
+            );
+            if (!scheduledForIso) throw new Error("Please select a valid date/time.");
+
+            const payload = {
+              patient_email: user.email,
+              scheduled_for: scheduledForIso,
+              appointment_type: document.getElementById("appointment_type").value,
+              contact_info: document.getElementById("contact_info").value,
+              doctor_email: document.getElementById("doctor_email").value || null,
+              reason: document.getElementById("appointment_type").value || null,
+              notes: document.getElementById("notes").value || null,
+            };
+
+            const phone = String(payload.contact_info || "").trim();
+            if (phone.replace(/[^\d+]/g, "").length < 7) throw new Error("Please enter a valid phone number.");
+
+            // Check twice: front-end warning + backend enforcement.
+            const leaveStatus = await checkDoctorLeave();
+            if (leaveStatus && leaveStatus.on_leave) {
+              msg.textContent = leaveStatus.message || "Selected doctor is on leave.";
+              return;
+            }
+
+            await App.apiFetch("/appointments/book", { method: "POST", body: JSON.stringify(payload) });
+            msg.textContent = "Booked successfully.";
+            document.getElementById("bookForm").reset();
+            const u2 = App.getAuthUser ? App.getAuthUser() : user;
+            document.getElementById("contact_info").value = u2 && u2.phone ? String(u2.phone).trim() : "";
+            document.getElementById("patient_name").value = user.full_name || user.email;
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Booking failed.";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

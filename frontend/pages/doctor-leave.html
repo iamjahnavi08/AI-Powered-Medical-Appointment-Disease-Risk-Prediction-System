@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doctor • AI Health Hub</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">AH</div>
+          <div class="title">
+            <b><span class="ai">AI</span> Health Hub</b>
+            <small data-user-role>DOCTOR PORTAL</small>
+          </div>
+        </div>
+
+        <div class="profile-chip">
+          <div class="row">
+            <div class="avatar" data-user-initials>DR</div>
+            <div class="meta">
+              <b data-user-name>Doctor</b>
+              <small data-user-email>doctor@example.com</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav" style="margin-top:14px">
+          <a href="/doctor">Upcoming <span>→</span></a>
+          <a href="/doctor/past">Past <span>→</span></a>
+          <a href="/doctor/patients">Patient database <span>→</span></a>
+          <a href="/doctor#ai-risk-analytics">AI risk analytics <span>→</span></a>
+          <a class="active" href="/doctor/leave">Leave <span>→</span></a>
+          <button type="button" data-logout>Logout <span>→</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <h1 class="h1">Leave management</h1>
+            <div class="sub">Add leave periods. Patients will be warned during booking.</div>
+          </div>
+          <div class="actions">
+            <button class="btn danger" type="button" data-logout>Logout</button>
+          </div>
+        </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h2>Add leave</h2>
+              <form id="leaveForm">
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="startDate">Start date</label>
+                    <input id="startDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="startTime">Start time</label>
+                    <input id="startTime" type="time" required />
+                  </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 12px">
+                  <div class="field">
+                    <label for="endDate">End date</label>
+                    <input id="endDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="endTime">End time</label>
+                    <input id="endTime" type="time" required />
+                  </div>
+                </div>
+
+              <div style="margin-top: 12px; display:flex; gap:10px; align-items:center">
+                <button class="btn primary" type="submit">Save leave</button>
+                <span id="msg" class="muted"></span>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>My leave periods</h2>
+            <div class="pdb-table-wrap" role="region" aria-label="Leave table" tabindex="0">
+              <table class="pdb-table">
+                <thead>
+                  <tr>
+                    <th>Leave date</th>
+                    <th>Doctor id</th>
+                  </tr>
+                </thead>
+                <tbody id="leaveBody">
+                  <tr>
+                    <td colspan="2" class="muted">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth("doctor");
+        if (!user) return;
+        App.hydrateShellUser();
+        App.wireLogoutButtons();
+
+        const body = document.getElementById("leaveBody");
+        const msg = document.getElementById("msg");
+        let doctorId = "";
+
+        function esc(text) {
+          return (text || "")
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function toIso(dateValue, timeValue) {
+          const v = `${dateValue}T${timeValue}:00`;
+          const d = new Date(v);
+          if (Number.isNaN(d.getTime())) return "";
+          return d.toISOString();
+        }
+
+        function render(rows) {
+          if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="2" class="muted">No leave periods added.</td></tr>`;
+            return;
+          }
+          body.innerHTML = rows
+            .map((l) => {
+              const date = l.leave_date || "-";
+              const did = l.doctor_id || doctorId || "-";
+              return `<tr><td><b>${esc(date)}</b></td><td class="muted">${esc(did)}</td></tr>`;
+            })
+            .join("");
+        }
+
+        async function loadLeaves() {
+          try {
+            const rows = await App.apiFetch(`/api/doctor/leaves?doctor_email=${encodeURIComponent(doctorId || user.email)}`);
+            render(Array.isArray(rows) ? rows : []);
+          } catch (e) {
+            body.innerHTML = `<tr><td colspan="3" class="muted">${esc(e && e.message ? e.message : "Failed to load.")}</td></tr>`;
+          }
+        }
+
+        async function resolveDoctorId() {
+          try {
+            const directory = await App.apiFetch("/portal/directory");
+            const docs = (directory && directory.doctors) || [];
+            const match = docs.find((d) => (d.email || "").toLowerCase() === (user.email || "").toLowerCase());
+            doctorId = match ? match.email : (docs[0] ? docs[0].email : user.email);
+          } catch {
+            doctorId = user.email;
+          }
+        }
+
+        document.getElementById("leaveForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          msg.textContent = "Saving…";
+          try {
+            const start = toIso(document.getElementById("startDate").value, document.getElementById("startTime").value);
+            const end = toIso(document.getElementById("endDate").value, document.getElementById("endTime").value);
+            if (!start || !end) throw new Error("Please enter valid start/end date and time.");
+            const payload = {
+              doctor_email: doctorId || user.email,
+              start_at: start,
+              end_at: end,
+              reason: "",
+            };
+            await App.apiFetch("/api/doctor/leaves", { method: "POST", body: JSON.stringify(payload) });
+            msg.textContent = "Saved.";
+            await loadLeaves();
+          } catch (err) {
+            msg.textContent = err && err.message ? err.message : "Failed.";
+          }
+        });
+
+        (async function () {
+          await resolveDoctorId();
+          await loadLeaves();
+        })();
+      });
+    </script>
+  </body>
+</html>

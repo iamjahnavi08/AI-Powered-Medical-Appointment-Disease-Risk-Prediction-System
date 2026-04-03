@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doctor • AI Health Hub</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260403_2" />
+    <script defer src="/static/app.js?v=20260403_10"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">AH</div>
+          <div class="title">
+            <b><span class="ai">AI</span> Health Hub</b>
+            <small data-user-role>DOCTOR PORTAL</small>
+          </div>
+        </div>
+
+        <div class="profile-chip">
+          <div class="row">
+            <div class="avatar" data-user-initials>DR</div>
+            <div class="meta">
+              <b data-user-name>Doctor</b>
+              <small data-user-email>doctor@example.com</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav" style="margin-top:14px">
+          <a href="/doctor">Upcoming <span>→</span></a>
+          <a href="/doctor/past">Past <span>→</span></a>
+          <a class="active" href="/doctor/patients">Patient database <span>→</span></a>
+          <a href="/doctor#ai-risk-analytics">AI risk analytics <span>→</span></a>
+          <a href="/doctor/leave">Leave <span>→</span></a>
+          <button type="button" data-logout>Logout <span>→</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <h1 class="h1">Patient database</h1>
+            <div class="sub">Search patients and view profile completion status.</div>
+          </div>
+          <div class="actions">
+            <input id="search" class="pdb-search" type="search" placeholder="Search name or email…" />
+            <button class="btn danger" type="button" data-logout>Logout</button>
+          </div>
+        </div>
+
+        <div class="card pdb">
+          <div class="pdb-table-wrap" role="region" aria-label="Patients table" tabindex="0">
+            <table class="pdb-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Email</th>
+                  <th>Health details</th>
+                  <th>Submitted</th>
+                  <th>Changes</th>
+                </tr>
+              </thead>
+              <tbody id="body">
+                <tr>
+                  <td colspan="5" class="muted">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ba-modal" id="modal" aria-hidden="true" style="display:none">
+          <div class="ba-modal-card" role="dialog" aria-modal="true" aria-label="Patient change history">
+            <div class="ba-modal-top">
+              <b>Patient history</b>
+              <button type="button" class="ba-x" id="closeModal">✕</button>
+            </div>
+            <pre class="ba-pre" id="modalPre" style="white-space:pre-wrap;margin:0"></pre>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (!window.App) return;
+        const user = App.ensureAuth("doctor");
+        if (!user) return;
+        App.hydrateShellUser();
+        App.wireLogoutButtons();
+
+        const search = document.getElementById("search");
+        const body = document.getElementById("body");
+        let patients = [];
+
+        function esc(text) {
+          return (text || "")
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function badge(text, kind) {
+          const k = kind || "neutral";
+          return `<span class="ddash-badge ${k}">${esc(text)}</span>`;
+        }
+
+        const modal = document.getElementById("modal");
+        const modalPre = document.getElementById("modalPre");
+        function openModal(obj) {
+          if (typeof obj === "string") modalPre.textContent = obj;
+          else modalPre.textContent = JSON.stringify(obj || {}, null, 2);
+          modal.style.display = "grid";
+          modal.setAttribute("aria-hidden", "false");
+        }
+        function closeModal() {
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+        }
+        document.getElementById("closeModal").addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal();
+        });
+
+        function auditText(value) {
+          if (value == null || value === "") return "-";
+          if (typeof value === "number" && Number.isFinite(value)) return String(value);
+          return String(value);
+        }
+
+        async function openHistory(email, currentDetails) {
+          const e = (email || "").toString().trim();
+          if (!e) return;
+          openModal("Loading history…");
+          try {
+            const data = await App.apiFetch(`/api/patient/history?email=${encodeURIComponent(e)}&limit=30`);
+            const events = (data && data.events) || [];
+            const lines = [`Patient: ${e}`, ""];
+            if (currentDetails && typeof currentDetails === "object") {
+              lines.push("Current details:");
+              lines.push(JSON.stringify(currentDetails, null, 2));
+              lines.push("");
+            }
+            if (!Array.isArray(events) || events.length === 0) {
+              lines.push("No change history yet.");
+              openModal(lines.join("\n"));
+              return;
+            }
+            lines.push(`Changes: ${events.length}`);
+            lines.push("");
+            events.slice(0, 10).forEach((ev, idx) => {
+              const when = ev.changed_at ? (App.formatLocal ? App.formatLocal(ev.changed_at) : String(ev.changed_at)) : "-";
+              const who = `${ev.changed_by_role || "-"} • ${ev.changed_by_email || "-"}`;
+              lines.push(`${when} — ${who}`);
+              const changes = Array.isArray(ev.changes) ? ev.changes : [];
+              if (!changes.length) lines.push("  (no field changes recorded)");
+              changes.slice(0, 20).forEach((c) => {
+                lines.push(`  - ${c.field}: ${auditText(c.from)} -> ${auditText(c.to)}`);
+              });
+              if (idx === 0 && ev.before && typeof ev.before === "object") {
+                lines.push("");
+                lines.push("Previous details (before latest change):");
+                lines.push(JSON.stringify(ev.before, null, 2));
+              }
+              lines.push("");
+            });
+            openModal(lines.join("\n"));
+          } catch (err) {
+            openModal(`Patient: ${e}\n\nFailed to load history: ${err && err.message ? err.message : "error"}`);
+          }
+        }
+
+        function render(rows) {
+          if (!rows.length) {
+            body.innerHTML = `<tr><td colspan="5" class="muted">No patients found.</td></tr>`;
+            return;
+          }
+          body.innerHTML = rows
+            .map((p) => {
+              const ok = !!p.health_details_completed;
+              const submitted = (p.health_details && p.health_details.submitted_at) || "";
+              return `
+                <tr>
+                  <td><b>${esc(p.full_name || "-")}</b></td>
+                  <td class="muted">${esc(p.email || "-")}</td>
+                  <td>${badge(ok ? "Completed" : "Missing", ok ? "ok" : "warn")}</td>
+                  <td class="muted">${esc(submitted ? App.formatLocal(submitted) : "-")}</td>
+                  <td><button class="btn" type="button" data-hist="${esc(p.email || "")}">History</button></td>
+                </tr>
+              `;
+            })
+            .join("");
+        }
+
+        function apply() {
+          const q = (search.value || "").trim().toLowerCase();
+          if (!q) {
+            render(patients);
+            return;
+          }
+          const filtered = patients.filter((p) => {
+            const name = (p.full_name || "").toLowerCase();
+            const email = (p.email || "").toLowerCase();
+            return name.includes(q) || email.includes(q);
+          });
+          render(filtered);
+        }
+
+        search.addEventListener("input", apply);
+
+        body.addEventListener("click", (e) => {
+          const btn = e.target && e.target.closest ? e.target.closest("[data-hist]") : null;
+          if (!btn) return;
+          const email = btn.getAttribute("data-hist") || "";
+          const p = patients.find((x) => (x.email || "").toLowerCase() === (email || "").toLowerCase());
+          openHistory(email, p && p.health_details ? p.health_details : null);
+        });
+
+        (async function () {
+          try {
+            const data = await App.apiFetch("/api/doctor/patients");
+            patients = Array.isArray(data) ? data : [];
+            patients.sort((a, b) => (a.full_name || "").localeCompare(b.full_name || ""));
+            apply();
+          } catch (e) {
+            body.innerHTML = `<tr><td colspan="5" class="muted">${esc(e && e.message ? e.message : "Failed to load.")}</td></tr>`;
+          }
+        })();
+      });
+    </script>
+  </body>
+</html>
