@@ -2,6 +2,15 @@
 
 This project builds a healthcare risk prediction pipeline from raw patient data to a live API.
 
+## Quickstart (2 commands)
+
+1. Install deps:
+   - `python -m pip install -r requirements.txt`
+2. Run the UI + API server:
+   - `python -m uvicorn backend.api_backend:app --reload --port 8001`
+
+Open `http://127.0.0.1:8001/`.
+
 ## Project Flow
 
 1. `scripts/preprocessing.py`
@@ -44,6 +53,11 @@ Pages:
 - `http://127.0.0.1:8001/login`
 - `http://127.0.0.1:8001/patient` / `nurse` / `doctor`
 
+## Configuration (.env)
+
+- Copy `.env.example` to `.env` to customize settings locally.
+- In production, set `APP_ENV=production` and set a strong `APP_SESSION_SECRET` (>= 32 chars).
+
 ## Initialize the SQLite DB (optional)
 
 This project stores app data in SQLite (default: `data/app/app.db`).
@@ -59,6 +73,10 @@ Demo accounts (development only):
 - `doctor@example.com` / `DemoPass1!`
 
 You can override the demo password via `APP_DEMO_PASSWORD`.
+
+## Smoke test
+
+- `python -m unittest discover -s tests -p "test_*.py" -v`
 
 ## Model Output
 
