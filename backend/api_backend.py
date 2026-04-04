@@ -2431,5 +2431,42 @@ if __name__ == "__main__":
     # If you want auto-reload, prefer:
     #   python -m uvicorn backend.api_backend:app --reload --port 8001
     host = os.getenv("HOST", "127.0.0.1")
-    port = int(os.getenv("PORT", "8001"))
+    port_env = os.getenv("PORT")
+    if port_env:
+        port = int(port_env)
+    else:
+        port = 8001
+
+        import socket
+        import time
+
+        def _can_bind(candidate_port: int) -> bool:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.bind((host, candidate_port))
+                return True
+            except OSError:
+                return False
+            finally:
+                try:
+                    s.close()
+                except Exception:
+                    pass
+
+        # If the port is briefly held during reload/previous shutdown, wait a moment.
+        for _ in range(10):
+            if _can_bind(port):
+                break
+            time.sleep(0.2)
+
+        # If another process is holding the default port, pick a nearby free one.
+        if not _can_bind(port):
+            for candidate in range(port + 1, port + 51):
+                if _can_bind(candidate):
+                    print(
+                        f"Port {port} is busy on {host}; using {candidate}. Set PORT to override.",
+                        file=sys.stderr,
+                    )
+                    port = candidate
+                    break
     uvicorn.run("backend.api_backend:app", host=host, port=port, reload=False)
