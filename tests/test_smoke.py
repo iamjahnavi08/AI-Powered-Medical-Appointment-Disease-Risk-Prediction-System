@@ -13,10 +13,16 @@ def build_client():
     os.environ["APP_DB_PATH"] = os.path.join(tmpdir.name, "test.db")
 
     import backend.config  # noqa: WPS433
+    import backend.services.shared_core  # noqa: WPS433
+    import backend.services.shared_domain  # noqa: WPS433
+    import backend.services.shared_models  # noqa: WPS433
     import backend.services.shared  # noqa: WPS433
     import backend.api_backend  # noqa: WPS433
 
     importlib.reload(backend.config)
+    importlib.reload(backend.services.shared_core)
+    importlib.reload(backend.services.shared_models)
+    importlib.reload(backend.services.shared_domain)
     importlib.reload(backend.services.shared)
     importlib.reload(backend.api_backend)
 
@@ -133,11 +139,11 @@ class SmokeTests(unittest.TestCase):
                 pass
             # Ensure SQLite file handles are released on Windows.
             try:
-                import backend.services.shared as shared  # noqa: WPS433
+                import backend.services.shared_core as shared_core  # noqa: WPS433
 
-                if getattr(shared, "DB_CONN", None) is not None:
-                    shared.DB_CONN.close()
-                    shared.DB_CONN = None
+                if getattr(shared_core, "DB_CONN", None) is not None:
+                    shared_core.DB_CONN.close()
+                    shared_core.DB_CONN = None
             except Exception:
                 pass
             tmpdir.cleanup()
@@ -216,11 +222,11 @@ class SmokeTests(unittest.TestCase):
                 pass
             # Ensure SQLite file handles are released on Windows.
             try:
-                import backend.services.shared as shared  # noqa: WPS433
+                import backend.services.shared_core as shared_core  # noqa: WPS433
 
-                if getattr(shared, "DB_CONN", None) is not None:
-                    shared.DB_CONN.close()
-                    shared.DB_CONN = None
+                if getattr(shared_core, "DB_CONN", None) is not None:
+                    shared_core.DB_CONN.close()
+                    shared_core.DB_CONN = None
             except Exception:
                 pass
             tmpdir.cleanup()
