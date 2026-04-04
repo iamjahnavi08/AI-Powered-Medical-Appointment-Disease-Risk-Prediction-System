@@ -13,9 +13,11 @@ def build_client():
     os.environ["APP_DB_PATH"] = os.path.join(tmpdir.name, "test.db")
 
     import backend.config  # noqa: WPS433
+    import backend.services.shared  # noqa: WPS433
     import backend.api_backend  # noqa: WPS433
 
     importlib.reload(backend.config)
+    importlib.reload(backend.services.shared)
     importlib.reload(backend.api_backend)
 
     from fastapi.testclient import TestClient  # noqa: WPS433
@@ -29,6 +31,10 @@ class SmokeTests(unittest.TestCase):
         try:
             res = client.get("/health")
             self.assertEqual(res.status_code, 200)
+
+            # Root page should resolve to the role-selection HTML page.
+            res = client.get("/")
+            self.assertEqual(res.status_code, 200, res.text)
 
             # Register a fresh patient user.
             token = uuid.uuid4().hex[:8]
@@ -121,11 +127,17 @@ class SmokeTests(unittest.TestCase):
             res = client.post("/auth/logout", headers=headers)
             self.assertEqual(res.status_code, 200, res.text)
         finally:
+            try:
+                client.close()
+            except Exception:
+                pass
             # Ensure SQLite file handles are released on Windows.
             try:
-                if getattr(backend_api, "DB_CONN", None) is not None:
-                    backend_api.DB_CONN.close()
-                    backend_api.DB_CONN = None
+                import backend.services.shared as shared  # noqa: WPS433
+
+                if getattr(shared, "DB_CONN", None) is not None:
+                    shared.DB_CONN.close()
+                    shared.DB_CONN = None
             except Exception:
                 pass
             tmpdir.cleanup()
@@ -198,11 +210,17 @@ class SmokeTests(unittest.TestCase):
             self.assertFalse(match.get("available"))
             self.assertIsInstance(match.get("leave"), dict)
         finally:
+            try:
+                client.close()
+            except Exception:
+                pass
             # Ensure SQLite file handles are released on Windows.
             try:
-                if getattr(backend_api, "DB_CONN", None) is not None:
-                    backend_api.DB_CONN.close()
-                    backend_api.DB_CONN = None
+                import backend.services.shared as shared  # noqa: WPS433
+
+                if getattr(shared, "DB_CONN", None) is not None:
+                    shared.DB_CONN.close()
+                    shared.DB_CONN = None
             except Exception:
                 pass
             tmpdir.cleanup()
