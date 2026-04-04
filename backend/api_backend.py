@@ -2430,4 +2430,6 @@ if __name__ == "__main__":
 
     # If you want auto-reload, prefer:
     #   python -m uvicorn backend.api_backend:app --reload --port 8001
-    uvicorn.run("backend.api_backend:app", host="127.0.0.1", port=8001, reload=False)
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", "8001"))
+    uvicorn.run("backend.api_backend:app", host=host, port=port, reload=False)
