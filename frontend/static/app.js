@@ -8,36 +8,36 @@
 
   const ROLE_THEMES = {
     patient: {
-      // Purple + orange accent to keep patient pages visually distinct.
-      a: "#7C3AED",
-      b: "#F97316",
-      c: "#CFFAFE",
-      blob1: "rgba(207, 250, 254, .82)",
-      blob2: "rgba(251, 146, 60, .28)",
-      shadow: "rgba(124, 58, 237, .14)",
-      border: "rgba(124, 58, 237, .28)",
+      // CHANGE (site-wide colors): fresher indigo + pink.
+      a: "#4F46E5",
+      b: "#F472B6",
+      c: "#E0E7FF",
+      blob1: "rgba(224, 231, 255, .80)",
+      blob2: "rgba(244, 114, 182, .22)",
+      shadow: "rgba(79, 70, 229, .14)",
+      border: "rgba(79, 70, 229, .26)",
       photo: "url('/static/img/clinic-photo.svg')",
     },
     nurse: {
-      // Cyan + violet accent.
-      a: "#0891B2",
-      b: "#A855F7",
-      c: "#E0E7FF",
-      blob1: "rgba(224, 231, 255, .78)",
-      blob2: "rgba(165, 243, 252, .62)",
-      shadow: "rgba(8, 145, 178, .14)",
-      border: "rgba(8, 145, 178, .28)",
+      // CHANGE (site-wide colors): teal + blue.
+      a: "#14B8A6",
+      b: "#2563EB",
+      c: "#CCFBF1",
+      blob1: "rgba(204, 251, 241, .70)",
+      blob2: "rgba(147, 197, 253, .34)",
+      shadow: "rgba(20, 184, 166, .14)",
+      border: "rgba(20, 184, 166, .28)",
       photo: "url('/static/img/clinic-photo.svg')",
     },
     doctor: {
-      // Deep blue + emerald accent.
-      a: "#0B3B8C",
-      b: "#10B981",
+      // CHANGE (site-wide colors): deep blue + mint.
+      a: "#1D4ED8",
+      b: "#34D399",
       c: "#DCFCE7",
-      blob1: "rgba(220, 252, 231, .70)",
-      blob2: "rgba(191, 219, 255, .70)",
-      shadow: "rgba(16, 185, 129, .14)",
-      border: "rgba(16, 185, 129, .28)",
+      blob1: "rgba(220, 252, 231, .66)",
+      blob2: "rgba(191, 219, 255, .64)",
+      shadow: "rgba(29, 78, 216, .14)",
+      border: "rgba(29, 78, 216, .26)",
       photo: "url('/static/img/auth-radiology.svg')",
     },
   };
@@ -418,6 +418,64 @@
     return user;
   }
 
+  function dashboardPathForUser(user) {
+    const u = user || {};
+    // Prefer the server-provided dashboard path (keeps routing consistent).
+    if (u.dashboard_path) return String(u.dashboard_path);
+    const role = String(u.role || "").trim().toLowerCase();
+    if (role === "doctor") return "/doctor";
+    if (role === "nurse") return "/nurse";
+    if (role === "patient") return "/patient";
+    return "/";
+  }
+
+  function guardAuthPages() {
+    // CHANGE (logout-required popup):
+    // If a user is already logged in, visiting /login or /register should show a popup
+    // explaining they must logout first (instead of letting them navigate there).
+    const path = String(window.location.pathname || "").toLowerCase();
+    if (path !== "/login" && path !== "/register") return;
+
+    const user = getAuthUser();
+    if (!user || !user.email) return;
+
+    const message = `You are already logged in as ${user.full_name || user.email}. Please logout to switch accounts.`;
+    const go = () => window.location.replace(dashboardPathForUser(user));
+    showConfirmPopup(message, {
+      title: "Already logged in",
+      tone: "info",
+      confirmText: "Go to dashboard",
+      showCancel: false,
+      onConfirm: go,
+    });
+  }
+
+  function wireAuthNavGuards() {
+    // CHANGE (logout-required popup):
+    // Block in-app clicks to /login or /register while a session exists, and show a popup.
+    document.addEventListener(
+      "click",
+      (e) => {
+        const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+        if (!a) return;
+        const href = (a.getAttribute("href") || "").trim();
+        if (href !== "/login" && href !== "/register") return;
+
+        const user = getAuthUser();
+        if (!user || !user.email) return;
+
+        e.preventDefault();
+        showConfirmPopup("You need to logout first to access the login/register page.", {
+          title: "Logout required",
+          tone: "info",
+          confirmText: "OK",
+          showCancel: false,
+        });
+      },
+      true
+    );
+  }
+
   async function revalidateSession(expectedRole) {
     try {
       const local = getAuthUser();
@@ -507,6 +565,7 @@
     confirmPopup: showConfirmPopup,
     consumeFlashAndToast,
     ensureAuth,
+    dashboardPathForUser,
     setText,
     formatLocal,
     hydrateShellUser,
@@ -526,6 +585,10 @@
 
   // Show cookie notice once per browser.
   try { initCookieBanner(); } catch {}
+
+  // Auth navigation guards (run after the document is parsed; script is loaded with `defer`).
+  try { wireAuthNavGuards(); } catch {}
+  try { guardAuthPages(); } catch {}
 
   // Handle pages restored from back/forward cache (bfcache).
   window.addEventListener("pageshow", (e) => {

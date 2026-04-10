@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Book appointment</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260403_12" />
-    <script defer src="/static/app.js?v=20260403_12"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
+    <script defer src="/static/app.js?v=20260410_03"></script>
   </head>
   <body>
     <main class="pdb">
@@ -271,6 +271,9 @@
             const url = scheduledForIso
               ? `/portal/directory?scheduled_for=${encodeURIComponent(scheduledForIso)}`
               : "/portal/directory";
+            // CHANGE (doctor dropdown fix):
+            // Doctors are loaded dynamically from SQLite via /portal/directory (users.role == "doctor").
+            // This avoids stale/static/demo doctor options and automatically includes newly registered doctors.
             const directory = await App.apiFetch(url);
             const doctorsAll = (directory && directory.doctors) || [];
             const doctors = emergencyOnly ? doctorsAll.filter((d) => !!d.emergency_doctor) : doctorsAll;

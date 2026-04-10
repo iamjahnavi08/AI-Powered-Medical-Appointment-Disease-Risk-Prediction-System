@@ -1,4 +1,5 @@
 doctor_id,doctor_name,specialization,available_time,emergency_doctor
-vishnu@123,Vishnu,General Medicine,10:00 AM to 9:00 PM,no
-sai@1321,Sai,General Medicine,10:00 AM to 9:00 PM,yes
-jashnavi@123,Jashnavi,General Medicine,10:00 AM to 9:00 PM,yes
+doctor@example.com,Doctor Demo,General Medicine,10:00 AM to 9:00 PM,no
+akumallajahnavi9@gmail.com,Akumalla Jahnavi,General Medicine,10:00 AM to 9:00 PM,yes
+ashwikni67@gmail.com,Janu,General Medicine,10:00 AM to 9:00 PM,yes
+akumallajahnavi0@gmail.com,Akumalla Jahnavi,General Medicine,10:00 AM to 9:00 PM,no

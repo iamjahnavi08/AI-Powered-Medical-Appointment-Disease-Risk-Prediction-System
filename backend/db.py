@@ -465,6 +465,28 @@ def list_all_appointments(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     return [dict(r) for r in rows]
 
 
+def list_appointments_for_doctor(conn: sqlite3.Connection, doctor_email: str) -> list[dict[str, Any]]:
+    """
+    Doctor-specific appointment listing.
+
+    CHANGE (doctor dashboard privacy):
+    Doctors must only see appointments explicitly assigned to their account, which is
+    stored in the `appointments.doctor_email` column. Rows with missing doctor_email
+    must NOT appear in any doctor dashboard.
+    """
+    with session(conn) as cur:
+        rows = cur.execute(
+            """
+            SELECT *
+            FROM appointments
+            WHERE doctor_email=?
+            ORDER BY scheduled_for DESC
+            """,
+            (doctor_email,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_appointment(conn: sqlite3.Connection, appt_id: int) -> dict[str, Any] | None:
     with session(conn) as cur:
         row = cur.execute("SELECT * FROM appointments WHERE id=?", (int(appt_id),)).fetchone()

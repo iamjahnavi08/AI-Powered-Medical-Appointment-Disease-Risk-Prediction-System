@@ -1,0 +1,138 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}{\f1 Courier New;}}
+\fs24
+\pard\qc\b AI Health Hub \u8212 ? Project Walkthrough\par
+\pard\qc\b0 (FastAPI backend + static HTML/JS frontend)\par
+\pard\qc\b0 \par
+
+\pard\b 1) Big Picture (How the app works)\par
+\pard\b0 This project is a FastAPI backend with a static HTML/JavaScript frontend.\par
+\pard\b0 \par
+\pard\fi-360\li720\tx720\u8226\tab The backend serves HTML pages (UI screens) and JSON APIs.\par
+\pard\fi-360\li720\tx720\u8226\tab Static assets are served from \f1 /static\f0 (CSS/JS/images).\par
+\pard\fi-360\li720\tx720\u8226\tab Frontend pages are plain HTML files in \f1 frontend/pages\f0 with inline scripts.\par
+\pard\fi-360\li720\tx720\u8226\tab Authentication is cookie-session based; mutating requests require a CSRF header.\par
+\pard\par
+
+\pard\b 2) Folder Map\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 backend/\f0  \u8212 ? FastAPI server, DB layer, risk engine.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 backend/routers/\f0  \u8212 ? Route modules (APIRouter) for UI + APIs.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 backend/services/\f0  \u8212 ? Shared utilities (sessions, settings, domain rules, models).\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 frontend/pages/\f0  \u8212 ? HTML pages (screens).\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 frontend/static/\f0  \u8212 ? Global JS helpers (\f1 app.js\f0), CSS, images.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 tests/\f0  \u8212 ? Smoke tests (end-to-end).\par
+\pard\par
+
+\pard\b PART A \u8212 ? Backend\par
+\pard\b0 \par
+
+\pard\b 3) Backend Entry Points\par
+\pard\b0 \par
+\pard\b 3.1 \f1 backend/api_backend.py\f0 \b0 \u8212 ? Main app entrypoint + wiring\par
+\pard\fi-360\li720\tx720\u8226\tab Creates the FastAPI app (title/description/version).\par
+\pard\fi-360\li720\tx720\u8226\tab Adds \b SessionMiddleware\b0 to enable \f1 request.session\f0 (cookie sessions).\par
+\pard\fi-360\li720\tx720\u8226\tab Mounts \f1 /static\f0 for frontend assets.\par
+\pard\fi-360\li720\tx720\u8226\tab Includes routers: \f1 portal, admin, auth, appointments\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab Provides a dev runner when executed directly (\f1 python backend/api_backend.py\f0), including free-port selection.\par
+\pard\par
+\pard\b 3.2 \f1 backend/api.py\f0 \b0 \u8212 ? Standalone simplified API\par
+\pard\fi-360\li720\tx720\u8226\tab Minimal risk prediction API (no sessions/portal/appointments).\par
+\pard\fi-360\li720\tx720\u8226\tab Useful for quick demo/compatibility.\par
+\pard\par
+
+\pard\b 4) Routers (Backend Routes)\par
+\pard\b0 \par
+\pard\b 4.1 \f1 backend/routers/portal.py\f0 \b0 \u8212 ? UI HTML routes\par
+\pard\fi-360\li720\tx720\u8226\tab Serves HTML pages using \f1 html_page(HTML_PAGES[...])\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab Performs page-level role gating via session checks (redirect to \f1 /login\f0 when unauthorized).\par
+\pard\fi-360\li720\tx720\u8226\tab Handles \f1 /favicon.ico\f0 to avoid repeated 404s.\par
+\pard\par
+\pard\b 4.2 \f1 backend/routers/admin.py\f0 \b0 \u8212 ? Health/model/prediction APIs\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 GET /health\f0 and \f1 GET /model-info\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 POST /predict-risk\f0 (requires session + role + CSRF).\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 POST /nurse/triage\f0 (nurse/doctor).\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 GET /risk/quick\f0 (symptom-only quick risk).\par
+\pard\par
+\pard\b 4.3 \f1 backend/routers/auth.py\f0 \b0 \u8212 ? Authentication + patient record APIs\par
+\pard\fi-360\li720\tx720\u8226\tab Register/login/logout + password reset.\par
+\pard\fi-360\li720\tx720\u8226\tab Patient health details read/write + audit history.\par
+\pard\fi-360\li720\tx720\u8226\tab Nurse/doctor patient record updates.\par
+\pard\par
+\pard\b 4.4 \f1 backend/routers/appointments.py\f0 \b0 \u8212 ? Booking + dashboards + leaves\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 /portal/directory\f0: directory + doctor availability (leave windows).\par
+\pard\fi-360\li720\tx720\u8226\tab Doctor leave CRUD: \f1 GET/POST /api/doctor/leaves\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab Booking: \f1 POST /appointments/book\f0 (patient self).\par
+\pard\fi-360\li720\tx720\u8226\tab List/cancel: \f1 GET /appointments\f0, \f1 POST /appointments/cancel\f0 (patient self).\par
+\pard\fi-360\li720\tx720\u8226\tab Staff dashboard: \f1 GET /appointments/dashboard\f0 (nurse/doctor).\par
+\pard\par
+
+\pard\b 5) Services (Shared backend logic)\par
+\pard\b0 \par
+\pard\b 5.1 \f1 backend/services/shared.py\f0 \b0 \u8212 ? Facade/proxy\par
+\pard\fi-360\li720\tx720\u8226\tab Proxies names into \f1 shared_core, shared_models, shared_domain\f0 to keep imports stable.\par
+\pard\par
+\pard\b 5.2 \f1 backend/services/shared_models.py\f0 \b0 \u8212 ? Pydantic models\par
+\pard\fi-360\li720\tx720\u8226\tab Request/response schemas for FastAPI (\f1 RiskPredictionRequest/Response\f0, auth models, appointment models).\par
+\pard\par
+\pard\b 5.3 \f1 backend/services/shared_core.py\f0 \b0 \u8212 ? Core infrastructure\par
+\pard\fi-360\li720\tx720\u8226\tab Paths + settings, rate limiting, DB connection singleton + legacy migration.\par
+\pard\fi-360\li720\tx720\u8226\tab Session helpers + CSRF enforcement + role guard.\par
+\pard\fi-360\li720\tx720\u8226\tab HTML page serving helper + audit helpers + dataset helpers.\par
+\pard\par
+\pard\b 5.4 \f1 backend/services/shared_domain.py\f0 \b0 \u8212 ? Domain/business logic\par
+\pard\fi-360\li720\tx720\u8226\tab Risk computation from stored health details.\par
+\pard\fi-360\li720\tx720\u8226\tab Nurse rule-based triage and symptom-only quick risk.\par
+\pard\fi-360\li720\tx720\u8226\tab Appointment payload enrichment (adds risk to appointment objects).\par
+\pard\par
+\pard\b 5.5 \f1 backend/config.py\f0 \b0 \u8212 ? Settings\par
+\pard\fi-360\li720\tx720\u8226\tab Loads \f1 .env\f0 values, defines Settings, enforces strong secret in production.\par
+\pard\par
+\pard\b 5.6 \f1 backend/db.py\f0 \b0 \u8212 ? SQLite layer\par
+\pard\fi-360\li720\tx720\u8226\tab Schema + CRUD for users, health details, history, appointments, leaves, password reset.\par
+\pard\par
+\pard\b 5.7 \f1 backend/risk_engine.py\f0 \b0 \u8212 ? ML + clinical thresholds\par
+\pard\fi-360\li720\tx720\u8226\tab Feature engineering + clinical category logic + final risk group/priority.\par
+\pard\par
+
+\pard\b PART B \u8212 ? Frontend\par
+\pard\b0 \par
+
+\pard\b 6) Global Frontend Helper\par
+\pard\b0 \par
+\pard\b \f1 frontend/static/app.js\f0 \b0 \u8212 ? Shared JS used by all pages\par
+\pard\fi-360\li720\tx720\u8226\tab Stores auth user, CSRF token, role selection, and flash messages in \f1 localStorage\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 apiFetch()\f0 sends cookies and the \f1 X-CSRF-Token\f0 header for POST requests.\par
+\pard\fi-360\li720\tx720\u8226\tab Role theming (patient/nurse/doctor) via CSS variables.\par
+\pard\fi-360\li720\tx720\u8226\tab Auth guards: \f1 ensureAuth()\f0 + \f1 revalidateSession()\f0 to prevent stale logged-in screens.\par
+\pard\fi-360\li720\tx720\u8226\tab UI helpers: toast, confirm popup, cookie banner, shell hydration.\par
+\pard\par
+
+\pard\b 7) Frontend Pages (HTML Screens)\par
+\pard\b0 \par
+\pard\fi-360\li720\tx720\u8226\tab \f1 role-selection.html\f0: choose role, store selected role, redirect to \f1 /login\f0; if already logged in, go to dashboard.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 login.html\f0: themed login; POST \f1 /auth/login\f0; stores user+CSRF; redirects.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 register.html\f0: themed register; POST \f1 /auth/register\f0; stores user+CSRF; redirects.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 health-details.html\f0: patient-only; GET/POST \f1 /auth/health-details\f0; BMI + symptom-count helpers.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 patient-dashboard.html\f0: loads details; calls \f1 /risk/quick\f0 for symptom-only analysis.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 patient-history.html\f0: shows current details + GET \f1 /api/patient/history\f0 timeline.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 patient-appointments.html\f0: GET \f1 /appointments\f0 list; POST \f1 /appointments/cancel\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 appointment-book.html\f0: booking; GET \f1 /portal/directory\f0; POST \f1 /appointments/book\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 nurse.html\f0: nurse-only; GET \f1 /appointments/dashboard\f0 and directory; patient history modal.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 nurse-editor.html\f0: nurse-only; patient load + POST \f1 /api/patient/health-details/update\f0 + POST \f1 /predict-risk\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 doctor.html\f0: doctor-only; dashboard overview.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 doctor-past.html\f0: doctor-only; past analytics from \f1 /appointments/dashboard\f0.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 doctor-patients.html\f0: doctor-only; GET \f1 /api/doctor/patients\f0 + history modal.\par
+\pard\fi-360\li720\tx720\u8226\tab \f1 doctor-leave.html\f0: doctor-only; GET/POST \f1 /api/doctor/leaves\f0.\par
+\pard\par
+
+\pard\b PART C \u8212 ? Tests\par
+\pard\b0 \par
+\pard\b 8) \f1 tests/test_smoke.py\f0 \b0 \u8212 ? End-to-end smoke tests\par
+\pard\fi-360\li720\tx720\u8226\tab Uses a temp SQLite DB (\f1 APP_DB_PATH\f0) and reloads modules to apply env settings.\par
+\pard\fi-360\li720\tx720\u8226\tab Validates core flows: register, CSRF, health-details save, predict risk, book, logout.\par
+\pard\fi-360\li720\tx720\u8226\tab Validates doctor leave availability reflected in \f1 /portal/directory\f0.\par
+\pard\par
+
+\pard\qc\b0 End of document.\par
+}
+

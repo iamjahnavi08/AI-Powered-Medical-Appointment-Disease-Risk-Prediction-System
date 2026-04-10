@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Doctor • AI Health Hub</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260403_12" />
-    <script defer src="/static/app.js?v=20260403_12"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
+    <script defer src="/static/app.js?v=20260410_03"></script>
   </head>
   <body>
     <div class="wrap">
@@ -419,7 +419,12 @@
           const dateKey = (dateFilter.value || "all").toLowerCase();
           const filtered = rawPast
             .filter((a) => {
-              if (a.doctor_email && (a.doctor_email || "").toLowerCase() !== (user.email || "").toLowerCase()) return false;
+              // CHANGE (doctor dashboard privacy):
+              // Only show appointments explicitly assigned to the logged-in doctor.
+              // Previously, appointments with a missing `doctor_email` would show up for every doctor.
+              const apptDoctor = (a.doctor_email || "").toLowerCase();
+              const userEmail = (user.email || "").toLowerCase();
+              if (!apptDoctor || apptDoctor !== userEmail) return false;
               const r = normalizeRisk(a.predicted_risk_level);
               if (riskKey !== "all" && r !== riskKey) return false;
               if (!inPastWindow(a.scheduled_for, dateKey)) return false;

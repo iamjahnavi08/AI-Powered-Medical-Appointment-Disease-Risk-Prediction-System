@@ -84,4 +84,3 @@ if __name__ == "__main__":
                     port = candidate
                     break
     uvicorn.run("backend.api_backend:app", host=host, port=port, reload=False)
-

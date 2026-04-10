@@ -52,39 +52,42 @@ def portal_directory(
     doctors_from_users = [user_directory_payload(user) for user in users if user.get("role") == "doctor"]
 
     doctors: list[dict[str, Any]] = []
+    # CHANGE (patient "Select doctor" dropdown fix):
+    # The dropdown must reflect real doctor accounts in SQLite (users.role == "doctor").
+    # Previously, we always appended demo/static entries from datasets/doctors.csv, which
+    # caused old doctors to keep showing even after real doctors registered.
+    #
+    # We still *enrich* doctor accounts with optional dataset metadata (specialization /
+    # emergency_doctor / available_time) when an email matches, but we never add dataset-
+    # only doctors to the directory list.
+    dataset_by_email: dict[str, dict[str, Any]] = {}
+    try:
+        for d in load_doctors_dataset():
+            key = normalize_email((d.get("doctor_id") or "").strip())
+            if key:
+                dataset_by_email[key] = d
+    except Exception:
+        dataset_by_email = {}
+
     seen: set[str] = set()
     for doc in doctors_from_users:
         key = normalize_email(doc.get("email") or "")
         if not key or key in seen:
             continue
         seen.add(key)
+
+        # Optional enrichment for display only (does not affect authorization).
+        dataset_doc = dataset_by_email.get(key) or {}
+        doc = {
+            **doc,
+            "specialization": (dataset_doc.get("specialization") or "").strip(),
+            "available_time": (dataset_doc.get("available_time") or "").strip(),
+            "emergency_doctor": bool(dataset_doc.get("emergency_doctor")),
+        }
         if when is not None:
             leave = doctor_leave_for(key, when)
             doc = {**doc, "on_leave": bool(leave), "leave": leave, "available": not bool(leave)}
         doctors.append(doc)
-
-    # If there are no doctor accounts yet, fall back to datasets/doctors.csv (doctor_id list).
-    for d in load_doctors_dataset():
-        key = (d.get("doctor_id") or "").strip()
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        leave = doctor_leave_for(key, when) if when is not None else None
-        doctors.append(
-            {
-                "full_name": d.get("doctor_name") or key,
-                "email": key,
-                "role": "doctor",
-                "health_details_completed": False,
-                "health_details": None,
-                "specialization": d.get("specialization") or "",
-                "available_time": d.get("available_time") or "",
-                "emergency_doctor": bool(d.get("emergency_doctor")),
-                "on_leave": bool(leave) if when is not None else False,
-                "leave": leave,
-                "available": (not bool(leave)) if when is not None else True,
-            }
-        )
 
     return {
         "scheduled_for": when.isoformat() if when is not None else None,
@@ -249,9 +252,18 @@ def cancel_appointment(request: Request, payload: AppointmentCancelRequest) -> A
 
 @router.get("/appointments/dashboard")
 def appointments_dashboard(request: Request) -> dict[str, Any]:
-    require_role("nurse", "doctor")(require_session(request))
+    session_user = require_role("nurse", "doctor")(require_session(request))
     now = datetime.now(timezone.utc)
-    appointments = dbmod.list_all_appointments(get_db())
+
+    # CHANGE (doctor dashboard privacy):
+    # Nurses see the global dashboard (all appointments), but doctors must only see
+    # appointments assigned to their own account (doctor_email == session user email).
+    role = str(session_user.get("role") or "").strip().lower()
+    if role == "doctor":
+        doctor_email = normalize_email(str(session_user.get("email") or ""))
+        appointments = dbmod.list_appointments_for_doctor(get_db(), doctor_email)
+    else:
+        appointments = dbmod.list_all_appointments(get_db())
 
     upcoming: list[dict[str, Any]] = []
     past: list[dict[str, Any]] = []
