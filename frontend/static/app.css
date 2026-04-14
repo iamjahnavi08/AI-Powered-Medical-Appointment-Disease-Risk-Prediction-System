@@ -392,7 +392,6 @@ a{color:inherit}
   animation: uiFloat2 11s ease-in-out infinite alternate;
 }
 .sidebar > *{ position: relative; z-index: 1; }
-}
 
 .main{
   flex:1;
@@ -537,7 +536,6 @@ a{color:inherit}
   background: rgba(255,255,255,.78);
 }
 .nav a:hover::before, .nav button:hover::before{ opacity: .95; transform: translateY(-50%) scale(1); }
-}
 .nav a.active{
   background: linear-gradient(135deg, rgba(30,107,255,.14), rgba(14,165,164,.12));
   border-color: rgba(30,107,255,.34);
@@ -1206,6 +1204,7 @@ tr:last-child td{border-bottom:none}
     rgba(255,255,255,.0)
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: .8;
@@ -1297,6 +1296,7 @@ tr:last-child td{border-bottom:none}
   padding: 1px;
   background: linear-gradient(120deg, rgba(30,107,255,.28), rgba(14,165,164,.22), color-mix(in srgb, var(--hub-pink) 22%, transparent));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: .32;
