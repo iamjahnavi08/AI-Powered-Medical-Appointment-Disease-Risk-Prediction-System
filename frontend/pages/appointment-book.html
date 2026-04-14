@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Book appointment</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
-    <script defer src="/static/app.js?v=20260410_03"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260414_19" />
+    <script defer src="/static/app.js?v=20260414_19"></script>
   </head>
   <body>
     <main class="pdb">
@@ -13,7 +13,7 @@
         <aside class="pdb-side" id="side">
           <div class="pdb-topline">
             <div class="pdb-menu">MENU</div>
-            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">‹</button>
+            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">â€¹</button>
           </div>
 
           <div class="pdb-brand">
@@ -123,7 +123,7 @@
               <div class="pdb-card-top">
                 <div><h2>Your appointments</h2></div>
               </div>
-              <div id="appts" class="pdb-hint" style="margin-top: 10px">Loading…</div>
+              <div id="appts" class="pdb-hint" style="margin-top: 10px">Loadingâ€¦</div>
             </article>
           </div>
         </section>
@@ -150,7 +150,7 @@
         document.getElementById("collapse").addEventListener("click", () => {
           const side = document.getElementById("side");
           side.classList.toggle("collapsed");
-          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "›" : "‹";
+          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "â€º" : "â€¹";
         });
 
         if (!user || !user.email) {
@@ -178,7 +178,7 @@
         function buildContactInfo(u) {
           const phone = u && u.phone && String(u.phone).trim() ? String(u.phone).trim() : "";
           const email = u && u.email ? String(u.email).trim() : "";
-          if (phone && email) return `${phone} • ${email}`;
+          if (phone && email) return `${phone} â€¢ ${email}`;
           return phone || email || "";
         }
 
@@ -289,10 +289,10 @@
             doctors.forEach((d) => {
               const opt = document.createElement("option");
               opt.value = d.email;
-              const emergency = d.emergency_doctor ? " • Emergency" : "";
-              const spec = d.specialization ? ` • ${d.specialization}` : "";
+              const emergency = d.emergency_doctor ? " â€¢ Emergency" : "";
+              const spec = d.specialization ? ` â€¢ ${d.specialization}` : "";
               const onLeave = !!d.on_leave;
-              const leaveText = onLeave ? ` • ON LEAVE${describeLeave(d.leave)}` : "";
+              const leaveText = onLeave ? ` â€¢ ON LEAVE${describeLeave(d.leave)}` : "";
               opt.textContent = `${d.full_name} (${d.email})${spec}${emergency}${leaveText}`;
               if (onLeave) opt.disabled = true;
               select.appendChild(opt);
@@ -323,7 +323,7 @@
         async function loadPatientDetails() {
           const el = document.getElementById("patient_details");
           if (!el) return;
-          el.textContent = "Loading…";
+          el.textContent = "Loadingâ€¦";
           try {
             const data = await App.apiFetch(`/auth/health-details?email=${encodeURIComponent(user.email)}`);
             const d = data.health_details || {};
@@ -353,7 +353,7 @@
 
         async function loadAppointments() {
           const el = document.getElementById("appts");
-          el.textContent = "Loading…";
+          el.textContent = "Loadingâ€¦";
           try {
             const data = await App.apiFetch(`/appointments?patient_email=${encodeURIComponent(user.email)}`);
             if (!data || data.length === 0) {
@@ -366,7 +366,7 @@
                 const when = App.formatLocal ? App.formatLocal(a.scheduled_for) : a.scheduled_for;
                 const status = a.status || "Pending";
                 const reason = a.reason || a.appointment_type || "";
-                return `<div class="pill" style="margin:6px 0"><span class="dot"></span>${when} • ${status} • ${reason}</div>`;
+                return `<div class="pill" style="margin:6px 0"><span class="dot"></span>${when} â€¢ ${status} â€¢ ${reason}</div>`;
               })
               .join("");
           } catch (err) {
@@ -500,3 +500,22 @@
     </script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

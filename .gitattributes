@@ -1,4 +1,7 @@
 * text=auto
 .gitattributes text eol=lf
 *.py text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
 requirements.txt text eol=lf

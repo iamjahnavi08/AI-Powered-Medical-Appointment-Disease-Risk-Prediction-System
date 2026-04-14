@@ -6,6 +6,19 @@
   const LS_CSRF = "csrfTokenV1";
   const LS_COOKIE_CONSENT = "cookieConsentV1";
 
+  function wirePageEntryAnimation() {
+    try {
+      const root =
+        document.querySelector("main") ||
+        document.querySelector(".wrap") ||
+        document.querySelector(".portal") ||
+        document.body;
+      if (!root) return;
+      root.classList.add("page-anim");
+      requestAnimationFrame(() => root.classList.add("page-anim-in"));
+    } catch {}
+  }
+
   const ROLE_THEMES = {
     patient: {
       // CHANGE (site-wide colors): fresher indigo + pink.
@@ -589,12 +602,14 @@
   // Auth navigation guards (run after the document is parsed; script is loaded with `defer`).
   try { wireAuthNavGuards(); } catch {}
   try { guardAuthPages(); } catch {}
+  try { wirePageEntryAnimation(); } catch {}
 
   // Handle pages restored from back/forward cache (bfcache).
   window.addEventListener("pageshow", (e) => {
     if (e && e.persisted) {
       // If the session cookie was cleared on logout, force redirect away from protected pages.
       try { revalidateSession(); } catch {}
+      try { wirePageEntryAnimation(); } catch {}
     }
   });
 })();

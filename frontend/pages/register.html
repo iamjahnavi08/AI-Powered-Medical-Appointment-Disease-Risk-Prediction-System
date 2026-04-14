@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Create account</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
-    <script defer src="/static/app.js?v=20260410_03"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260414_19" />
+    <script defer src="/static/app.js?v=20260414_19"></script>
   </head>
   <body>
     <main class="auth">
@@ -44,21 +44,76 @@
             <form id="f">
               <div class="auth-field">
                 <label class="label" for="full_name">Full name</label>
-                <input id="full_name" type="text" required autocomplete="name" />
+                <input
+                  id="full_name"
+                  type="text"
+                  required
+                  autocomplete="name"
+                  pattern="[A-Za-z ]{2,100}"
+                  minlength="2"
+                  maxlength="100"
+                  placeholder="Only letters and spaces"
+                />
               </div>
               <div class="auth-field">
                 <label class="label" for="email">Email address</label>
-                <input id="email" type="email" required autocomplete="email" placeholder="name@example.com" />
+                <div class="email-row" id="emailRow">
+                  <input
+                    id="email_local"
+                    type="text"
+                    required
+                    autocomplete="username"
+                    inputmode="email"
+                    pattern="[A-Za-z0-9._]{1,64}"
+                    minlength="1"
+                    maxlength="64"
+                    placeholder="name"
+                    aria-label="Gmail username"
+                  />
+                  <span class="email-suffix" aria-hidden="true">@gmail.com</span>
+                </div>
+                <input id="email" type="hidden" />
               </div>
               <div class="auth-field">
                 <label class="label" for="phone">Phone number</label>
-                <input id="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="e.g. +91 9876543210" />
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  autocomplete="tel"
+                  inputmode="numeric"
+                  pattern="[0-9]{10}"
+                  minlength="10"
+                  maxlength="10"
+                  placeholder="10-digit phone number"
+                />
               </div>
               <div class="auth-field">
                 <label class="label" for="password">Password</label>
                 <input id="password" type="password" required autocomplete="new-password" minlength="8" />
-                <div class="help" style="margin-top:8px">
-                  Use 8+ characters with uppercase, lowercase, number, and a special character.
+                <div class="pw-meter" id="pwMeter" data-level="0" data-empty="1" aria-label="Password strength">
+                  <div class="pw-meter-row">
+                    <div
+                      class="pw-meter-bar"
+                      id="pwStrengthBar"
+                      role="progressbar"
+                      aria-valuemin="0"
+                      aria-valuemax="4"
+                      aria-valuenow="0"
+                      aria-label="Password strength meter"
+                    >
+                      <span class="pw-meter-fill" id="pwStrengthFill" style="width:0%"></span>
+                    </div>
+                    <div class="pw-meter-label" id="pwStrengthLabel">Very weak</div>
+                  </div>
+                  <ul class="pw-rules" id="pwRules" aria-label="Password rules">
+                    <li data-rule="len">8+ characters</li>
+                    <li data-rule="upper">Uppercase letter (A-Z)</li>
+                    <li data-rule="lower">Lowercase letter (a-z)</li>
+                    <li data-rule="digit">Number (0-9)</li>
+                    <li data-rule="special">Special character (!@#$...)</li>
+                    <li data-rule="space">No spaces</li>
+                  </ul>
                 </div>
               </div>
               <div class="auth-field">
@@ -79,7 +134,7 @@
     </main>
 
     <footer class="site-footer" aria-label="Site footer">
-      <div class="site-footer-bar">© 2026 AIHealth Hub | Powered by AI Healthcare System | Contact: support@aihealthhub.com</div>
+      <div class="site-footer-bar">Â© 2026 AIHealth Hub | Powered by AI Healthcare System | Contact: support@aihealthhub.com</div>
     </footer>
 
     <script>
@@ -101,12 +156,160 @@
         const roleIcon = document.getElementById("roleIcon");
         if (roleIcon) roleIcon.src = `/static/img/${role}.svg`;
 
+        const fullNameEl = document.getElementById("full_name");
+        const cleanFullName = (value) => {
+          const lettersAndSpaces = String(value || "").replace(/[^A-Za-z ]/g, "");
+          return lettersAndSpaces.replace(/\s+/g, " ").trimStart();
+        };
+        const syncFullName = () => {
+          if (!fullNameEl) return;
+          const cleaned = cleanFullName(fullNameEl.value);
+          if (cleaned !== fullNameEl.value) fullNameEl.value = cleaned;
+        };
+        if (fullNameEl) {
+          fullNameEl.addEventListener("input", syncFullName);
+          fullNameEl.addEventListener("blur", () => {
+            if (!fullNameEl) return;
+            fullNameEl.value = cleanFullName(fullNameEl.value).trim();
+          });
+        }
+
+        const emailLocalEl = document.getElementById("email_local");
+        const emailHiddenEl = document.getElementById("email");
+        const cleanEmailLocal = (value) => {
+          let v = String(value || "").trim().toLowerCase();
+          // Allow pasting full emails like `user@gmail.com` into the local-part input.
+          if (v.includes("@")) v = v.split("@")[0] || "";
+          v = v.replace(/@?gmail\.com$/g, "");
+          v = v.replace(/gmail\.com$/g, "");
+          v = v.replace(/\.+$/g, "");
+          return v.replace(/[^a-z0-9._]/g, "");
+        };
+        const buildGmail = () => {
+          const local = cleanEmailLocal(emailLocalEl ? emailLocalEl.value : "");
+          return local ? `${local}@gmail.com` : "";
+        };
+        const syncEmailLocal = () => {
+          if (!emailLocalEl) return;
+          const cleaned = cleanEmailLocal(emailLocalEl.value);
+          if (cleaned !== emailLocalEl.value) emailLocalEl.value = cleaned;
+          if (emailHiddenEl) emailHiddenEl.value = buildGmail();
+        };
+        if (emailLocalEl) {
+          emailLocalEl.addEventListener("input", syncEmailLocal);
+          emailLocalEl.addEventListener("blur", syncEmailLocal);
+        }
+        syncEmailLocal();
+
+        const pwEl = document.getElementById("password");
+        const confirmEl = document.getElementById("confirm_password");
+        const pwMeter = document.getElementById("pwMeter");
+        const pwRulesEl = document.getElementById("pwRules");
+        const pwStrengthBar = document.getElementById("pwStrengthBar");
+        const pwStrengthFill = document.getElementById("pwStrengthFill");
+        const pwStrengthLabel = document.getElementById("pwStrengthLabel");
+
+        const setRule = (key, ok) => {
+          if (!pwRulesEl) return;
+          const li = pwRulesEl.querySelector(`li[data-rule="${key}"]`);
+          if (!li) return;
+          li.classList.toggle("ok", !!ok);
+        };
+
+        const strengthFor = (pw) => {
+          const p = String(pw || "");
+          const hasLower = /[a-z]/.test(p);
+          const hasUpper = /[A-Z]/.test(p);
+          const hasDigit = /\d/.test(p);
+          const hasSpecial = /[^A-Za-z0-9]/.test(p);
+          const noSpaces = !/\s/.test(p);
+          const lenOk = p.length >= 8 && p.length <= 128;
+          const score = [lenOk, hasUpper, hasLower, hasDigit, hasSpecial, noSpaces].filter(Boolean).length;
+
+          // Map score (0..6) => level (0..4)
+          let level = 0;
+          if (score <= 1) level = 0;
+          else if (score === 2) level = 1;
+          else if (score === 3) level = 2;
+          else if (score === 4 || score === 5) level = 3;
+          else level = 4;
+
+          // Reflect exact rules too.
+          return { level, lenOk, hasLower, hasUpper, hasDigit, hasSpecial, noSpaces };
+        };
+
+        const updatePwUI = () => {
+          if (!pwEl) return;
+          const pw = pwEl.value || "";
+          const s = strengthFor(pw);
+
+          setRule("len", s.lenOk);
+          setRule("upper", s.hasUpper);
+          setRule("lower", s.hasLower);
+          setRule("digit", s.hasDigit);
+          setRule("special", s.hasSpecial);
+          setRule("space", s.noSpaces);
+
+          const labels = ["Very weak", "Weak", "So-so", "Good", "Strong"];
+          const pct = [8, 28, 52, 78, 100][s.level] || 0;
+
+          if (pwStrengthLabel) pwStrengthLabel.textContent = labels[s.level] || "Very weak";
+          if (pwStrengthFill) {
+            pwStrengthFill.style.width = `${pw ? pct : 0}%`;
+          }
+          if (pwStrengthBar) pwStrengthBar.setAttribute("aria-valuenow", String(s.level));
+          if (pwMeter) {
+            pwMeter.dataset.level = String(s.level);
+            pwMeter.dataset.empty = pw ? "0" : "1";
+          }
+
+          // Lightweight confirm feedback: mark confirm input validity without blocking typing.
+          if (confirmEl) {
+            const confirm = confirmEl.value || "";
+            if (!confirm) {
+              confirmEl.classList.remove("ok");
+              confirmEl.classList.remove("bad");
+            } else if (pw === confirm) {
+              confirmEl.classList.add("ok");
+              confirmEl.classList.remove("bad");
+            } else {
+              confirmEl.classList.add("bad");
+              confirmEl.classList.remove("ok");
+            }
+          }
+        };
+
+        if (pwEl) pwEl.addEventListener("input", updatePwUI);
+        if (confirmEl) confirmEl.addEventListener("input", updatePwUI);
+        updatePwUI();
+
         document.getElementById("f").addEventListener("submit", async (e) => {
           e.preventDefault();
           msg.textContent = "Creating...";
 
+          const fullNameRaw = document.getElementById("full_name").value;
+          const fullName = cleanFullName(fullNameRaw).trim();
+          if (fullNameEl) fullNameEl.value = fullName;
+          if (!/^[A-Za-z]+(?: [A-Za-z]+)*$/.test(fullName)) {
+            msg.textContent = "Full name must contain only letters and spaces.";
+            return;
+          }
+
+          const email = buildGmail();
+          if (emailHiddenEl) emailHiddenEl.value = email;
+          if (!/^[^@\s]+@gmail\.com$/.test(email)) {
+            msg.textContent = "Email must be a @gmail.com address.";
+            return;
+          }
+
           const pw = document.getElementById("password").value;
           const confirm = document.getElementById("confirm_password").value;
+          const phoneRaw = document.getElementById("phone").value;
+          const phone = (phoneRaw || "").replace(/\D/g, "");
+          if (phone.length !== 10) {
+            msg.textContent = "Phone number must be exactly 10 digits.";
+            return;
+          }
           if (pw !== confirm) {
             msg.textContent = "Passwords do not match.";
             return;
@@ -127,9 +330,9 @@
             const data = await App.apiFetch("/auth/register", {
               method: "POST",
               body: JSON.stringify({
-                full_name: document.getElementById("full_name").value,
-                email: document.getElementById("email").value,
-                phone: document.getElementById("phone").value,
+                full_name: fullName,
+                email,
+                phone,
                 password: pw,
                 role: roleEl.value,
               }),
@@ -146,3 +349,22 @@
     </script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

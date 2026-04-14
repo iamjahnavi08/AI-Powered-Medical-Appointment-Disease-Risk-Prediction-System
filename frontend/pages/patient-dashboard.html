@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Patient dashboard</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
-    <script defer src="/static/app.js?v=20260410_03"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260414_19" />
+    <script defer src="/static/app.js?v=20260414_19"></script>
   </head>
   <body>
     <main class="pdb">
@@ -13,7 +13,7 @@
         <aside class="pdb-side" id="side">
           <div class="pdb-topline">
             <div class="pdb-menu">MENU</div>
-            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">‹</button>
+            <button class="pdb-collapse" id="collapse" type="button" title="Collapse">â€¹</button>
           </div>
 
           <div class="pdb-brand">
@@ -296,7 +296,7 @@
           if (booking) nextSteps.push(booking);
 
           // Calm, non-alarming guidance (avoid listing the user's symptom back).
-          nextSteps.push("Drink water, rest, and avoid heavy activity while you’re unwell.");
+          nextSteps.push("Drink water, rest, and avoid heavy activity while youâ€™re unwell.");
           nextSteps.push("If symptoms suddenly worsen, or you feel unsafe, reach out to a clinician for guidance.");
 
           const uniq = (arr) => Array.from(new Set(arr)).slice(0, 6);
@@ -315,7 +315,7 @@
           const help = [
             "If you have trouble breathing, fainting, severe dehydration, or symptoms worsen quickly.",
             "If fever lasts more than 3 days, or you cannot keep fluids down.",
-            "If you’re pregnant, elderly, or have chronic conditions—get help sooner.",
+            "If youâ€™re pregnant, elderly, or have chronic conditionsâ€”get help sooner.",
           ];
 
           return `
@@ -341,7 +341,7 @@
         document.getElementById("collapse").addEventListener("click", () => {
           const side = document.getElementById("side");
           side.classList.toggle("collapsed");
-          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "›" : "‹";
+          document.getElementById("collapse").textContent = side.classList.contains("collapsed") ? "â€º" : "â€¹";
         });
 
         // Highlight active nav item based on current path.
@@ -480,3 +480,22 @@
     </script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

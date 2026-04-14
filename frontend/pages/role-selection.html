@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AI Health Hub</title>
-    <link rel="stylesheet" href="/static/app.css?v=20260410_03" />
-    <script defer src="/static/app.js?v=20260410_03"></script>
+    <link rel="stylesheet" href="/static/app.css?v=20260414_19" />
+    <script defer src="/static/app.js?v=20260414_19"></script>
   </head>
   <body>
     <main class="portal portal-hub">
@@ -86,6 +86,39 @@
           </article>
         </section>
       </div>
+      <section class="portal-neon" aria-hidden="true">
+        <svg class="neon-ecg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 240" fill="none">
+          <defs>
+            <linearGradient id="neonCore" x1="0" y1="0" x2="1400" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#60A5FA" />
+              <stop offset=".5" stop-color="#C7D2FE" />
+              <stop offset="1" stop-color="#3B82F6" />
+            </linearGradient>
+            <filter id="blur" x="-40" y="-40" width="1480" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="8" />
+            </filter>
+          </defs>
+
+          <!-- Glow -->
+          <path
+            d="M0 140H310l24-40 26 90 30-150 36 200 30-90 26 28h240l26-28 30 90 36-200 30 150 26-90 24 40H1400"
+            stroke="#3B82F6"
+            stroke-width="20"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity=".22"
+            filter="url(#blur)"
+          />
+          <path
+            d="M0 140H310l24-40 26 90 30-150 36 200 30-90 26 28h240l26-28 30 90 36-200 30 150 26-90 24 40H1400"
+            stroke="url(#neonCore)"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="neon-path"
+          />
+        </svg>
+      </section>
     </main>
 
     <script>
@@ -197,4 +230,23 @@
     </script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

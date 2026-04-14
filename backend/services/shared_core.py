@@ -181,23 +181,17 @@ def normalize_email(email: str) -> str:
     return email.strip().lower()
 
 
-PHONE_CLEAN_RE = re.compile(r"[^\d+]")
-PHONE_VALID_RE = re.compile(r"^\+?\d{7,15}$")
+PHONE_CLEAN_RE = re.compile(r"\D")
+PHONE_VALID_RE = re.compile(r"^\d{10}$")
 EMAIL_VALID_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+FULL_NAME_VALID_RE = re.compile(r"^[A-Za-z]+(?: [A-Za-z]+)*$")
 
 
 def normalize_phone(phone: str) -> str:
     raw = (phone or "").strip()
     cleaned = PHONE_CLEAN_RE.sub("", raw)
-    if cleaned.startswith("++"):
-        cleaned = cleaned.lstrip("+")
-        cleaned = f"+{cleaned}"
-    if cleaned.startswith("+"):
-        cleaned = "+" + re.sub(r"\D", "", cleaned[1:])
-    else:
-        cleaned = re.sub(r"\D", "", cleaned)
     if not cleaned or not PHONE_VALID_RE.match(cleaned):
-        raise HTTPException(status_code=400, detail="Invalid phone number format.")
+        raise HTTPException(status_code=400, detail="Phone number must be exactly 10 digits.")
     return cleaned
 
 
@@ -205,6 +199,22 @@ def validate_email(email: str) -> str:
     normalized = normalize_email(email)
     if not normalized or len(normalized) > 254 or not EMAIL_VALID_RE.match(normalized):
         raise HTTPException(status_code=400, detail="Invalid email format.")
+    return normalized
+
+
+def validate_gmail(email: str) -> str:
+    normalized = validate_email(email)
+    if not normalized.endswith("@gmail.com"):
+        raise HTTPException(status_code=400, detail="Email must be a @gmail.com address.")
+    return normalized
+
+
+def validate_full_name(full_name: str) -> str:
+    normalized = " ".join(str(full_name or "").strip().split())
+    if len(normalized) < 2 or len(normalized) > 100:
+        raise HTTPException(status_code=400, detail="Full name must be 2-100 characters long.")
+    if not FULL_NAME_VALID_RE.match(normalized):
+        raise HTTPException(status_code=400, detail="Full name must contain only letters and spaces.")
     return normalized
 
 
